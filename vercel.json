@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'no build needed'",
+  "outputDirectory": "public",
+  "functions": {
+    "api/*.js": {
+      "runtime": "edge"
+    }
+  }
+}

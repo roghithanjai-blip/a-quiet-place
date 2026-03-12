@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Quiet Place — for grief</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1714;
+    --paper: #f5f0e8;
+    --paper-dark: #ede7d9;
+    --dust: #9a8878;
+    --mist: #6e5e52;
+    --faint: #c8bfb4;
+    --accent: #5a4a3e;
+    --warm: #c4a882;
+    --dark-bg: #111009;
+    --small-text: #7a6a5e;
+    --tiny-text: #8a7a6e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 24px 48px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 300;
+    transition: background 0.3s, border-color 0.3s;
+    background: linear-gradient(to bottom, var(--paper) 70%, transparent);
+  }
+
+  nav.dark-nav {
+    background: linear-gradient(to bottom, var(--dark-bg) 70%, transparent);
+  }
+
+  nav.dark-nav .logo { color: rgba(245,240,232,0.85); }
+  nav.dark-nav .logo span { color: var(--warm); }
+  nav.dark-nav ul a { color: rgba(245,240,232,0.55); }
+  nav.dark-nav ul a:hover { color: rgba(245,240,232,0.95); }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem; font-weight: 300; letter-spacing: 0.15em;
+    color: var(--ink); text-decoration: none; transition: color 0.3s;
+  }
+  .logo span { font-style: italic; color: var(--mist); transition: color 0.3s; }
+
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav a {
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--small-text); text-decoration: none; transition: color 0.3s;
+  }
+  nav a:hover { color: var(--ink); }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: 120px 10vw 80px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+    background: linear-gradient(135deg, transparent 40%, var(--paper-dark) 100%);
+    pointer-events: none;
+  }
+
+  .hero-ornament {
+    position: absolute; top: 15%; right: 8%;
+    width: 280px; height: 280px;
+    border: 1px solid var(--faint); border-radius: 50%;
+    opacity: 0.5; animation: breathe 8s ease-in-out infinite;
+  }
+  .hero-ornament::after {
+    content: ''; position: absolute; inset: 20px;
+    border: 1px solid var(--faint); border-radius: 50%; opacity: 0.6;
+  }
+
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.03); opacity: 0.3; }
+  }
+
+  .eyebrow {
+    font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--small-text); margin-bottom: 32px;
+    opacity: 0; animation: fadeUp 1s 0.3s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 7vw, 7rem); font-weight: 300; line-height: 1.05;
+    max-width: 700px; opacity: 0; animation: fadeUp 1s 0.5s forwards;
+  }
+  .hero h1 em { font-style: italic; color: var(--mist); }
+
+  .hero-sub {
+    margin-top: 36px; max-width: 420px;
+    font-size: 0.97rem; color: var(--mist); line-height: 1.9;
+    opacity: 0; animation: fadeUp 1s 0.7s forwards;
+  }
+
+  .hero-actions {
+    margin-top: 52px; display: flex; gap: 20px; align-items: center;
+    opacity: 0; animation: fadeUp 1s 0.9s forwards; flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    padding: 14px 36px; font-family: 'Lato', sans-serif;
+    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase;
+    border: none; cursor: pointer; transition: all 0.3s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { background: var(--accent); }
+
+  .btn-ghost {
+    background: transparent; color: var(--mist);
+    padding: 14px 28px; font-family: 'Lato', sans-serif;
+    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase;
+    border: 1px solid var(--faint); cursor: pointer; transition: all 0.3s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--dust); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SHARED ── */
+  section { padding: 100px 10vw; position: relative; }
+  .section-label {
+    font-size: 0.68rem; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--small-text); margin-bottom: 20px; display: block;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 300; line-height: 1.2; max-width: 600px;
+  }
+  .section-title em { font-style: italic; color: var(--mist); }
+  .section-desc { margin-top: 24px; max-width: 560px; font-size: 0.97rem; color: var(--mist); line-height: 2; }
+  .divider { width: 48px; height: 1px; background: var(--faint); margin: 40px 0; }
+
+  /* ── ABOUT ── */
+  .about { background: var(--paper-dark); }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 60px; }
+  .about-text p { font-size: 0.97rem; color: var(--accent); line-height: 2; margin-bottom: 20px; }
+  .about-principles { display: flex; flex-direction: column; gap: 32px; }
+  .principle { border-left: 1px solid var(--faint); padding-left: 24px; }
+  .principle-num { font-family: 'Cormorant Garamond', serif; font-size: 0.78rem; color: var(--small-text); letter-spacing: 0.2em; margin-bottom: 8px; }
+  .principle h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 8px; }
+  .principle p { font-size: 0.88rem; color: var(--mist); line-height: 1.9; }
+
+  /* ── WRITE ── */
+  .write-container { margin-top: 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+  .write-info p { font-size: 0.92rem; color: var(--mist); line-height: 2; margin-bottom: 16px; }
+  .archive-note { margin-top: 4px; font-size: 0.78rem; color: var(--small-text); font-style: italic; }
+  .no-pressure { margin-top: 32px; padding: 24px; border: 1px solid var(--faint); background: var(--paper-dark); }
+  .no-pressure p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--accent); line-height: 1.7; margin: 0; }
+
+  .letter-composer {
+    background: #fff; padding: 40px;
+    box-shadow: 0 2px 40px rgba(0,0,0,0.04);
+    position: relative; cursor: pointer;
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .letter-composer:hover { box-shadow: 0 4px 60px rgba(0,0,0,0.09); transform: translateY(-2px); }
+  .letter-composer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--warm), transparent); }
+
+  .composer-label { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--small-text); margin-bottom: 24px; }
+  .to-options { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .to-chip {
+    padding: 6px 16px; border: 1px solid var(--faint);
+    font-size: 0.78rem; letter-spacing: 0.1em; color: var(--small-text);
+    background: transparent; cursor: pointer; transition: all 0.2s;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+  }
+  .to-chip:hover, .to-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .composer-invite {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic;
+    color: var(--faint); min-height: 120px; display: flex; align-items: flex-start;
+    padding: 8px 0 20px; border-bottom: 1px solid var(--faint); pointer-events: none;
+  }
+  .composer-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .composer-footer-hint { font-size: 0.75rem; color: var(--small-text); font-style: italic; }
+  .anon-note { font-size: 0.75rem; color: var(--small-text); display: flex; align-items: center; gap: 6px; }
+  .anon-note::before { content: '○'; font-size: 0.5rem; }
+
+  /* ── FULLSCREEN COMPOSER ── */
+  .fullscreen-overlay {
+    position: fixed; inset: 0; background: rgba(245,240,232,0.98);
+    z-index: 400; display: flex; flex-direction: column; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.45s ease; overflow-y: auto;
+  }
+  .fullscreen-overlay.active { opacity: 1; pointer-events: all; }
+
+  .fullscreen-back {
+    position: fixed; top: 32px; left: 40px;
+    font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--small-text); background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: color 0.3s;
+    font-family: 'Lato', sans-serif; font-weight: 300; z-index: 10;
+  }
+  .fullscreen-back:hover { color: var(--ink); }
+
+  .fullscreen-inner { width: 100%; max-width: 700px; padding: 120px 24px 80px; display: flex; flex-direction: column; }
+  .fullscreen-label { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--small-text); margin-bottom: 24px; }
+  .fullscreen-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; }
+
+  .fullscreen-textarea {
+    width: 100%; min-height: 55vh; border: none; border-bottom: 1px solid var(--faint);
+    background: transparent; font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; line-height: 2; color: var(--ink);
+    resize: none; outline: none; padding: 0 0 24px;
+    transition: background 0.6s, border-color 0.3s;
+  }
+  .fullscreen-textarea::placeholder { color: var(--faint); font-style: italic; }
+  .fullscreen-textarea:focus { border-color: var(--dust); }
+  .fullscreen-textarea.void-mode { background: rgba(26,23,20,0.025); }
+
+  .void-note {
+    display: none; margin-top: 14px;
+    font-family: 'Cormorant Garamond', serif; font-size: 0.92rem; font-style: italic;
+    color: var(--mist); opacity: 0; transition: opacity 0.5s;
+  }
+  .void-note.visible { display: block; opacity: 1; }
+
+  .fullscreen-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; flex-wrap: wrap; gap: 16px; }
+  .char-count { font-size: 0.75rem; color: var(--small-text); letter-spacing: 0.1em; }
+
+  /* ── MESSAGES ── */
+  .messages-section { background: var(--dark-bg); color: var(--paper); overflow: hidden; }
+  .messages-section .section-label { color: rgba(196,168,130,0.85); }
+  .messages-section .section-title { color: var(--paper); }
+  .messages-section .section-title em { color: var(--warm); }
+  .messages-section .divider { background: rgba(255,255,255,0.1); }
+
+  .messages-top-desc {
+    margin-top: 32px; max-width: 580px;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.25rem;
+    font-style: italic; line-height: 1.9; color: rgba(245,240,232,0.7);
+  }
+
+  .find-letter-btn {
+    margin-top: 48px; background: transparent;
+    border: 1px solid rgba(255,255,255,0.25); color: rgba(245,240,232,0.9);
+    padding: 16px 40px; font-family: 'Lato', sans-serif;
+    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.25em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.35s; display: inline-block;
+  }
+  .find-letter-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.5); color: #fff; }
+
+  /* Letter popup */
+  .letter-popup-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(10,9,6,0.82); z-index: 500;
+    backdrop-filter: blur(6px); justify-content: center; align-items: center;
+  }
+  .letter-popup-overlay.active { display: flex; }
+
+  .letter-popup {
+    background: var(--paper); max-width: 580px; width: 92%;
+    padding: 56px 52px 44px; position: relative;
+    animation: modalIn 0.45s ease; max-height: 85vh; overflow-y: auto;
+  }
+  .letter-popup::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(to right, var(--warm), transparent); }
+  .letter-popup::-webkit-scrollbar { width: 4px; }
+  .letter-popup::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+
+  .letter-popup-from { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--warm); margin-bottom: 28px; display: block; }
+  .letter-popup-body { font-family: 'Cormorant Garamond', serif; font-size: 1.12rem; font-style: italic; line-height: 2; color: var(--accent); transition: opacity 0.3s; }
+  .letter-popup-body p { margin-bottom: 1.4em; }
+  .letter-popup-body p:last-child { margin-bottom: 0; }
+
+  .letter-popup-nav { display: flex; gap: 20px; align-items: center; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--faint); }
+  .letter-popup-nav-btn { background: transparent; border: none; color: var(--small-text); font-family: 'Lato', sans-serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: color 0.3s; padding: 0; }
+  .letter-popup-nav-btn:hover { color: var(--ink); }
+  .letter-popup-sep { color: var(--faint); }
+  .letter-popup-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1rem; color: var(--dust); cursor: pointer; transition: color 0.3s; }
+  .letter-popup-close:hover { color: var(--ink); }
+
+  /* Write for someone */
+  .write-for-section { margin-top: 80px; padding-top: 60px; border-top: 1px solid rgba(255,255,255,0.07); }
+  .write-for-desc { max-width: 560px; font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-style: italic; line-height: 2; color: rgba(245,240,232,0.65); margin-bottom: 40px; }
+  .write-for-btn { background: transparent; border: 1px solid rgba(255,255,255,0.25); color: rgba(245,240,232,0.9); padding: 16px 40px; font-family: 'Lato', sans-serif; font-size: 0.72rem; font-weight: 300; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: all 0.35s; }
+  .write-for-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.5); color: #fff; }
+
+  /* Write for fullscreen */
+  .write-for-overlay { position: fixed; inset: 0; background: rgba(14,13,10,0.97); z-index: 400; display: flex; flex-direction: column; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.45s ease; overflow-y: auto; }
+  .write-for-overlay.active { opacity: 1; pointer-events: all; }
+  .write-for-inner { width: 100%; max-width: 700px; padding: 120px 24px 80px; display: flex; flex-direction: column; }
+  .write-for-label { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(196,168,130,0.85); margin-bottom: 24px; }
+  .write-for-textarea { width: 100%; min-height: 55vh; border: none; border-bottom: 1px solid rgba(255,255,255,0.1); background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; line-height: 2; color: rgba(245,240,232,0.88); resize: none; outline: none; padding: 0 0 24px; }
+  .write-for-textarea::placeholder { color: rgba(255,255,255,0.18); font-style: italic; }
+  .write-for-textarea:focus { border-color: rgba(255,255,255,0.22); }
+  .write-for-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; flex-wrap: wrap; gap: 16px; }
+  .wf-char-count { font-size: 0.75rem; color: rgba(255,255,255,0.38); letter-spacing: 0.1em; }
+  .wf-anon { font-size: 0.75rem; color: rgba(255,255,255,0.42); display: flex; align-items: center; gap: 6px; }
+  .wf-anon::before { content: '○'; font-size: 0.5rem; }
+  .btn-light-outline { background: transparent; border: 1px solid rgba(255,255,255,0.28); color: rgba(245,240,232,0.88); padding: 14px 32px; font-family: 'Lato', sans-serif; font-size: 0.72rem; font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; }
+  .btn-light-outline:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); }
+
+  /* ── GUIDE ── */
+  .guide-section { background: var(--paper-dark); }
+  .guide-grid { margin-top: 60px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: var(--faint); }
+  .guide-card { background: var(--paper-dark); padding: 44px; transition: background 0.3s; cursor: pointer; }
+  .guide-card:hover { background: var(--paper); }
+  .guide-icon { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-style: italic; color: var(--warm); margin-bottom: 20px; display: block; }
+  .guide-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 14px; }
+  .guide-card p { font-size: 0.88rem; color: var(--mist); line-height: 1.9; }
+  .read-more { margin-top: 16px; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--warm); }
+
+  /* Guide modal */
+  .guide-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,23,20,0.65); z-index: 500; backdrop-filter: blur(4px); justify-content: center; align-items: center; }
+  .guide-modal-overlay.active { display: flex; }
+  .guide-modal { background: var(--paper); max-width: 600px; width: 90%; max-height: 82vh; overflow-y: auto; padding: 52px; position: relative; animation: modalIn 0.4s ease; }
+  .guide-modal::-webkit-scrollbar { width: 4px; }
+  .guide-modal::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
+  .guide-modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1rem; color: var(--dust); cursor: pointer; transition: color 0.3s; }
+  .guide-modal-close:hover { color: var(--ink); }
+  .guide-modal-icon { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-style: italic; color: var(--warm); display: block; margin-bottom: 16px; }
+  .guide-modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 300; margin-bottom: 28px; line-height: 1.3; }
+  .guide-modal-body p { font-size: 0.92rem; color: var(--accent); line-height: 2; margin-bottom: 18px; }
+  .say-instead { margin: 28px 0; padding: 20px 24px; border-left: 2px solid var(--warm); background: var(--paper-dark); }
+  .say-instead .label { font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--small-text); margin-bottom: 10px; display: block; font-family: 'Lato', sans-serif; }
+  .say-instead p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--ink); margin: 0 !important; }
+
+  /* ── LETTERS VIEW TOPBAR ── */
+  .letters-view-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--faint);
+    background: #ede8de;
+    position: sticky; top: 0; z-index: 200;
+  }
+
+  .letters-home-btn {
+    font-family: "Lato", sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--small-text); background: none; border: none;
+    cursor: pointer; transition: color 0.3s; padding: 0;
+  }
+  .letters-home-btn:hover { color: var(--ink); }
+
+  .letters-view-brand {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.1rem; font-weight: 300; letter-spacing: 0.15em;
+    color: var(--mist);
+  }
+  .letters-view-brand em { font-style: italic; color: var(--warm); }
+
+  .letters-write-btn {
+    font-family: "Lato", sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--small-text); background: none;
+    border: 1px solid var(--faint); padding: 8px 20px;
+    cursor: pointer; transition: all 0.3s;
+  }
+  .letters-write-btn:hover { color: var(--ink); border-color: var(--dust); }
+
+  /* ── LETTER ARCHIVE VIEW ── */
+  .letters-view {
+    min-height: 100vh;
+    background: #ede8de;
+    display: flex; flex-direction: column;
+  }
+
+  .letters-view-main {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 100px 24px 60px;
+  }
+
+  .letter-archive-wrapper {
+    width: 100%; max-width: 620px;
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .letter-archive-wrapper.visible { opacity: 1; transform: translateY(0); }
+
+  .letter-archive-addressed {
+    font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--warm); margin-bottom: 32px; display: block;
+  }
+
+  .letter-archive-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-style: italic; line-height: 2.1; color: var(--accent);
+  }
+  .letter-archive-text p { margin-bottom: 1.6em; }
+  .letter-archive-text p:last-child { margin-bottom: 0; }
+
+  .letter-archive-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 60px; padding-top: 32px; border-top: 1px solid var(--faint);
+    width: 100%; max-width: 620px;
+  }
+
+  .archive-nav-btn {
+    background: transparent; border: none;
+    font-family: 'Lato', sans-serif; font-size: 0.72rem;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--small-text); cursor: pointer; transition: color 0.3s; padding: 8px 0;
+  }
+  .archive-nav-btn:hover { color: var(--ink); }
+  .archive-nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+  .archive-counter { font-size: 0.72rem; color: var(--small-text); letter-spacing: 0.15em; }
+
+  .letters-view-footer {
+    padding: 28px 48px; border-top: 1px solid var(--faint);
+    background: #e4ddd0;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .letters-view-footer .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 300; letter-spacing: 0.15em; color: var(--mist); font-style: italic; }
+  .letters-view-footer p { font-size: 0.72rem; color: var(--small-text); text-align: right; line-height: 1.8; }
+
+  /* ── SAFETY ── */
+  .safety-bar { padding: 24px 10vw; background: #ede8df; border-top: 1px solid var(--faint); display: flex; align-items: flex-start; gap: 20px; }
+  .safety-dot { width: 8px; height: 8px; background: var(--warm); border-radius: 50%; flex-shrink: 0; margin-top: 7px; }
+  .safety-bar p { font-size: 0.82rem; color: var(--mist); line-height: 2; }
+  .safety-bar a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .safety-bar strong { color: var(--accent); font-weight: 400; }
+
+  /* ── SUGGESTIONS ── */
+  .suggestions-section { background: var(--paper-dark); padding: 80px 10vw; }
+  .suggestions-inner { max-width: 600px; }
+  .suggestions-label { font-size: 0.68rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--small-text); margin-bottom: 20px; display: block; }
+  .suggestions-desc { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-style: italic; line-height: 2; color: var(--mist); margin-bottom: 36px; }
+  .suggestions-textarea { width: 100%; min-height: 140px; border: none; border-bottom: 1px solid var(--faint); background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.9; color: var(--ink); resize: none; outline: none; padding: 0 0 16px; transition: border-color 0.3s; }
+  .suggestions-textarea::placeholder { color: var(--faint); font-style: italic; }
+  .suggestions-textarea:focus { border-color: var(--dust); }
+  .suggestions-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
+  .suggestions-hint { font-size: 0.78rem; color: var(--small-text); font-style: italic; }
+
+  /* ── FOOTER ── */
+  footer { padding: 60px 10vw; background: var(--ink); color: rgba(245,240,232,0.45); display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.15em; color: rgba(245,240,232,0.65); font-style: italic; }
+  footer p { font-size: 0.72rem; letter-spacing: 0.1em; line-height: 2; text-align: right; }
+
+  /* ── MODALS ── */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(26,23,20,0.7); z-index: 600; backdrop-filter: blur(4px); justify-content: center; align-items: center; }
+  .overlay.active { display: flex; }
+  .modal { background: var(--paper); max-width: 540px; width: 90%; padding: 52px; position: relative; animation: modalIn 0.4s ease; }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.1rem; color: var(--dust); cursor: pointer; }
+  .modal h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; margin-bottom: 8px; }
+  .modal .sub { font-size: 0.82rem; color: var(--mist); margin-bottom: 32px; }
+  .modal textarea { width: 100%; min-height: 120px; border: none; border-bottom: 1px solid var(--faint); background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; line-height: 1.9; color: var(--mist); resize: none; outline: none; padding: 0 0 16px; margin-bottom: 28px; }
+  .modal-footer { display: flex; justify-content: space-between; align-items: center; }
+  .btn-ghost-modal { background: transparent; color: var(--mist); padding: 14px 0; font-family: 'Lato', sans-serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; border: none; border-bottom: 1px solid var(--faint); cursor: pointer; transition: all 0.3s; }
+  .btn-ghost-modal:hover { color: var(--ink); border-color: var(--dust); }
+
+  .success-state { text-align: center; padding: 20px 0; }
+  .success-state .icon { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-style: italic; color: var(--warm); display: block; margin-bottom: 20px; }
+  .success-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; margin-bottom: 12px; }
+  .success-state p { font-size: 0.88rem; color: var(--mist); line-height: 1.9; max-width: 340px; margin: 0 auto; }
+
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    nav ul { display: none; }
+    section { padding: 70px 24px; }
+    .about-grid, .write-container, .guide-grid { grid-template-columns: 1fr; gap: 32px; }
+    .safety-bar, .suggestions-section { padding: 20px 24px; }
+    footer { padding: 40px 24px; flex-direction: column; gap: 20px; text-align: center; }
+    footer p { text-align: center; }
+    .modal { padding: 32px 24px; }
+    .guide-modal { padding: 32px 24px; max-height: 88vh; }
+    .fullscreen-inner, .write-for-inner { padding: 100px 20px 60px; }
+    .fullscreen-back { top: 24px; left: 24px; }
+    .letter-popup { padding: 40px 28px 32px; }
+    .letters-view-footer { padding: 24px; flex-direction: column; gap: 12px; text-align: center; }
+    .letters-view-footer p { text-align: center; }
+    .hero-actions { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#" class="logo" onclick="showMainView()">a quiet <span>place</span></a>
+  <ul>
+    <li><a href="#write" onclick="showMainView()">Write a Letter</a></li>
+    <li><a href="#messages" onclick="showMainView()">Messages</a></li>
+    <li><a href="#guide" onclick="showMainView()">How to Help</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MAIN VIEW -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="view active" id="mainView">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-ornament"></div>
+    <span class="eyebrow">A quiet place for grief</span>
+    <h1>You don't have<br>to carry it<br><em>silently.</em></h1>
+    <p class="hero-sub">A place to put down what you've been holding. No judgment, no performance, no burden on anyone. Just space — for whatever you need to say.</p>
+    <div class="hero-actions">
+      <a href="#write" class="btn-primary">Write a letter</a>
+      <button class="btn-ghost" onclick="showLettersView()">Read what others have left behind</button>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <span class="section-label">What this place is</span>
+    <h2 class="section-title">Not a fix.<br>Not a community.<br><em>Just space.</em></h2>
+    <div class="divider"></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>Grief doesn't follow a timeline. It doesn't behave the way the world expects. And after a while, people stop expressing it — not because the pain has passed, but because they're afraid of becoming a burden.</p>
+        <p>This is a place where that stops being a concern. Write what you carry. Say what you've been holding back. Nothing here is measured by views, likes, or whether anyone replied.</p>
+        <p>The act of expression is the point.</p>
+      </div>
+      <div class="about-principles">
+        <div class="principle">
+          <div class="principle-num">01</div>
+          <h3>Anonymous by design</h3>
+          <p>No account required. No names attached. Your words exist here without being traced back to you.</p>
+        </div>
+        <div class="principle">
+          <div class="principle-num">02</div>
+          <h3>No metrics</h3>
+          <p>No likes, views, or reply counts. Nothing here is measured. Expression is never turned into performance.</p>
+        </div>
+        <div class="principle">
+          <div class="principle-num">03</div>
+          <h3>No direct interaction</h3>
+          <p>There's no messaging, no replies between users. This protects everyone from unhealthy dependency or pressure.</p>
+        </div>
+        <div class="principle">
+          <div class="principle-num">04</div>
+          <h3>Safety moderated</h3>
+          <p>Every submission is reviewed before appearing. Content that signals a crisis is never published — instead, crisis resources are provided.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WRITE -->
+  <section id="write">
+    <span class="section-label">Letters</span>
+    <h2 class="section-title">Write what<br>you've been<br><em>holding.</em></h2>
+    <div class="divider"></div>
+    <div class="write-container">
+      <div class="write-info">
+        <p>Write a letter to whoever — or whatever — you need to write to. Someone you've lost. Yourself. The silence. The version of the world that still had them in it.</p>
+        <p>Your letter will be anonymous. It won't receive replies. It will simply exist — and then quietly archive after 30 days.</p>
+        <p class="archive-note">Letters to the void are released completely and are never stored.</p>
+        <div class="no-pressure">
+          <p>"If you visit, write something you've been carrying for months, close the page, and feel even slightly lighter — this place has done its job."</p>
+        </div>
+      </div>
+      <div class="letter-composer" id="staticComposer" onclick="openFullscreen()">
+        <div class="composer-label">A letter to —</div>
+        <div class="to-options">
+          <button class="to-chip active" onclick="event.stopPropagation(); selectStaticTo(this)">Someone I lost</button>
+          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Myself</button>
+          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">The void</button>
+          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone who hurt me</button>
+        </div>
+        <div class="composer-invite">Begin whenever you're ready…</div>
+        <div class="composer-footer">
+          <span class="composer-footer-hint">Click to open writing space</span>
+          <span class="anon-note">Completely anonymous</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MESSAGES -->
+  <section class="messages-section" id="messages">
+    <span class="section-label">Words of comfort</span>
+    <h2 class="section-title">You are not<br>as alone as<br><em>it feels.</em></h2>
+    <div class="divider"></div>
+    <p class="messages-top-desc">"Somewhere in this quiet, others have sat where you're sitting now. They have felt the same weight, the same silence, the same ache of not knowing how to carry it. You are not as alone in this as it feels."</p>
+    <button class="find-letter-btn" onclick="findLetter()">Find a letter</button>
+    <div class="write-for-section">
+      <p class="write-for-desc">"Some of you carry grief. Some of you carry the memory of it. And some of you are simply here because you care — because somewhere in you, you know that a stranger is hurting and that your words might reach them. Whatever brought you here, leave something behind. From one griever to another, or from someone who simply loves — it matters more than you know."</p>
+      <button class="write-for-btn" onclick="openWriteFor()">Write for someone</button>
+    </div>
+  </section>
+
+  <!-- GUIDE -->
+  <section class="guide-section" id="guide">
+    <span class="section-label">For those beside them</span>
+    <h2 class="section-title">How to be<br>present for<br><em>someone grieving.</em></h2>
+    <p class="section-desc">We know how it feels to sit beside someone you love, watching them carry something you cannot lift for them. You don't need to fix it. These are small ways to simply be there.</p>
+    <div class="divider"></div>
+    <div class="guide-grid">
+      <div class="guide-card" onclick="openGuideModal(0)">
+        <span class="guide-icon">i.</span>
+        <h3>You don't need the right words</h3>
+        <p>Most people avoid talking about grief because they fear saying the wrong thing.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(1)">
+        <span class="guide-icon">ii.</span>
+        <h3>Don't set a timeline</h3>
+        <p>Grief doesn't have a deadline. Let them move at their own pace.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(2)">
+        <span class="guide-icon">iii.</span>
+        <h3>Say their name</h3>
+        <p>People who are grieving often fear that the person they lost will be forgotten.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(3)">
+        <span class="guide-icon">iv.</span>
+        <h3>Show up without waiting to be asked</h3>
+        <p>"Let me know if you need anything" places the burden back on the grieving person.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(4)">
+        <span class="guide-icon">v.</span>
+        <h3>Don't try to reframe the pain</h3>
+        <p>Phrases like "at least they didn't suffer" are meant to comfort but often don't land that way.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(5)">
+        <span class="guide-icon">vi.</span>
+        <h3>Stay longer than most people do</h3>
+        <p>Support is highest in the first weeks — and drops off just when it's needed most.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAFETY -->
+  <div class="safety-bar">
+    <div class="safety-dot"></div>
+    <p>
+      All submissions are reviewed before publication. If content signals a mental health crisis, it won't be posted — instead, you'll be directed to the right support.
+      If you're struggling right now: <strong>iCall</strong> — <a href="tel:9152987821">9152987821</a> (Mon–Sat, 8am–10pm) &nbsp;·&nbsp;
+      <strong>Vandrevala Foundation</strong> — <a href="tel:18602662345">1860-2662-345</a> (24/7, Tamil & English) &nbsp;·&nbsp;
+      <strong>SNEHI Chennai</strong> — <a href="tel:04424640050">044-24640050</a> &nbsp;·&nbsp;
+      <a href="https://findahelpline.com" target="_blank">findahelpline.com</a>
+    </p>
+  </div>
+
+  <!-- SUGGESTIONS -->
+  <div class="suggestions-section">
+    <div class="suggestions-inner">
+      <span class="suggestions-label">Tell us something</span>
+      <p class="suggestions-desc">"This place is still finding its shape. If something helped you, or something was missing, or you simply have a thought you want to leave behind — we're listening. You don't need to explain yourself. Just say what's true."</p>
+      <textarea class="suggestions-textarea" id="suggestionText" placeholder="Say whatever is on your mind…" maxlength="1000"></textarea>
+      <div class="suggestions-footer">
+        <span class="suggestions-hint">Anonymous. No follow-up. Just listened to.</span>
+        <button class="btn-primary" onclick="submitSuggestion()">Leave a word</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">a quiet place</div>
+    <p>A quiet space for grief.<br>No accounts. No metrics. No burden.<br><span style="opacity:0.4;font-size:0.65rem;">Not a therapy service. Not a crisis line.</span></p>
+  </footer>
+
+</div><!-- end mainView -->
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- LETTERS ARCHIVE VIEW -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="view" id="lettersView">
+  <div class="letters-view" style="min-height:100vh;">
+    <div class="letters-view-topbar">
+      <button class="letters-home-btn" onclick="showMainView()">← Home</button>
+      <span class="letters-view-brand">a quiet <em>place</em></span>
+      <button class="letters-write-btn" onclick="showMainView(); setTimeout(()=>{ document.getElementById('write').scrollIntoView({behavior:'smooth'}); }, 400)">Write a letter</button>
+    </div>
+    <div class="letters-view-main" id="lettersMain"></div>
+    <div class="letters-view-footer">
+      <div class="footer-logo">a quiet place</div>
+      <p>Letters left behind by strangers.<br><span style="opacity:0.6;">Anonymous. Unfiltered. Real.</span></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- OVERLAYS (shared across views) -->
+<!-- ═══════════════════════════════════════════ -->
+
+<!-- Fullscreen letter composer -->
+<div class="fullscreen-overlay" id="fullscreenComposer">
+  <button class="fullscreen-back" onclick="closeFullscreen()">← back</button>
+  <div class="fullscreen-inner">
+    <div class="fullscreen-label">A letter to —</div>
+    <div class="fullscreen-chips" id="fullscreenChips">
+      <button class="to-chip active" onclick="selectFullscreenTo(this,'Someone I lost')">Someone I lost</button>
+      <button class="to-chip" onclick="selectFullscreenTo(this,'Myself')">Myself</button>
+      <button class="to-chip" onclick="selectFullscreenTo(this,'The void')">The void</button>
+      <button class="to-chip" onclick="selectFullscreenTo(this,'Someone who hurt me')">Someone who hurt me</button>
+    </div>
+    <textarea class="fullscreen-textarea" id="fullscreenText" placeholder="Begin wherever you are. There's no wrong way to start." maxlength="3000"></textarea>
+    <div class="void-note" id="voidNote">Consider this a full release. Once sent, this letter is gone — and it was always meant to be.</div>
+    <div class="fullscreen-footer">
+      <span class="char-count" id="fsCharCount">0 / 3000</span>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <span class="anon-note">Completely anonymous</span>
+        <button class="btn-primary" onclick="submitLetter()">Release this letter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Find a letter popup -->
+<div class="letter-popup-overlay" id="letterPopupOverlay">
+  <div class="letter-popup">
+    <button class="letter-popup-close" onclick="closeLetter()">✕</button>
+    <span class="letter-popup-from">From someone who cares —</span>
+    <div class="letter-popup-body" id="letterPopupBody"></div>
+    <div class="letter-popup-nav">
+      <button class="letter-popup-nav-btn" onclick="closeLetter()">← Go back</button>
+      <span class="letter-popup-sep">·</span>
+      <button class="letter-popup-nav-btn" onclick="nextComfortLetter()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Write for someone fullscreen -->
+<div class="write-for-overlay" id="writeForOverlay">
+  <button class="fullscreen-back" style="color:rgba(196,168,130,0.75);" onmouseover="this.style.color='rgba(245,240,232,0.9)'" onmouseout="this.style.color='rgba(196,168,130,0.75)'" onclick="closeWriteFor()">← back</button>
+  <div class="write-for-inner">
+    <div class="write-for-label">A letter for someone who needs it —</div>
+    <textarea class="write-for-textarea" id="writeForText" placeholder="Write whatever you wish someone had said to you. Or whatever you believe a stranger needs to hear tonight." maxlength="3000"></textarea>
+    <div class="write-for-footer">
+      <span class="wf-char-count" id="wfCharCount">0 / 3000</span>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <span class="wf-anon">Completely anonymous</span>
+        <button class="btn-light-outline" onclick="submitWriteFor()">Leave this here</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Guide modal -->
+<div class="guide-modal-overlay" id="guideModalOverlay">
+  <div class="guide-modal" id="guideModal">
+    <button class="guide-modal-close" onclick="closeGuideModal()">✕</button>
+    <span class="guide-modal-icon" id="gmIcon"></span>
+    <h2 id="gmTitle"></h2>
+    <div class="guide-modal-body" id="gmBody"></div>
+  </div>
+</div>
+
+<!-- Letter confirm -->
+<div class="overlay" id="letterModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('letterModal')">✕</button>
+    <h2>Before you release this</h2>
+    <p class="sub">Your letter is anonymous and will not receive replies. It will be quietly reviewed before appearing.</p>
+    <textarea id="letterPreview" readonly></textarea>
+    <div class="modal-footer">
+      <button class="btn-primary" onclick="confirmLetter()">Release this letter</button>
+      <button class="btn-ghost-modal" onclick="closeModal('letterModal')">Go back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Success modals -->
+<div class="overlay" id="successModal">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('successModal')">✕</button>
+    <div class="success-state">
+      <span class="icon">~</span>
+      <h3>Your letter has been released.</h3>
+      <p>It exists now, quietly, outside of you. You don't have to carry it alone anymore. We hope you feel, even slightly, lighter.</p>
+    </div>
+    <div style="margin-top:36px;"><button class="btn-primary" onclick="closeModal('successModal')">Return to the quiet</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="writeForSuccessModal">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('writeForSuccessModal')">✕</button>
+    <div class="success-state">
+      <span class="icon">∿</span>
+      <h3>Your letter is waiting.</h3>
+      <p>Somewhere, a stranger will find it exactly when they need it. Thank you for leaving something kind behind.</p>
+    </div>
+    <div style="margin-top:36px;"><button class="btn-primary" onclick="closeModal('writeForSuccessModal')">Return</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="suggestionSuccessModal">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" onclick="closeModal('suggestionSuccessModal')">✕</button>
+    <div class="success-state">
+      <span class="icon">—</span>
+      <h3>We heard you.</h3>
+      <p>Thank you for helping this place become what it needs to be.</p>
+    </div>
+    <div style="margin-top:36px;"><button class="btn-primary" onclick="closeModal('suggestionSuccessModal')">Return</button></div>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════
+// NAV — precise dark trigger using scroll
+// ══════════════════════════════════════
+const mainNav = document.getElementById('mainNav');
+
+function updateNav() {
+  if (!document.getElementById('mainView').classList.contains('active')) return;
+  const msgSection = document.getElementById('messages');
+  if (!msgSection) return;
+  const rect = msgSection.getBoundingClientRect();
+  const navHeight = mainNav.offsetHeight;
+  // go dark exactly when dark section top reaches nav bottom
+  // go light again exactly when dark section bottom scrolls past nav
+  if (rect.top <= navHeight && rect.bottom > navHeight) {
+    mainNav.classList.add('dark-nav');
+  } else {
+    mainNav.classList.remove('dark-nav');
+  }
+}
+
+window.addEventListener('scroll', updateNav, { passive: true });
+updateNav();
+
+// ══════════════════════════════════════
+// VIEW SWITCHING
+// ══════════════════════════════════════
+function showMainView() {
+  mainNav.style.display = '';
+  document.getElementById('mainView').classList.add('active');
+  document.getElementById('lettersView').classList.remove('active');
+  window.scrollTo(0, 0);
+  updateNav();
+}
+
+function showLettersView() {
+  mainNav.style.display = 'none';
+  document.getElementById('mainView').classList.remove('active');
+  document.getElementById('lettersView').classList.add('active');
+  mainNav.classList.remove('dark-nav');
+  archiveIndex = 0;
+  window.scrollTo(0, 0);
+  loadArchiveLetters();
+}
+
+// ══════════════════════════════════════
+// STATIC CHIP
+// ══════════════════════════════════════
+let currentTo = 'Someone I lost';
+function selectStaticTo(el) {
+  document.querySelectorAll('#staticComposer .to-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentTo = el.textContent.trim();
+}
+
+// ══════════════════════════════════════
+// FULLSCREEN COMPOSER
+// ══════════════════════════════════════
+const fsOverlay = document.getElementById('fullscreenComposer');
+const fsText = document.getElementById('fullscreenText');
+let fsTo = 'Someone I lost';
+let savedText = '';
+
+function openFullscreen() {
+  fsOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  fsTo = currentTo;
+  document.querySelectorAll('#fullscreenChips .to-chip').forEach(c => c.classList.toggle('active', c.textContent.trim() === fsTo));
+  if (savedText) fsText.value = savedText;
+  updateVoidNote(fsTo);
+  fsText.classList.toggle('void-mode', fsTo === 'The void');
+  setTimeout(() => fsText.focus(), 350);
+}
+
+function closeFullscreen() {
+  savedText = fsText.value;
+  fsOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function selectFullscreenTo(el, label) {
+  document.querySelectorAll('#fullscreenChips .to-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  fsTo = label; currentTo = label;
+  updateVoidNote(label);
+  fsText.classList.toggle('void-mode', label === 'The void');
+}
+
+function updateVoidNote(label) {
+  document.getElementById('voidNote').classList.toggle('visible', label === 'The void');
+}
+
+fsText.addEventListener('input', function() {
+  document.getElementById('fsCharCount').textContent = this.value.length + ' / 3000';
+});
+
+function submitLetter() {
+  const text = fsText.value.trim();
+  if (!text || text.length < 10) { fsText.style.borderColor = '#c4a882'; setTimeout(() => fsText.style.borderColor = '', 1500); return; }
+  document.getElementById('letterPreview').value = text.substring(0, 300) + (text.length > 300 ? '…' : '');
+  document.getElementById('letterModal').classList.add('active');
+}
+
+async function confirmLetter() {
+  closeModal('letterModal');
+
+  try {
+    const response = await fetch('/api/submit-letter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: fsText.value,
+        addressed_to: fsTo
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      alert('Something went wrong. Please try again.');
+      return;
+    }
+
+    fsText.value = ''; savedText = '';
+    document.getElementById('fsCharCount').textContent = '0 / 3000';
+    document.querySelectorAll('#fullscreenChips .to-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+    fsTo = 'Someone I lost'; currentTo = 'Someone I lost';
+    updateVoidNote('Someone I lost');
+    fsText.classList.remove('void-mode');
+    closeFullscreen();
+    setTimeout(() => document.getElementById('successModal').classList.add('active'), 500);
+
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+// ══════════════════════════════════════
+// COMFORT LETTERS POPUP
+// ══════════════════════════════════════
+const comfortLetters = [
+  `I don't know your name, or what you've lost, or how long you've been carrying it. But I know that whatever brought you here tonight took something from you that mattered deeply.\n\nGrief is not a sign that you loved too much. It is proof that you loved at all.\n\nI hope you find, in some small way, that the world still has warmth in it. That somewhere, someone is thinking of you — even a stranger who will never know your face.\n\nYou are not forgotten. Not here.`,
+  `Some nights are harder than others. I know that. There are nights when the quiet becomes too loud, and the absence of someone fills every corner of the room.\n\nOn those nights, I want you to know: you are allowed to fall apart. You are allowed to not be okay. And you are allowed to come back together again, in your own time, in your own way.\n\nThere is no right way to grieve. There is only your way. And whatever that looks like — it is enough.`,
+  `You came here looking for something. Maybe you don't even know what.\n\nMaybe you just needed somewhere to put it all down for a moment. A place that wouldn't ask questions or tell you it gets better or look at you with that particular kind of helpless pity.\n\nSo here. Put it down. Just for now.\n\nYou can pick it back up whenever you're ready. But for this moment, you don't have to hold it alone.`,
+  `I wrote this for you before I knew you existed.\n\nI wrote it because I know what it feels like to sit in a room full of people and still feel completely alone in your grief. To smile when you need to. To say "I'm fine" when you're not.\n\nYou don't have to be fine here.\n\nThis is a place where whatever you feel is allowed to simply be. No performance. No timeline. Just you, and whatever you're carrying, and the quiet knowledge that someone, somewhere, understands.`,
+  `Grief changes shape over time. What feels impossible today will not always feel impossible.\n\nThat is not a promise that the pain disappears. It doesn't, not entirely. But it changes. It becomes something you carry differently — not lighter, but more familiar. More yours.\n\nAnd one day — not today, maybe not for a long time — you will find that the love underneath the grief is still there. Unchanged. Untouched.\n\nThat love doesn't go anywhere. Neither do they, not really.`
+];
+
+let currentComfortIndex = -1;
+
+function findLetter() {
+  currentComfortIndex = Math.floor(Math.random() * comfortLetters.length);
+  showLetterPopup();
+}
+
+function showLetterPopup() {
+  const body = document.getElementById('letterPopupBody');
+  body.style.opacity = '0';
+  body.innerHTML = comfortLetters[currentComfortIndex].split('\n\n').map(p => `<p>${p}</p>`).join('');
+  document.getElementById('letterPopupOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { body.style.transition = 'opacity 0.4s ease'; body.style.opacity = '1'; }, 50);
+}
+
+function nextComfortLetter() {
+  let next = Math.floor(Math.random() * comfortLetters.length);
+  while (next === currentComfortIndex && comfortLetters.length > 1) next = Math.floor(Math.random() * comfortLetters.length);
+  currentComfortIndex = next;
+  const body = document.getElementById('letterPopupBody');
+  body.style.opacity = '0';
+  setTimeout(() => {
+    body.innerHTML = comfortLetters[currentComfortIndex].split('\n\n').map(p => `<p>${p}</p>`).join('');
+    body.style.opacity = '1';
+  }, 300);
+}
+
+function closeLetter() {
+  document.getElementById('letterPopupOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('letterPopupOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeLetter();
+});
+
+// ══════════════════════════════════════
+// WRITE FOR SOMEONE
+// ══════════════════════════════════════
+const writeForOverlay = document.getElementById('writeForOverlay');
+const writeForText = document.getElementById('writeForText');
+let savedWriteFor = '';
+
+function openWriteFor() {
+  writeForOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  if (savedWriteFor) writeForText.value = savedWriteFor;
+  setTimeout(() => writeForText.focus(), 350);
+}
+
+function closeWriteFor() {
+  savedWriteFor = writeForText.value;
+  writeForOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+writeForText.addEventListener('input', function() {
+  document.getElementById('wfCharCount').textContent = this.value.length + ' / 3000';
+});
+
+function submitWriteFor() {
+  const text = writeForText.value.trim();
+  if (!text || text.length < 10) { writeForText.style.borderColor = 'rgba(196,168,130,0.5)'; setTimeout(() => writeForText.style.borderColor = '', 1500); return; }
+  writeForText.value = ''; savedWriteFor = '';
+  document.getElementById('wfCharCount').textContent = '0 / 3000';
+  closeWriteFor();
+  setTimeout(() => document.getElementById('writeForSuccessModal').classList.add('active'), 500);
+}
+
+// ══════════════════════════════════════
+// LETTERS ARCHIVE
+// ══════════════════════════════════════
+let archiveLetters = [];
+
+async function loadArchiveLetters() {
+  try {
+    const response = await fetch('/api/get-letters');
+    const result = await response.json();
+
+    if (!response.ok) {
+      archiveLetters = [];
+      return;
+    }
+
+    archiveLetters = result.letters;
+
+    if (archiveLetters.length === 0) {
+      document.getElementById('lettersMain').innerHTML = `
+        <div class="empty-state">
+          <h2>No letters yet.</h2>
+          <p>Be the first to leave something behind.</p>
+          <button class="btn-primary" onclick="showMainView()">Write a letter</button>
+        </div>
+      `;
+      return;
+    }
+
+    archiveIndex = 0;
+    renderArchiveLetter(0);
+
+  } catch (err) {
+    archiveLetters = [];
+  }
+}
+
+let archiveIndex = 0;
+
+function renderArchiveLetter(index) {
+  const main = document.getElementById('lettersMain');
+  const letter = archiveLetters[index];
+
+  main.innerHTML = `
+    <div class="letter-archive-wrapper" id="archiveWrapper">
+      <span class="letter-archive-addressed">A letter to — ${letter.to}</span>
+      <div class="letter-archive-text">
+        ${letter.text.split('\n\n').map(p => `<p>${p}</p>`).join('')}
+      </div>
+    </div>
+    <div class="letter-archive-nav">
+      <button class="archive-nav-btn" onclick="archivePrev()" ${index === 0 ? 'disabled' : ''}>← Previous</button>
+      <span class="archive-counter">${index + 1} of ${archiveLetters.length}</span>
+      <button class="archive-nav-btn" onclick="archiveNext()" ${index === archiveLetters.length - 1 ? 'disabled' : ''}>Next →</button>
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    const wrapper = document.getElementById('archiveWrapper');
+    if (wrapper) setTimeout(() => wrapper.classList.add('visible'), 30);
+  });
+}
+
+function archiveNext() {
+  if (archiveIndex < archiveLetters.length - 1) {
+    const w = document.getElementById('archiveWrapper');
+    if (w) { w.style.opacity = '0'; w.style.transform = 'translateY(-12px)'; }
+    setTimeout(() => { archiveIndex++; renderArchiveLetter(archiveIndex); }, 350);
+  }
+}
+
+function archivePrev() {
+  if (archiveIndex > 0) {
+    const w = document.getElementById('archiveWrapper');
+    if (w) { w.style.opacity = '0'; w.style.transform = 'translateY(12px)'; }
+    setTimeout(() => { archiveIndex--; renderArchiveLetter(archiveIndex); }, 350);
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lettersView').classList.contains('active')) {
+    if (e.key === 'ArrowRight') archiveNext();
+    if (e.key === 'ArrowLeft') archivePrev();
+  }
+});
+
+// ══════════════════════════════════════
+// SUGGESTIONS
+// ══════════════════════════════════════
+function submitSuggestion() {
+  const text = document.getElementById('suggestionText').value.trim();
+  if (!text || text.length < 3) return;
+  document.getElementById('suggestionText').value = '';
+  document.getElementById('suggestionSuccessModal').classList.add('active');
+}
+
+// ══════════════════════════════════════
+// GUIDE MODALS
+// ══════════════════════════════════════
+const guideData = [
+  { icon: 'i.', title: "You don't need the right words",
+    body: `<p>Most people pull away from someone who is grieving because they're terrified of saying the wrong thing. They rehearse lines, second-guess themselves, and eventually say nothing — leaving the grieving person feeling invisible.</p><p>The truth is: there are no perfect words. Grief doesn't need to be solved with language. What it needs is presence. Being there — imperfectly, awkwardly, quietly — is almost always more meaningful than a carefully crafted message.</p><div class="say-instead"><span class="label">Instead of silence, try —</span><p>"I don't know what to say, but I'm here. And I'm not going anywhere."</p></div><p>That's enough. The admission that you don't have the words is itself an act of honesty and love.</p>` },
+  { icon: 'ii.', title: "Don't set a timeline",
+    body: `<p>Grief has no expiry date. It doesn't follow a calendar, and it doesn't care about what seems reasonable to an outside observer. What looks like "too long" to someone watching is often still raw and immediate to the person living it.</p><p>Phrases like "you should be feeling better by now" communicate that the grieving person's pain has overstayed its welcome. That's a painful thing to hear when you're already struggling.</p><div class="say-instead"><span class="label">What helps instead —</span><p>"Take all the time you need. I'm not keeping track."</p></div><p>Grief is not linear. Some days will feel like progress. Others like starting over. Both are part of the same process. Your job isn't to monitor the timeline — it's to be steady within it.</p>` },
+  { icon: 'iii.', title: "Say their name",
+    body: `<p>One of the quietest fears in grief is that the person who was lost will simply be forgotten — that the world will move on as if they never existed. This fear can make the grieving person feel completely alone, even in a room full of people who love them.</p><p>Saying the name of the person who died is not a reminder of the loss — the person grieving has not forgotten. It is an acknowledgment that the one they loved was real, mattered, and is still worth speaking about.</p><div class="say-instead"><span class="label">Something small that means everything —</span><p>"I was thinking about Priya today. I remembered how she used to laugh at her own jokes before she finished them."</p></div><p>Sharing a specific memory tells the grieving person that others hold their loved one too — and that they don't have to carry that memory alone.</p>` },
+  { icon: 'iv.', title: "Show up without waiting to be asked",
+    body: `<p>"Let me know if you need anything" is said with genuine warmth. But in practice, it places an invisible burden on the grieving person: identify your own needs, reach out, and risk feeling like an inconvenience.</p><p>Most people who are grieving will not ask. Not because they don't need help, but because asking feels like too much effort — or too much vulnerability — in an already exhausted state.</p><div class="say-instead"><span class="label">Be specific. Be direct —</span><p>"I'm bringing food on Thursday evening. I'll leave it at the door — you don't have to open it or talk."</p></div><p>The specificity is the kindness. You've removed the decision-making. Small, concrete acts — a meal, a check-in text, a quiet presence — matter more than open-ended offers.</p>` },
+  { icon: 'v.', title: "Don't try to reframe the pain",
+    body: `<p>When we see someone in pain, our instinct is to reduce it — to offer a perspective that makes things feel more bearable. So we reach for phrases like "at least they didn't suffer," "they're in a better place," or "everything happens for a reason."</p><p>These phrases are rarely comforting. They often communicate, unintentionally: your grief is excessive, and here's a reason to feel less of it. For someone raw with loss, that lands like a dismissal.</p><div class="say-instead"><span class="label">What actually helps —</span><p>"This is so hard. I'm so sorry you're going through this."</p></div><p>Simple acknowledgment — without reframing, without silver linings — is more powerful than you might expect. It says: I see that this hurts, and I'm not trying to talk you out of it.</p>` },
+  { icon: 'vi.', title: "Stay longer than most people do",
+    body: `<p>In the immediate aftermath of a loss, support flows in. People show up, they call, they check in. But slowly — usually within a few weeks — life resumes for everyone else, and the attention fades.</p><p>The problem is that grief often deepens once the initial shock passes. The numbness lifts and the reality sets in. This is exactly when the grieving person needs support the most — and when they're least likely to receive it.</p><div class="say-instead"><span class="label">Mark your calendar —</span><p>"I'm setting a reminder to check in with you next month. Not because I expect you to be okay, but because I want you to know I'm still thinking of you."</p></div><p>A message at three months. A call on the anniversary. An unexpected note in the middle of an ordinary week. Grief is long. Presence doesn't have to be constant — but it should be enduring.</p>` }
+];
+
+function openGuideModal(i) {
+  const d = guideData[i];
+  document.getElementById('gmIcon').textContent = d.icon;
+  document.getElementById('gmTitle').textContent = d.title;
+  document.getElementById('gmBody').innerHTML = d.body;
+  document.getElementById('guideModalOverlay').classList.add('active');
+  document.getElementById('guideModal').scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGuideModal() {
+  document.getElementById('guideModalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('guideModalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeGuideModal();
+});
+
+// ══════════════════════════════════════
+// MODAL HELPERS
+// ══════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); });
+});
+
+// ══════════════════════════════════════
+// ENTRANCE ANIMATIONS
+// ══════════════════════════════════════
+const ao = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+      ao.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.principle, .guide-card').forEach(el => {
+  el.style.cssText += 'opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease;';
+  ao.observe(el);
+});
+</script>
+</body>
+</html>
