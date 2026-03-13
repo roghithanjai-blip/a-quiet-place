@@ -1091,9 +1091,9 @@ function renderArchiveLetter(index) {
 
   main.innerHTML = `
     <div class="letter-archive-wrapper" id="archiveWrapper">
-      <span class="letter-archive-addressed">A letter to — ${letter.to}</span>
+     <span class="letter-archive-addressed">A letter to — ${letter.addressed_to}</span>
       <div class="letter-archive-text">
-        ${letter.text.split('\n\n').map(p => `<p>${p}</p>`).join('')}
+        ${letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('')}
       </div>
     </div>
     <div class="letter-archive-nav">
@@ -1135,11 +1135,28 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════
 // SUGGESTIONS
 // ══════════════════════════════════════
-function submitSuggestion() {
+async function submitSuggestion() {
   const text = document.getElementById('suggestionText').value.trim();
+  
   if (!text || text.length < 3) return;
-  document.getElementById('suggestionText').value = '';
-  document.getElementById('suggestionSuccessModal').classList.add('active');
+
+  try {
+    
+    const response = await fetch('/api/submit-suggestion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text })
+    });
+
+    
+if (!response.ok) throw new Error('Failed');
+
+    document.getElementById('suggestionText').value = '';
+    document.getElementById('suggestionSuccessModal').classList.add('active');
+  } catch (err) {
+    console.log('catch error:', err.message);
+    alert('Something went wrong. Please try again.');
+  }
 }
 
 // ══════════════════════════════════════
