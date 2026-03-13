@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Quiet Place — for grief</title>
+<title>A Quiet Place</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -178,6 +178,7 @@
   .write-container { margin-top: 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
   .write-info p { font-size: 0.92rem; color: var(--mist); line-height: 2; margin-bottom: 16px; }
   .archive-note { margin-top: 4px; font-size: 0.78rem; color: var(--small-text); font-style: italic; }
+  .write-public-nudge { margin-top: 24px; font-size: 0.88rem; color: var(--warm); font-style: italic; font-family: 'Cormorant Garamond', serif; }
   .no-pressure { margin-top: 32px; padding: 24px; border: 1px solid var(--faint); background: var(--paper-dark); }
   .no-pressure p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--accent); line-height: 1.7; margin: 0; }
 
@@ -229,7 +230,8 @@
 
   .fullscreen-inner { width: 100%; max-width: 700px; padding: 120px 24px 80px; display: flex; flex-direction: column; }
   .fullscreen-label { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--small-text); margin-bottom: 24px; }
-  .fullscreen-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; }
+  .fullscreen-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .fullscreen-visibility-note { font-size: 0.78rem; color: var(--small-text); font-style: italic; margin-bottom: 28px; }
 
   .fullscreen-textarea {
     width: 100%; min-height: 55vh; border: none; border-bottom: 1px solid var(--faint);
@@ -522,7 +524,7 @@
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-ornament"></div>
-    <span class="eyebrow">A quiet place for grief</span>
+    <span class="eyebrow">A quiet place for everything that has no other place to go.</span>
     <h1>You don't have<br>to carry it<br><em>silently.</em></h1>
     <p class="hero-sub">A place to put down what you've been holding. No judgment, no performance, no burden on anyone. Just space — for whatever you need to say.</p>
     <div class="hero-actions">
@@ -538,7 +540,7 @@
     <div class="divider"></div>
     <div class="about-grid">
       <div class="about-text">
-        <p>Grief doesn't follow a timeline. It doesn't behave the way the world expects. And after a while, people stop expressing it — not because the pain has passed, but because they're afraid of becoming a burden.</p>
+        <p>Some things don't follow a timeline. They don't behave the way the world expects. And after a while, people stop expressing them — not because the pain has passed, but because they're afraid of becoming a burden.</p>
         <p>This is a place where that stops being a concern. Write what you carry. Say what you've been holding back. Nothing here is measured by views, likes, or whether anyone replied.</p>
         <p>The act of expression is the point.</p>
       </div>
@@ -580,6 +582,7 @@
         <div class="no-pressure">
           <p>"If you visit, write something you've been carrying for months, close the page, and feel even slightly lighter — this place has done its job."</p>
         </div>
+        <p class="write-public-nudge">Your words might be exactly what a stranger needs to find tonight.</p>
       </div>
       <div class="letter-composer" id="staticComposer" onclick="openFullscreen()">
         <div class="composer-label">A letter to —</div>
@@ -588,6 +591,7 @@
           <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Myself</button>
           <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">The void</button>
           <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone who hurt me</button>
+          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone I never told</button>
         </div>
         <div class="composer-invite">Begin whenever you're ready…</div>
         <div class="composer-footer">
@@ -614,7 +618,7 @@
   <!-- GUIDE -->
   <section class="guide-section" id="guide">
     <span class="section-label">For those beside them</span>
-    <h2 class="section-title">How to be<br>present for<br><em>someone grieving.</em></h2>
+    <h2 class="section-title">How to be<br>present for<br><em>someone who is hurting.</em></h2>
     <p class="section-desc">We know how it feels to sit beside someone you love, watching them carry something you cannot lift for them. You don't need to fix it. These are small ways to simply be there.</p>
     <div class="divider"></div>
     <div class="guide-grid">
@@ -654,6 +658,18 @@
         <p>Support is highest in the first weeks — and drops off just when it's needed most.</p>
         <div class="read-more">Read more →</div>
       </div>
+      <div class="guide-card" onclick="openGuideModal(6)">
+        <span class="guide-icon">vii.</span>
+        <h3>Don't ask them to forgive themselves</h3>
+        <p>Telling someone to "let it go" rarely lands the way you mean it. Guilt has its own timeline.</p>
+        <div class="read-more">Read more →</div>
+      </div>
+      <div class="guide-card" onclick="openGuideModal(7)">
+        <span class="guide-icon">viii.</span>
+        <h3>Don't wait for them to open up</h3>
+        <p>Some people will never say "I'm struggling." That doesn't mean they aren't. Show up anyway.</p>
+        <div class="read-more">Read more →</div>
+      </div>
     </div>
   </section>
 
@@ -685,7 +701,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">a quiet place</div>
-    <p>A quiet space for grief.<br>No accounts. No metrics. No burden.<br><span style="opacity:0.4;font-size:0.65rem;">Not a therapy service. Not a crisis line.</span></p>
+    <p>A quiet place for everything that has no other place to go.<br>No accounts. No metrics. No burden.<br><span style="opacity:0.4;font-size:0.65rem;">Not a therapy service. Not a crisis line.</span></p>
   </footer>
 
 </div><!-- end mainView -->
@@ -724,7 +740,9 @@
       <button class="to-chip" onclick="selectFullscreenTo(this,'Myself')">Myself</button>
       <button class="to-chip" onclick="selectFullscreenTo(this,'The void')">The void</button>
       <button class="to-chip" onclick="selectFullscreenTo(this,'Someone who hurt me')">Someone who hurt me</button>
+      <button class="to-chip" onclick="selectFullscreenTo(this,'Someone I never told')">Someone I never told</button>
     </div>
+    <p class="fullscreen-visibility-note">Letters are read anonymously by others. Choose The void if you want yours to disappear completely.</p>
     <textarea class="fullscreen-textarea" id="fullscreenText" placeholder="Begin wherever you are. There's no wrong way to start." maxlength="3000"></textarea>
     <div class="void-note" id="voidNote">Consider this a full release. Once sent, this letter is gone — and it was always meant to be.</div>
     <div class="fullscreen-footer">
@@ -969,7 +987,7 @@ async function confirmLetter() {
 // ══════════════════════════════════════
 // COMFORT LETTERS POPUP
 // ══════════════════════════════════════
-let currentComfortLetter = '';
+
 
 let currentComfortIndex = -1;
 
@@ -994,22 +1012,12 @@ async function findLetter() {
   }
 }
 
-function showLetterPopup() {
-  const body = document.getElementById('letterPopupBody');
-  body.style.opacity = '0';
-  body.innerHTML = comfortLetters[currentComfortIndex].split('\n\n').map(p => `<p>${p}</p>`).join('');
-  document.getElementById('letterPopupOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => { body.style.transition = 'opacity 0.4s ease'; body.style.opacity = '1'; }, 50);
-}
 
 async function nextComfortLetter() {
   try {
     const response = await fetch('/api/get-comfort');
     const result = await response.json();
-
     if (!result.letter) return;
-
     const popup = document.getElementById('letterPopupBody');
     popup.style.opacity = '0';
     setTimeout(() => {
@@ -1203,7 +1211,11 @@ const guideData = [
   { icon: 'v.', title: "Don't try to reframe the pain",
     body: `<p>When we see someone in pain, our instinct is to reduce it — to offer a perspective that makes things feel more bearable. So we reach for phrases like "at least they didn't suffer," "they're in a better place," or "everything happens for a reason."</p><p>These phrases are rarely comforting. They often communicate, unintentionally: your grief is excessive, and here's a reason to feel less of it. For someone raw with loss, that lands like a dismissal.</p><div class="say-instead"><span class="label">What actually helps —</span><p>"This is so hard. I'm so sorry you're going through this."</p></div><p>Simple acknowledgment — without reframing, without silver linings — is more powerful than you might expect. It says: I see that this hurts, and I'm not trying to talk you out of it.</p>` },
   { icon: 'vi.', title: "Stay longer than most people do",
-    body: `<p>In the immediate aftermath of a loss, support flows in. People show up, they call, they check in. But slowly — usually within a few weeks — life resumes for everyone else, and the attention fades.</p><p>The problem is that grief often deepens once the initial shock passes. The numbness lifts and the reality sets in. This is exactly when the grieving person needs support the most — and when they're least likely to receive it.</p><div class="say-instead"><span class="label">Mark your calendar —</span><p>"I'm setting a reminder to check in with you next month. Not because I expect you to be okay, but because I want you to know I'm still thinking of you."</p></div><p>A message at three months. A call on the anniversary. An unexpected note in the middle of an ordinary week. Grief is long. Presence doesn't have to be constant — but it should be enduring.</p>` }
+    body: `<p>In the immediate aftermath of a loss, support flows in. People show up, they call, they check in. But slowly — usually within a few weeks — life resumes for everyone else, and the attention fades.</p><p>The problem is that grief often deepens once the initial shock passes. The numbness lifts and the reality sets in. This is exactly when the grieving person needs support the most — and when they're least likely to receive it.</p><div class="say-instead"><span class="label">Mark your calendar —</span><p>"I'm setting a reminder to check in with you next month. Not because I expect you to be okay, but because I want you to know I'm still thinking of you."</p></div><p>A message at three months. A call on the anniversary. An unexpected note in the middle of an ordinary week. Grief is long. Presence doesn't have to be constant — but it should be enduring.</p>` },
+  { icon: 'vii.', title: "Don't ask them to forgive themselves",
+    body: `<p>Guilt is one of the loneliest things a person can carry. Unlike grief, which people around you tend to acknowledge, guilt is often invisible — and the people carrying it have usually already told themselves every harsh thing you might think to say.</p><p>When you tell someone to "forgive themselves" or "stop blaming themselves", you're not wrong to want that for them. But what they often hear is: your guilt is inconvenient, and I'd like you to be done with it now.</p><p>What actually helps is refusing to add your judgment to the weight they're already carrying. You don't have to agree with how they see themselves. You just have to stay.</p><div class="say-instead"><span class="label">Instead of a verdict, try —</span><p>"I'm not here to tell you how to feel about it. I'm just here."</p></div><p>Guilt softens over time — not because someone talked a person out of it, but because they felt safe enough to look at it honestly. You can be that safety. You don't have to be the solution.</p>` },
+  { icon: 'viii.', title: "Don't wait for them to open up",
+    body: `<p>There is a particular kind of person who will never ask for help. Not because they don't need it — but because asking feels like becoming a burden. Because they have spent so long being the one who holds things together that falling apart, even privately, feels like a betrayal of who they are.</p><p>These are the people who say "I'm fine" and mean it as a full stop. Who deflect with humour. Who disappear quietly when things get hard rather than reach out.</p><p>Waiting for them to open up means waiting indefinitely. They won't. Not because they don't trust you — but because the door to asking for help has been closed for so long they've forgotten it exists.</p><div class="say-instead"><span class="label">Don't ask. Just arrive —</span><p>"I'm not checking in because I think something's wrong. I'm checking in because you matter to me and I don't need a reason."</p></div><p>You don't need permission to show up for someone. The knock itself is the message. It says: I see you, even when you're trying not to be seen.</p>` }
 ];
 
 function openGuideModal(i) {
