@@ -969,19 +969,29 @@ async function confirmLetter() {
 // ══════════════════════════════════════
 // COMFORT LETTERS POPUP
 // ══════════════════════════════════════
-const comfortLetters = [
-  `I don't know your name, or what you've lost, or how long you've been carrying it. But I know that whatever brought you here tonight took something from you that mattered deeply.\n\nGrief is not a sign that you loved too much. It is proof that you loved at all.\n\nI hope you find, in some small way, that the world still has warmth in it. That somewhere, someone is thinking of you — even a stranger who will never know your face.\n\nYou are not forgotten. Not here.`,
-  `Some nights are harder than others. I know that. There are nights when the quiet becomes too loud, and the absence of someone fills every corner of the room.\n\nOn those nights, I want you to know: you are allowed to fall apart. You are allowed to not be okay. And you are allowed to come back together again, in your own time, in your own way.\n\nThere is no right way to grieve. There is only your way. And whatever that looks like — it is enough.`,
-  `You came here looking for something. Maybe you don't even know what.\n\nMaybe you just needed somewhere to put it all down for a moment. A place that wouldn't ask questions or tell you it gets better or look at you with that particular kind of helpless pity.\n\nSo here. Put it down. Just for now.\n\nYou can pick it back up whenever you're ready. But for this moment, you don't have to hold it alone.`,
-  `I wrote this for you before I knew you existed.\n\nI wrote it because I know what it feels like to sit in a room full of people and still feel completely alone in your grief. To smile when you need to. To say "I'm fine" when you're not.\n\nYou don't have to be fine here.\n\nThis is a place where whatever you feel is allowed to simply be. No performance. No timeline. Just you, and whatever you're carrying, and the quiet knowledge that someone, somewhere, understands.`,
-  `Grief changes shape over time. What feels impossible today will not always feel impossible.\n\nThat is not a promise that the pain disappears. It doesn't, not entirely. But it changes. It becomes something you carry differently — not lighter, but more familiar. More yours.\n\nAnd one day — not today, maybe not for a long time — you will find that the love underneath the grief is still there. Unchanged. Untouched.\n\nThat love doesn't go anywhere. Neither do they, not really.`
-];
+let currentComfortLetter = '';
 
 let currentComfortIndex = -1;
 
-function findLetter() {
-  currentComfortIndex = Math.floor(Math.random() * comfortLetters.length);
-  showLetterPopup();
+async function findLetter() {
+  try {
+    const response = await fetch('/api/get-comfort');
+    const result = await response.json();
+
+    if (!result.letter) {
+      document.getElementById('letterPopupBody').innerHTML = 
+        '<p style="font-style:italic;color:var(--mist);">No letters yet. Be the first to leave one behind.</p>';
+      document.getElementById('letterPopupOverlay').classList.add('active');
+      return;
+    }
+
+    currentComfortLetter = result.letter.content;
+    document.getElementById('letterPopupBody').innerHTML = 
+      currentComfortLetter.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    document.getElementById('letterPopupOverlay').classList.add('active');
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+  }
 }
 
 function showLetterPopup() {
@@ -993,16 +1003,22 @@ function showLetterPopup() {
   setTimeout(() => { body.style.transition = 'opacity 0.4s ease'; body.style.opacity = '1'; }, 50);
 }
 
-function nextComfortLetter() {
-  let next = Math.floor(Math.random() * comfortLetters.length);
-  while (next === currentComfortIndex && comfortLetters.length > 1) next = Math.floor(Math.random() * comfortLetters.length);
-  currentComfortIndex = next;
-  const body = document.getElementById('letterPopupBody');
-  body.style.opacity = '0';
-  setTimeout(() => {
-    body.innerHTML = comfortLetters[currentComfortIndex].split('\n\n').map(p => `<p>${p}</p>`).join('');
-    body.style.opacity = '1';
-  }, 300);
+async function nextComfortLetter() {
+  try {
+    const response = await fetch('/api/get-comfort');
+    const result = await response.json();
+
+    if (!result.letter) return;
+
+    const popup = document.getElementById('letterPopupBody');
+    popup.style.opacity = '0';
+    setTimeout(() => {
+      popup.innerHTML = result.letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      popup.style.opacity = '1';
+    }, 300);
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+  }
 }
 
 function closeLetter() {
@@ -1038,13 +1054,26 @@ writeForText.addEventListener('input', function() {
   document.getElementById('wfCharCount').textContent = this.value.length + ' / 3000';
 });
 
-function submitWriteFor() {
-  const text = writeForText.value.trim();
-  if (!text || text.length < 10) { writeForText.style.borderColor = 'rgba(196,168,130,0.5)'; setTimeout(() => writeForText.style.borderColor = '', 1500); return; }
-  writeForText.value = ''; savedWriteFor = '';
-  document.getElementById('wfCharCount').textContent = '0 / 3000';
-  closeWriteFor();
-  setTimeout(() => document.getElementById('writeForSuccessModal').classList.add('active'), 500);
+async function submitWriteFor() {
+  const text = document.getElementById('writeForText').value.trim();
+  if (!text || text.length < 3) return;
+
+  try {
+    const response = await fetch('/api/submit-comfort', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: text })
+    });
+
+    if (!response.ok) throw new Error('Failed');
+
+    document.getElementById('writeForText').value = '';
+    savedWriteFor = '';
+    closeWriteFor();
+    document.getElementById('writeForSuccessModal').classList.add('active');
+  } catch (err) {
+    alert('Something went wrong. Please try again.');
+  }
 }
 
 // ══════════════════════════════════════
