@@ -1142,7 +1142,7 @@ async function submitSuggestion() {
 
   try {
     
-    const response = await fetch('/api/submit-suggestion', {
+    const response = await fetch('/api/suggestions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: text })
