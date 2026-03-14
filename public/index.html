@@ -107,7 +107,7 @@
   }
 
   .eyebrow {
-    font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
+    font-size: 0.82rem; letter-spacing: 0.3em; text-transform: uppercase;
     color: var(--small-text); margin-bottom: 32px;
     opacity: 0; animation: fadeUp 1s 0.3s forwards;
   }
@@ -154,7 +154,7 @@
   section { padding: 100px 10vw; position: relative; }
   .section-label {
     font-size: 0.68rem; letter-spacing: 0.35em; text-transform: uppercase;
-    color: var(--small-text); margin-bottom: 20px; display: block;
+    color: var(--mist); margin-bottom: 20px; display: block;
   }
   .section-title {
     font-family: 'Cormorant Garamond', serif;
@@ -178,7 +178,7 @@
   .write-container { margin-top: 60px; display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
   .write-info p { font-size: 0.92rem; color: var(--mist); line-height: 2; margin-bottom: 16px; }
   .archive-note { margin-top: 4px; font-size: 0.78rem; color: var(--small-text); font-style: italic; }
-  .write-public-nudge { margin-top: 24px; font-size: 0.88rem; color: var(--warm); font-style: italic; font-family: 'Cormorant Garamond', serif; }
+  .write-public-nudge { margin-top: 24px; font-size: 1rem; color: #b8976a; font-style: italic; font-family: 'Cormorant Garamond', serif; }
   .no-pressure { margin-top: 32px; padding: 24px; border: 1px solid var(--faint); background: var(--paper-dark); }
   .no-pressure p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: var(--accent); line-height: 1.7; margin: 0; }
 
@@ -200,6 +200,8 @@
     font-family: 'Lato', sans-serif; font-weight: 300;
   }
   .to-chip:hover, .to-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .to-chip.void-chip { background: #888880; color: var(--paper); border-color: #888880; margin-left: 16px; }
+  .to-chip.void-chip:hover, .to-chip.void-chip.active { background: #666660; border-color: #666660; color: var(--paper); }
 
   .composer-invite {
     font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic;
@@ -276,6 +278,44 @@
   }
   .find-letter-btn:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.5); color: #fff; }
 
+  /* Comfort preview box */
+  .comfort-preview-box {
+    margin-top: 48px; position: relative; cursor: pointer;
+    max-width: 620px; height: 220px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .comfort-preview-box:hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.07); }
+  .comfort-preview-track { height: 100%; overflow: hidden; padding: 28px 32px 0; }
+  .comfort-preview-slide {
+    font-family: 'Cormorant Garamond', serif; font-size: 1.08rem;
+    font-style: italic; line-height: 1.95; color: rgba(245,240,232,0.75);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .comfort-preview-slide.sliding-out {
+    opacity: 0; transform: translateX(-40px);
+  }
+  .comfort-preview-slide.sliding-in {
+    opacity: 0; transform: translateX(40px);
+  }
+  .comfort-preview-slide.visible {
+    opacity: 1; transform: translateX(0);
+  }
+  .comfort-preview-fade {
+    position: absolute; bottom: 32px; left: 0; right: 0; height: 80px;
+    background: linear-gradient(to bottom, transparent, rgba(17,16,9,0.95));
+    pointer-events: none;
+  }
+  .comfort-preview-hint {
+    position: absolute; bottom: 10px; right: 16px;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(245,240,232,0.3); pointer-events: none;
+    transition: color 0.3s;
+  }
+  .comfort-preview-box:hover .comfort-preview-hint { color: rgba(245,240,232,0.6); }
+  .comfort-preview-loading { color: rgba(245,240,232,0.3); font-style: italic; }
+
   /* Letter popup */
   .letter-popup-overlay {
     display: none; position: fixed; inset: 0;
@@ -293,7 +333,7 @@
   .letter-popup::-webkit-scrollbar { width: 4px; }
   .letter-popup::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 2px; }
 
-  .letter-popup-from { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--warm); margin-bottom: 28px; display: block; }
+  .letter-popup-from { font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase; color: #b8893a; margin-bottom: 28px; display: block; font-weight: 400; }
   .letter-popup-body { font-family: 'Cormorant Garamond', serif; font-size: 1.12rem; font-style: italic; line-height: 2; color: var(--accent); transition: opacity 0.3s; }
   .letter-popup-body p { margin-bottom: 1.4em; }
   .letter-popup-body p:last-child { margin-bottom: 0; }
@@ -406,7 +446,7 @@
 
   .letter-archive-addressed {
     font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
-    color: var(--warm); margin-bottom: 32px; display: block;
+    color: #b8893a; margin-bottom: 32px; display: block; font-weight: 400;
   }
 
   .letter-archive-text {
@@ -449,13 +489,13 @@
   .safety-bar strong { color: var(--accent); font-weight: 400; }
 
   /* ── SUGGESTIONS ── */
-  .suggestions-section { background: var(--paper-dark); padding: 80px 10vw; }
+  .suggestions-section { background: #e4ddd0; padding: 80px 10vw; }
   .suggestions-inner { max-width: 600px; }
   .suggestions-label { font-size: 0.68rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--small-text); margin-bottom: 20px; display: block; }
   .suggestions-desc { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-style: italic; line-height: 2; color: var(--mist); margin-bottom: 36px; }
-  .suggestions-textarea { width: 100%; min-height: 140px; border: none; border-bottom: 1px solid var(--faint); background: transparent; font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.9; color: var(--ink); resize: none; outline: none; padding: 0 0 16px; transition: border-color 0.3s; }
-  .suggestions-textarea::placeholder { color: var(--faint); font-style: italic; }
-  .suggestions-textarea:focus { border-color: var(--dust); }
+  .suggestions-textarea { width: 100%; min-height: 140px; border: none; border-bottom: 1px solid var(--faint); background: #d8d0c2; font-family: 'Cormorant Garamond', serif; font-size: 1rem; line-height: 1.9; color: var(--ink); resize: none; outline: none; padding: 12px 12px 16px; transition: border-color 0.3s; border-radius: 2px; }
+  .suggestions-textarea::placeholder { color: var(--dust); font-style: italic; }
+  .suggestions-textarea:focus { border-color: var(--dust); background: #d2c9ba; }
   .suggestions-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; }
   .suggestions-hint { font-size: 0.78rem; color: var(--small-text); font-style: italic; }
 
@@ -589,9 +629,9 @@
         <div class="to-options">
           <button class="to-chip active" onclick="event.stopPropagation(); selectStaticTo(this)">Someone I lost</button>
           <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Myself</button>
-          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">The void</button>
           <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone who hurt me</button>
-          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone I never told</button>
+          <button class="to-chip" onclick="event.stopPropagation(); selectStaticTo(this)">Someone I should have told</button>
+          <button class="to-chip void-chip" onclick="event.stopPropagation(); selectStaticTo(this)">The void</button>
         </div>
         <div class="composer-invite">Begin whenever you're ready…</div>
         <div class="composer-footer">
@@ -608,7 +648,17 @@
     <h2 class="section-title">You are not<br>as alone as<br><em>it feels.</em></h2>
     <div class="divider"></div>
     <p class="messages-top-desc">"Somewhere in this quiet, others have sat where you're sitting now. They have felt the same weight, the same silence, the same ache of not knowing how to carry it. You are not as alone in this as it feels."</p>
-    <button class="find-letter-btn" onclick="findLetter()">Find a letter</button>
+
+    <!-- Auto-rotating comfort letter preview -->
+    <div class="comfort-preview-box" id="comfortPreviewBox" onclick="openComfortFullscreen()">
+      <div class="comfort-preview-track" id="comfortPreviewTrack">
+        <div class="comfort-preview-slide" id="comfortSlide">
+          <p class="comfort-preview-loading">Loading…</p>
+        </div>
+      </div>
+      <div class="comfort-preview-fade"></div>
+      <div class="comfort-preview-hint">Click to read in full</div>
+    </div>
     <div class="write-for-section">
       <p class="write-for-desc">"Some of you carry grief. Some of you carry the memory of it. And some of you are simply here because you care — because somewhere in you, you know that a stranger is hurting and that your words might reach them. Whatever brought you here, leave something behind. From one griever to another, or from someone who simply loves — it matters more than you know."</p>
       <button class="write-for-btn" onclick="openWriteFor()">Write for someone</button>
@@ -738,9 +788,9 @@
     <div class="fullscreen-chips" id="fullscreenChips">
       <button class="to-chip active" onclick="selectFullscreenTo(this,'Someone I lost')">Someone I lost</button>
       <button class="to-chip" onclick="selectFullscreenTo(this,'Myself')">Myself</button>
-      <button class="to-chip" onclick="selectFullscreenTo(this,'The void')">The void</button>
       <button class="to-chip" onclick="selectFullscreenTo(this,'Someone who hurt me')">Someone who hurt me</button>
-      <button class="to-chip" onclick="selectFullscreenTo(this,'Someone I never told')">Someone I never told</button>
+      <button class="to-chip" onclick="selectFullscreenTo(this,'Someone I should have told')">Someone I should have told</button>
+      <button class="to-chip void-chip" onclick="selectFullscreenTo(this,'The void')">The void</button>
     </div>
     <p class="fullscreen-visibility-note">Letters are read anonymously by others. Choose The void if you want yours to disappear completely.</p>
     <textarea class="fullscreen-textarea" id="fullscreenText" placeholder="Begin wherever you are. There's no wrong way to start." maxlength="3000"></textarea>
@@ -985,43 +1035,91 @@ async function confirmLetter() {
 }
 
 // ══════════════════════════════════════
-// COMFORT LETTERS POPUP
+// COMFORT LETTERS — AUTO-ROTATING PREVIEW
 // ══════════════════════════════════════
 
+let comfortLettersCache = [];
+let comfortPreviewIndex = 0;
+let comfortRotateTimer = null;
+let currentComfortLetter = '';
 
-let currentComfortIndex = -1;
-
-async function findLetter() {
+async function loadComfortLetters() {
   try {
-    const response = await fetch('/api/get-comfort');
+    const response = await fetch('/api/get-comfort-all');
     const result = await response.json();
-
-    if (!result.letter) {
-      document.getElementById('letterPopupBody').innerHTML = 
-        '<p style="font-style:italic;color:var(--mist);">No letters yet. Be the first to leave one behind.</p>';
-      document.getElementById('letterPopupOverlay').classList.add('active');
-      return;
+    if (result.letters && result.letters.length > 0) {
+      comfortLettersCache = result.letters;
+      showComfortPreview(0);
+      startComfortRotation();
+    } else {
+      document.getElementById('comfortSlide').innerHTML =
+        '<p class="comfort-preview-loading">Be the first to leave a letter behind.</p>';
     }
-
-    currentComfortLetter = result.letter.content;
-    document.getElementById('letterPopupBody').innerHTML = 
-      currentComfortLetter.split('\n\n').map(p => `<p>${p}</p>`).join('');
-    document.getElementById('letterPopupOverlay').classList.add('active');
   } catch (err) {
-    alert('Something went wrong. Please try again.');
+    // silent fail — preview just stays empty
   }
 }
 
+function showComfortPreview(index) {
+  const slide = document.getElementById('comfortSlide');
+  const letter = comfortLettersCache[index];
+  if (!letter) return;
+  currentComfortLetter = letter.content;
+  slide.classList.remove('visible', 'sliding-in');
+  slide.classList.add('sliding-out');
+  setTimeout(() => {
+    slide.innerHTML = letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    slide.classList.remove('sliding-out');
+    slide.classList.add('sliding-in');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        slide.classList.remove('sliding-in');
+        slide.classList.add('visible');
+      });
+    });
+  }, 500);
+}
+
+function startComfortRotation() {
+  if (comfortRotateTimer) clearInterval(comfortRotateTimer);
+  comfortRotateTimer = setInterval(() => {
+    comfortPreviewIndex = (comfortPreviewIndex + 1) % comfortLettersCache.length;
+    showComfortPreview(comfortPreviewIndex);
+  }, 7000);
+}
+
+function openComfortFullscreen() {
+  if (!currentComfortLetter) return;
+  document.getElementById('letterPopupBody').innerHTML =
+    currentComfortLetter.split('\n\n').map(p => `<p>${p}</p>`).join('');
+  document.getElementById('letterPopupOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
 
 async function nextComfortLetter() {
+  if (comfortLettersCache.length > 0) {
+    comfortPreviewIndex = (comfortPreviewIndex + 1) % comfortLettersCache.length;
+    const letter = comfortLettersCache[comfortPreviewIndex];
+    currentComfortLetter = letter.content;
+    const popup = document.getElementById('letterPopupBody');
+    popup.style.opacity = '0';
+    setTimeout(() => {
+      popup.innerHTML = letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      popup.style.transition = 'opacity 0.4s ease';
+      popup.style.opacity = '1';
+    }, 300);
+    return;
+  }
   try {
     const response = await fetch('/api/get-comfort');
     const result = await response.json();
     if (!result.letter) return;
+    currentComfortLetter = result.letter.content;
     const popup = document.getElementById('letterPopupBody');
     popup.style.opacity = '0';
     setTimeout(() => {
       popup.innerHTML = result.letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      popup.style.transition = 'opacity 0.4s ease';
       popup.style.opacity = '1';
     }, 300);
   } catch (err) {
@@ -1037,6 +1135,9 @@ function closeLetter() {
 document.getElementById('letterPopupOverlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeLetter();
 });
+
+// Load comfort letters on page load
+loadComfortLetters();
 
 // ══════════════════════════════════════
 // WRITE FOR SOMEONE
