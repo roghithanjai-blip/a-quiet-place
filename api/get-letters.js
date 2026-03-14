@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     .from('letters')
     .select('*')
     .eq('status', 'approved')
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
 
   if (error) {
     return res.status(500).json({ error: 'Failed to fetch letters' })

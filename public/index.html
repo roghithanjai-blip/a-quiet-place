@@ -31,7 +31,7 @@
     font-weight: 300;
     line-height: 1.8;
     min-height: 100vh;
-    padding-top: 70px;
+    padding-top: 160px;
   }
 
   body::before {
@@ -44,11 +44,24 @@
   /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0;
-    padding: 8px 32px;
+    padding: 24px 48px;
     display: flex; justify-content: space-between; align-items: center;
     z-index: 300;
-    transition: background 0.3s, border-color 0.3s;
+    transition: background 0.3s, border-color 0.3s, padding 0.4s ease;
     background: linear-gradient(to bottom, var(--paper) 70%, transparent);
+  }
+
+  nav.nav-shrunk {
+    padding: 8px 48px;
+  }
+
+  nav .nav-logo-img {
+    height: 120px; width: auto;
+    transition: height 0.4s ease;
+  }
+
+  nav.nav-shrunk .nav-logo-img {
+    height: 52px;
   }
 
   nav.dark-nav {
@@ -549,7 +562,7 @@
 
 <!-- NAV -->
 <nav id="mainNav">
-  <a href="#" onclick="showMainView()" style="display:flex;align-items:center;cursor:pointer;"><img src="/a_quiet_place_logoo.png" alt="a quiet place" style="height:160px;width:auto;margin-top:-8px;"></a>
+  <a href="#" onclick="showMainView()" style="display:flex;align-items:center;cursor:pointer;"><img src="/a_quiet_place_logoo.png" alt="a quiet place" class="nav-logo-img"></a>
   <ul>
     <li><a href="#write" onclick="showMainView()">Write a Letter</a></li>
     <li><a href="#messages" onclick="showMainView()">Messages</a></li>
@@ -913,8 +926,15 @@ function updateNav() {
   if (!msgSection) return;
   const rect = msgSection.getBoundingClientRect();
   const navHeight = mainNav.offsetHeight;
+
+  // shrink nav after scrolling 80px
+  if (window.scrollY > 80) {
+    mainNav.classList.add('nav-shrunk');
+  } else {
+    mainNav.classList.remove('nav-shrunk');
+  }
+
   // go dark exactly when dark section top reaches nav bottom
-  // go light again exactly when dark section bottom scrolls past nav
   if (rect.top <= navHeight && rect.bottom > navHeight) {
     mainNav.classList.add('dark-nav');
   } else {

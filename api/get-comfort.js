@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('comfort_letters')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
 
   if (error) {
     return res.status(500).json({ error: error.message })
