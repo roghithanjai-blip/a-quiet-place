@@ -337,7 +337,7 @@
 // CONFIG — change password here before pushing
 // ══════════════════════════════════════
 const ADMIN_USERS = {
-  'roghith': 'changeme'
+  'roghith': 'roghith'
 };
 
 // ══════════════════════════════════════
@@ -360,7 +360,7 @@ function handleLogin() {
     currentUser = username;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminShell').style.display = 'block';
-    document.getElementById('adminGreeting').textContent = `Hi ${username.charAt(0).toUpperCase() + username.slice(1)}.`;
+    document.getElementById('adminGreeting').textContent = `Welcome ${username.charAt(0).toUpperCase() + username.slice(1)}`;
     loadAll();
   } else {
     document.getElementById('loginError').style.display = 'block';

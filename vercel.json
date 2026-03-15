@@ -1,5 +1,8 @@
 {
   "version": 2,
   "buildCommand": "echo 'no build needed'",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "routes": [
+    { "src": "/admin", "dest": "/admin.html" }
+  ]
 }
