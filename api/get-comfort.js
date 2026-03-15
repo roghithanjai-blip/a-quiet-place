@@ -13,6 +13,7 @@ export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('comfort_letters')
     .select('*')
+    .eq('status', 'approved')
     .order('created_at', { ascending: true })
 
   if (error) {

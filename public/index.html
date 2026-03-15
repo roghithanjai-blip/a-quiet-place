@@ -31,7 +31,7 @@
     font-weight: 300;
     line-height: 1.8;
     min-height: 100vh;
-    padding-top: 160px;
+    padding-top: 80px;
   }
 
   body::before {
@@ -56,12 +56,12 @@
   }
 
   nav .nav-logo-img {
-    height: 120px; width: auto;
+    height: 52px; width: auto;
     transition: height 0.4s ease;
   }
 
   nav.nav-shrunk .nav-logo-img {
-    height: 52px;
+    height: 36px;
   }
 
   nav.dark-nav {
@@ -463,6 +463,11 @@
     font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
     color: #b8893a; margin-bottom: 32px; display: block; font-weight: 400;
   }
+  .letter-timestamp {
+    font-size: 0.68rem; color: rgba(26,23,20,0.28);
+    letter-spacing: 0.08em; text-align: right; margin-top: 24px;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+  }
 
   .letter-archive-text {
     font-family: 'Cormorant Garamond', serif;
@@ -676,7 +681,7 @@
       <div class="comfort-preview-hint">Click to read in full</div>
     </div>
     <div class="write-for-section">
-      <p class="write-for-desc">"Some of you carry grief. Some of you carry the memory of it. And some of you are simply here because you care — because somewhere in you, you know that a stranger is hurting and that your words might reach them. Whatever brought you here, leave something behind. From one griever to another, or from someone who simply loves — it matters more than you know."</p>
+      <p class="write-for-desc">"Some of you carry something heavy. Some of you carry the memory of it. And some of you are simply here because you care — because somewhere in you, you know that a stranger is hurting and that your words might reach them. Whatever brought you here, leave something behind.<br><br>From one of us, to one of us — it matters more than you know."</p>
       <button class="write-for-btn" onclick="openWriteFor()">Write for someone</button>
     </div>
   </section>
@@ -992,6 +997,7 @@ function openFullscreen() {
   if (savedText) fsText.value = savedText;
   updateVoidNote(fsTo);
   fsText.classList.toggle('void-mode', fsTo === 'The void');
+  fsText.placeholder = chipPlaceholders[fsTo] || "Begin wherever you are. There's no wrong way to start.";
   setTimeout(() => fsText.focus(), 350);
 }
 
@@ -1001,12 +1007,31 @@ function closeFullscreen() {
   document.body.style.overflow = '';
 }
 
+function timeAgo(dateStr) {
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return Math.floor(diff / 60) + 'min';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h';
+  if (diff < 2592000) return Math.floor(diff / 86400) + 'd';
+  return Math.floor(diff / 2592000) + 'mo';
+}
+
+const chipPlaceholders = {
+  'Someone I lost': "Start with what you miss most. Or just start with today.",
+  'Myself': "Say what you've never let yourself say out loud. No one is watching. Not even you.",
+  'Someone who hurt me': "You don't have to be fair. You don't have to forgive. Just say what it did to you.",
+  'Someone I broke': "You don't have to explain yourself. Just say what you wish you could take back — or what you'd say if they'd listen.",
+  'Someone I wish I had told': "It's not too late to say it. Not here. Start with what they never got to hear.",
+  'The void': "This goes nowhere and everywhere. Say the thing that has no address."
+};
+
 function selectFullscreenTo(el, label) {
   document.querySelectorAll('#fullscreenChips .to-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   fsTo = label; currentTo = label;
   updateVoidNote(label);
   fsText.classList.toggle('void-mode', label === 'The void');
+  fsText.placeholder = chipPlaceholders[label] || "Begin wherever you are. There's no wrong way to start.";
 }
 
 function updateVoidNote(label) {
@@ -1114,8 +1139,10 @@ function startComfortRotation() {
 
 function openComfortFullscreen() {
   if (!currentComfortLetter) return;
+  const letter = comfortLettersCache[comfortPreviewIndex];
+  const ts = letter && letter.created_at ? `<div class="letter-timestamp" style="color:rgba(245,240,232,0.25);">${timeAgo(letter.created_at)}</div>` : '';
   document.getElementById('letterPopupBody').innerHTML =
-    currentComfortLetter.split('\n\n').map(p => `<p>${p}</p>`).join('');
+    currentComfortLetter.split('\n\n').map(p => `<p>${p}</p>`).join('') + ts;
   document.getElementById('letterPopupOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -1128,7 +1155,8 @@ async function nextComfortLetter() {
     const popup = document.getElementById('letterPopupBody');
     popup.style.opacity = '0';
     setTimeout(() => {
-      popup.innerHTML = letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      const ts = letter.created_at ? `<div class="letter-timestamp" style="color:rgba(245,240,232,0.25);">${timeAgo(letter.created_at)}</div>` : '';
+      popup.innerHTML = letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('') + ts;
       popup.style.transition = 'opacity 0.4s ease';
       popup.style.opacity = '1';
     }, 300);
@@ -1257,6 +1285,7 @@ function renderArchiveLetter(index) {
       <div class="letter-archive-text">
         ${letter.content.split('\n\n').map(p => `<p>${p}</p>`).join('')}
       </div>
+      <div class="letter-timestamp">${timeAgo(letter.created_at)}</div>
     </div>
     <div class="letter-archive-nav">
       <button class="archive-nav-btn" onclick="archivePrev()" ${index === 0 ? 'disabled' : ''}>← Previous</button>

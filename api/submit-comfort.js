@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   const { error } = await supabase
     .from('comfort_letters')
-    .insert([{ content: content.trim() }])
+    .insert([{ content: content.trim(), status: 'pending' }])
 
   if (error) {
     return res.status(500).json({ error: error.message })
