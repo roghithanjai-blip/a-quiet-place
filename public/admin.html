@@ -360,7 +360,8 @@ function handleLogin() {
     currentUser = username;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminShell').style.display = 'block';
-    document.getElementById('adminGreeting').textContent = `Welcome ${username.charAt(0).toUpperCase() + username.slice(1)}`;
+    document.getElementById('adminGreeting').textContent = `Welcome ${username.charAt(0).toUpperCase() + username.slice(1)}.`;
+    sessionStorage.setItem('adminUser', username);
     loadAll();
   } else {
     document.getElementById('loginError').style.display = 'block';
@@ -369,6 +370,7 @@ function handleLogin() {
 
 function handleLogout() {
   currentUser = '';
+  sessionStorage.removeItem('adminUser');
   document.getElementById('adminShell').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('usernameInput').value = '';
@@ -378,6 +380,17 @@ function handleLogout() {
 
 document.getElementById('passwordInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') handleLogin();
+  // Auto-login if session exists
+(function() {
+  const saved = sessionStorage.getItem('adminUser');
+  if (saved && ADMIN_USERS[saved]) {
+    currentUser = saved;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminShell').style.display = 'block';
+    document.getElementById('adminGreeting').textContent = `Hi ${saved.charAt(0).toUpperCase() + saved.slice(1)}.`;
+    loadAll();
+  }
+})();
 });
 
 // ══════════════════════════════════════
