@@ -311,6 +311,13 @@
       <div id="comfort-letters-list" class="letters-grid"></div>
     </div>
 
+    <!-- VOID LETTERS -->
+    <div class="section-block">
+      <div class="section-heading">Void Letters</div>
+      <div class="section-sub">Letters written to the void — private, never displayed publicly</div>
+      <div id="void-letters-list" class="letters-grid"></div>
+    </div>
+
     <!-- SUGGESTIONS -->
     <div class="section-block">
       <div class="section-heading">Suggestions</div>
@@ -397,7 +404,7 @@ document.getElementById('passwordInput').addEventListener('keydown', e => {
 // LOAD DATA
 // ══════════════════════════════════════
 async function loadAll() {
-  await Promise.all([loadPrimary(), loadComfort(), loadSuggestions()]);
+  await Promise.all([loadPrimary(), loadComfort(), loadVoid(), loadSuggestions()]);
 }
 
 async function loadPrimary() {
@@ -426,6 +433,14 @@ async function loadSuggestions() {
     const data = await res.json();
     allSuggestions = data.suggestions || [];
     renderSuggestions();
+  } catch (e) { console.error(e); }
+}
+
+async function loadVoid() {
+  try {
+    const res = await fetch('/api/admin-void');
+    const data = await res.json();
+    renderVoidLetters(data.letters || []);
   } catch (e) { console.error(e); }
 }
 
@@ -519,6 +534,41 @@ async function updateStatus(type, id, newStatus) {
     else await loadComfort();
   } catch (e) {
     alert('Something went wrong. Please try again.');
+  }
+}
+
+// ══════════════════════════════════════
+// RENDER VOID LETTERS
+// ══════════════════════════════════════
+function renderVoidLetters(letters) {
+  const container = document.getElementById('void-letters-list');
+  if (letters.length === 0) {
+    container.innerHTML = `<div class="empty-state">No void letters yet.</div>`;
+    return;
+  }
+  container.innerHTML = letters.map(l => `
+    <div class="suggestion-card" id="void-${l.id}">
+      <div class="suggestion-content">
+        <div class="suggestion-text">${l.content}</div>
+        <div class="suggestion-time">${formatDate(l.created_at)}</div>
+      </div>
+      <button class="btn-delete" onclick="deleteVoidLetter(${l.id})">Delete</button>
+    </div>
+  `).join('');
+}
+
+async function deleteVoidLetter(id) {
+  if (!confirm('Delete this void letter?')) return;
+  try {
+    const res = await fetch('/api/admin-void', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, username: currentUser })
+    });
+    if (!res.ok) throw new Error('Failed');
+    await loadVoid();
+  } catch (e) {
+    alert('Something went wrong.');
   }
 }
 
