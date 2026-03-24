@@ -409,7 +409,7 @@ async function loadAll() {
 
 async function loadPrimary() {
   try {
-    const res = await fetch('/api/admin-letters?type=primary');
+    const res = await fetch('/api/admin?action=letters&type=primary');
     const data = await res.json();
     allPrimary = data.letters || [];
     updateCounts('primary', allPrimary);
@@ -419,7 +419,7 @@ async function loadPrimary() {
 
 async function loadComfort() {
   try {
-    const res = await fetch('/api/admin-letters?type=comfort');
+    const res = await fetch('/api/admin?action=letters&type=comfort');
     const data = await res.json();
     allComfort = data.letters || [];
     updateCounts('comfort', allComfort);
@@ -429,7 +429,7 @@ async function loadComfort() {
 
 async function loadSuggestions() {
   try {
-    const res = await fetch('/api/admin-suggestions');
+    const res = await fetch('/api/admin?action=suggestions');
     const data = await res.json();
     allSuggestions = data.suggestions || [];
     renderSuggestions();
@@ -438,7 +438,7 @@ async function loadSuggestions() {
 
 async function loadVoid() {
   try {
-    const res = await fetch('/api/admin-void');
+    const res = await fetch('/api/admin?action=void');
     const data = await res.json();
     renderVoidLetters(data.letters || []);
   } catch (e) { console.error(e); }
@@ -524,7 +524,7 @@ function toggleExpand(type, id) {
 // ══════════════════════════════════════
 async function updateStatus(type, id, newStatus) {
   try {
-    const res = await fetch('/api/admin-update', {
+    const res = await fetch('/api/admin?action=update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, id, status: newStatus, username: currentUser })
@@ -560,7 +560,7 @@ function renderVoidLetters(letters) {
 async function deleteVoidLetter(id) {
   if (!confirm('Delete this void letter?')) return;
   try {
-    const res = await fetch('/api/admin-void', {
+    const res = await fetch('/api/admin?action=void', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, username: currentUser })
@@ -595,7 +595,7 @@ function renderSuggestions() {
 async function deleteSuggestion(id) {
   if (!confirm('Delete this suggestion?')) return;
   try {
-    const res = await fetch('/api/admin-suggestions', {
+    const res = await fetch('/api/admin?action=suggestions', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, username: currentUser })
@@ -614,7 +614,7 @@ async function openLog() {
   document.getElementById('logOverlay').classList.add('active');
   document.getElementById('logBody').innerHTML = '<div class="log-empty">Loading…</div>';
   try {
-    const res = await fetch('/api/admin-log');
+    const res = await fetch('/api/admin?action=log');
     const data = await res.json();
     const entries = data.logs || [];
     if (entries.length === 0) {

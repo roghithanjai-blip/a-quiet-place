@@ -1080,7 +1080,7 @@ async function confirmLetter() {
   closeModal('letterModal');
 
   try {
-    const endpoint = fsTo === 'The void' ? '/api/submit-void-letter' : '/api/submit-letter';
+    const endpoint = fsTo === 'The void' ? '/api/letters?action=submit-void' : '/api/letters?action=submit';
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1122,7 +1122,7 @@ let currentComfortLetter = '';
 
 async function loadComfortLetters() {
   try {
-    const response = await fetch('/api/get-comfort-all');
+    const response = await fetch('/api/comfort?action=get-all');
     const result = await response.json();
     if (result.letters && result.letters.length > 0) {
       comfortLettersCache = result.letters;
@@ -1191,7 +1191,7 @@ async function nextComfortLetter() {
     return;
   }
   try {
-    const response = await fetch('/api/get-comfort');
+    const response = await fetch('/api/comfort?action=get');
     const result = await response.json();
     if (!result.letter) return;
     currentComfortLetter = result.letter.content;
@@ -1248,7 +1248,7 @@ async function submitWriteFor() {
   if (!text || text.length < 3) return;
 
   try {
-    const response = await fetch('/api/submit-comfort', {
+    const response = await fetch('/api/comfort?action=submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content: text })
@@ -1274,7 +1274,7 @@ let currentFilter = 'All';
 
 async function loadArchiveLetters() {
   try {
-    const response = await fetch('/api/get-letters');
+    const response = await fetch('/api/letters?action=get');
     const result = await response.json();
 
     if (!response.ok) {
