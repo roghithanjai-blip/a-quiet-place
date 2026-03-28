@@ -308,6 +308,22 @@
     pointer-events: none; z-index: -1;
   }
 
+  /* ── SECTION NAV ── */
+  .section-nav {
+    display: flex; gap: 0; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border);
+    margin-bottom: 48px; position: sticky; top: 73px; z-index: 50;
+  }
+  .section-nav-btn {
+    padding: 12px 24px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; color: var(--text3); background: none;
+    border: none; border-right: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+  .section-nav-btn:last-child { border-right: none; }
+  .section-nav-btn:hover { color: var(--text); background: var(--bg2); }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .admin-header { padding: 16px 24px; }
@@ -352,8 +368,17 @@
 
   <div class="admin-main">
 
+    <!-- SECTION NAV -->
+    <div class="section-nav">
+      <button class="section-nav-btn" onclick="document.getElementById('sec-primary').scrollIntoView({behavior:'smooth'})">Primary Letters</button>
+      <button class="section-nav-btn" onclick="document.getElementById('sec-comfort').scrollIntoView({behavior:'smooth'})">Comfort Letters</button>
+      <button class="section-nav-btn" onclick="document.getElementById('sec-void').scrollIntoView({behavior:'smooth'})">Void Letters</button>
+      <button class="section-nav-btn" onclick="document.getElementById('sec-suggestions').scrollIntoView({behavior:'smooth'})">Suggestions</button>
+      <button class="section-nav-btn" onclick="document.getElementById('sec-reflections').scrollIntoView({behavior:'smooth'})">Reflections</button>
+    </div>
+
     <!-- PRIMARY LETTERS -->
-    <div class="section-block">
+    <div class="section-block" id="sec-primary">
       <div class="section-heading">Primary Letters</div>
       <div class="section-sub">Letters submitted through "Write a letter"</div>
       <div class="tabs">
@@ -365,7 +390,7 @@
     </div>
 
     <!-- COMFORT LETTERS -->
-    <div class="section-block">
+    <div class="section-block" id="sec-comfort">
       <div class="section-heading">Comfort Letters</div>
       <div class="section-sub">Letters submitted through "Write for someone"</div>
       <div class="tabs">
@@ -377,17 +402,29 @@
     </div>
 
     <!-- VOID LETTERS -->
-    <div class="section-block">
+    <div class="section-block" id="sec-void">
       <div class="section-heading">Void Letters</div>
       <div class="section-sub">Letters written to the void — private, never displayed publicly</div>
       <div id="void-letters-list" class="letters-grid"></div>
     </div>
 
     <!-- SUGGESTIONS -->
-    <div class="section-block">
+    <div class="section-block" id="sec-suggestions">
       <div class="section-heading">Suggestions</div>
       <div class="section-sub">Feedback left by visitors</div>
       <div id="suggestions-list" class="letters-grid"></div>
+    </div>
+
+    <!-- REFLECTIONS -->
+    <div class="section-block" id="sec-reflections">
+      <div class="section-heading">Reflections</div>
+      <div class="section-sub">Answers submitted through the Reflect section</div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchReflectTab('pending', this)">Pending <span class="tab-badge" id="reflect-pending-count">0</span></button>
+        <button class="tab" onclick="switchReflectTab('approved', this)">Approved <span class="tab-badge" id="reflect-approved-count">0</span></button>
+        <button class="tab" onclick="switchReflectTab('rejected', this)">Rejected <span class="tab-badge" id="reflect-rejected-count">0</span></button>
+      </div>
+      <div id="reflections-list" class="letters-grid"></div>
     </div>
 
   </div>
@@ -443,9 +480,11 @@ const ADMIN_USERS = {
 let currentUser = '';
 let primaryTab = 'pending';
 let comfortTab = 'pending';
+let reflectTab = 'pending';
 let allPrimary = [];
 let allComfort = [];
 let allSuggestions = [];
+let allReflections = [];
 
 // ══════════════════════════════════════
 // LOGIN
@@ -494,7 +533,7 @@ document.getElementById('passwordInput').addEventListener('keydown', e => {
 // LOAD DATA
 // ══════════════════════════════════════
 async function loadAll() {
-  await Promise.all([loadPrimary(), loadComfort(), loadVoid(), loadSuggestions()]);
+  await Promise.all([loadPrimary(), loadComfort(), loadVoid(), loadSuggestions(), loadReflections()]);
 }
 
 async function loadPrimary() {
@@ -916,6 +955,161 @@ function buildSuggestionCard(data, w, h) {
       </div>
     </div>
   `;
+}
+
+// ══════════════════════════════════════
+// REFLECTIONS
+// ══════════════════════════════════════
+async function loadReflections() {
+  try {
+    const res = await fetch('/api/reflections?action=get-all');
+    const data = await res.json();
+    allReflections = data.reflections || [];
+    updateReflectCounts();
+    renderReflections(reflectTab);
+  } catch (e) { console.error(e); }
+}
+
+function updateReflectCounts() {
+  ['pending', 'approved', 'rejected'].forEach(status => {
+    const count = allReflections.filter(r => r.status === status).length;
+    const el = document.getElementById(`reflect-${status}-count`);
+    if (el) el.textContent = count;
+  });
+}
+
+function switchReflectTab(status, el) {
+  const parent = el.closest('.section-block');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  reflectTab = status;
+  renderReflections(status);
+}
+
+function renderReflections(status) {
+  const filtered = allReflections.filter(r => r.status === status);
+  const container = document.getElementById('reflections-list');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state">No ${status} reflections.</div>`;
+    return;
+  }
+  container.innerHTML = filtered.map(r => `
+    <div class="letter-card" id="card-reflect-${r.id}">
+      <div class="letter-card-meta">
+        <span class="letter-card-to" style="color:#7a9e9f;">${escapeAdminHtml(r.question)}</span>
+        <span class="letter-card-time">${formatDate(r.created_at)}</span>
+      </div>
+      <div class="letter-card-body" id="body-reflect-${r.id}">
+        ${r.content.split('\n\n').map(p => `<p style="margin-bottom:0.8em;">${escapeAdminHtml(p)}</p>`).join('')}
+      </div>
+      <div class="letter-card-actions">
+        <button class="expand-btn" onclick="toggleReflectExpand(${r.id})">Read more</button>
+        ${getReflectActionButtons(status, r.id)}
+        <button class="btn-download" onclick='openReflectDownloadAdmin(${JSON.stringify({id: r.id, question: r.question, content: r.content})})'>Download</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function getReflectActionButtons(status, id) {
+  if (status === 'pending') return `
+    <button class="action-btn btn-approve" onclick="updateReflectStatus(${id}, 'approved')">Approve</button>
+    <button class="action-btn btn-reject" onclick="updateReflectStatus(${id}, 'rejected')">Reject</button>
+  `;
+  if (status === 'approved') return `
+    <button class="action-btn btn-pending" onclick="updateReflectStatus(${id}, 'pending')">Move to Pending</button>
+    <button class="action-btn btn-reject" onclick="updateReflectStatus(${id}, 'rejected')">Reject</button>
+  `;
+  if (status === 'rejected') return `
+    <button class="action-btn btn-pending" onclick="updateReflectStatus(${id}, 'pending')">Move to Pending</button>
+    <button class="action-btn btn-approve" onclick="updateReflectStatus(${id}, 'approved')">Approve</button>
+  `;
+  return '';
+}
+
+function toggleReflectExpand(id) {
+  const body = document.getElementById(`body-reflect-${id}`);
+  const btn = body.nextElementSibling.querySelector('.expand-btn');
+  body.classList.toggle('expanded');
+  btn.textContent = body.classList.contains('expanded') ? 'Show less' : 'Read more';
+}
+
+async function updateReflectStatus(id, newStatus) {
+  try {
+    const res = await fetch('/api/reflections?action=update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: newStatus, username: currentUser })
+    });
+    if (!res.ok) throw new Error('Failed');
+    await loadReflections();
+  } catch (e) {
+    alert('Something went wrong. Please try again.');
+  }
+}
+
+let _reflectDlPending = null;
+let _reflectDlFormat = 'square';
+
+function openReflectDownloadAdmin(data) {
+  _reflectDlPending = data;
+  _reflectDlFormat = 'square';
+  selectFormat('square');
+  document.getElementById('formatOverlay').classList.add('active');
+  // Override confirm to use reflect builder
+  document.getElementById('formatConfirmBtn').onclick = confirmReflectDownloadAdmin;
+}
+
+async function confirmReflectDownloadAdmin() {
+  if (!_reflectDlPending) { confirmDownload(); return; }
+  const btn = document.getElementById('formatConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  try {
+    const w = 1080;
+    const h = _dlFormat === 'portrait' ? 1920 : 1080;
+    const isPortrait = h > w;
+    const padding = Math.round(w * 0.1);
+    const questionSize = isPortrait ? 26 : 20;
+    const answerSize = isPortrait ? 32 : 24;
+    const brandSize = isPortrait ? 20 : 16;
+    const data = _reflectDlPending;
+    const q = (data.question || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const a = (data.content || '').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n\n/g,'</p><p style="margin-bottom:1em;">').replace(/\n/g,'<br>');
+
+    const stage = document.getElementById('renderStage');
+    stage.innerHTML = '';
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+    stage.innerHTML = `
+      <div style="width:${w}px;height:${h}px;background:#eef0f0;font-family:'Lato',sans-serif;display:flex;flex-direction:column;padding:${padding}px;box-sizing:border-box;">
+        <div style="font-size:${questionSize*0.72}px;letter-spacing:0.28em;text-transform:uppercase;color:#7a9e9f;margin-bottom:${isPortrait?40:24}px;font-weight:300;">Reflect — a quiet place</div>
+        <div style="font-family:'Lato',sans-serif;font-size:${questionSize}px;font-weight:300;color:#4a5a5a;line-height:1.55;margin-bottom:${isPortrait?56:36}px;">${q}</div>
+        <div style="flex:1;overflow:hidden;font-family:'DM Serif Display',serif;font-size:${answerSize}px;font-style:italic;color:#1a1a1a;line-height:1.8;"><p style="margin-bottom:1em;">${a}</p></div>
+        <div style="border-top:1px solid #cdd4d4;padding-top:${isPortrait?44:24}px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div style="font-family:'DM Serif Display',serif;font-size:${brandSize}px;font-style:italic;color:#8a9a9a;">a quiet place</div>
+          <div style="font-family:'DM Sans',sans-serif;font-size:${Math.round(brandSize*0.72)}px;font-weight:300;letter-spacing:0.12em;color:#8a9a9a;text-transform:lowercase;">a-quiet-place-app.vercel.app</div>
+        </div>
+      </div>`;
+
+    await new Promise(r => setTimeout(r, 120));
+    const canvas = await html2canvas(stage, { width: w, height: h, scale: 1, useCORS: true, backgroundColor: '#eef0f0', logging: false });
+    const link = document.createElement('a');
+    link.download = `aqp-reflect-${_dlFormat}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    closeFormatModal();
+    _reflectDlPending = null;
+    document.getElementById('formatConfirmBtn').onclick = confirmDownload;
+  } catch(e) {
+    console.error(e);
+    alert('Download failed.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Download';
+  }
+}
+
+function escapeAdminHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ══════════════════════════════════════

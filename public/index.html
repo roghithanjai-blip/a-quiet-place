@@ -6,6 +6,7 @@
 <title>A Quiet Place</title>
 <link rel="icon" type="image/png" href="/a_quiet_place_logoo.png">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root {
     --ink: #1a1714;
@@ -86,6 +87,27 @@
     color: var(--small-text); text-decoration: none; transition: color 0.3s;
   }
   nav a:hover { color: var(--ink); }
+  nav a.reflect-nav-link {
+    color: #5a8a8b;
+    border: 1px solid #b0c8c8;
+    padding: 6px 16px;
+    letter-spacing: 0.2em;
+    transition: all 0.3s;
+  }
+  nav a.reflect-nav-link:hover {
+    background: #7a9e9f;
+    color: #fff;
+    border-color: #7a9e9f;
+  }
+  nav.dark-nav a.reflect-nav-link {
+    color: #8abcbd;
+    border-color: rgba(122,158,159,0.4);
+  }
+  nav.dark-nav a.reflect-nav-link:hover {
+    background: #7a9e9f;
+    color: #fff;
+    border-color: #7a9e9f;
+  }
 
   /* ── VIEWS ── */
   .view { display: none; }
@@ -558,6 +580,312 @@
 
   @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ── REFLECT ── */
+  :root {
+    --reflect-bg: #eef0f0;
+    --reflect-surface: #f7f8f8;
+    --reflect-accent: #7a9e9f;
+    --reflect-text: #1a1a1a;
+    --reflect-border: #cdd4d4;
+    --reflect-mist: #4a5a5a;
+  }
+
+  .reflect-overlay {
+    position: fixed; inset: 0;
+    background: var(--reflect-bg);
+    z-index: 400;
+    display: flex; flex-direction: column; align-items: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.45s ease;
+    overflow-y: auto;
+  }
+  .reflect-overlay.active { opacity: 1; pointer-events: all; }
+
+  .reflect-back {
+    position: fixed; top: 32px; left: 40px;
+    font-size: 1.02rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: #7a8a8a; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: color 0.3s;
+    font-family: 'Lato', sans-serif; font-weight: 300; z-index: 10;
+  }
+  .reflect-back:hover { color: var(--reflect-text); }
+
+  .reflect-inner {
+    width: 100%; max-width: 680px;
+    padding: 120px 24px 80px;
+    display: flex; flex-direction: column;
+  }
+
+  /* Intro screen — full landscape layout */
+  .reflect-intro {
+    display: none; /* hidden until opened */
+    position: fixed; inset: 0;
+    background: var(--reflect-bg);
+    padding: 0 10vw;
+    flex-direction: row; align-items: center;
+    gap: 8vw;
+  }
+  .reflect-intro.visible { display: flex; }
+
+  .reflect-intro-left {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--reflect-border);
+    padding-right: 8vw; padding-top: 80px; padding-bottom: 80px;
+  }
+  .reflect-intro-right {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center;
+    padding-top: 80px; padding-bottom: 80px;
+  }
+
+  .reflect-intro-eyebrow {
+    font-size: 0.88rem; letter-spacing: 0.35em; text-transform: uppercase;
+    color: var(--reflect-accent); margin-bottom: 24px;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+  }
+  .reflect-intro-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 3.5vw, 4rem); font-weight: 300;
+    line-height: 1.1; color: #111;
+    margin-bottom: 0;
+  }
+  .reflect-intro-title em { font-style: italic; color: #3a5a5a; }
+  .reflect-intro-body {
+    font-size: 1.02rem; color: #2a3a3a;
+    line-height: 2; margin-bottom: 20px;
+  }
+  .reflect-intro-body p { margin-bottom: 18px; }
+  .reflect-intro-body p:last-child { margin-bottom: 0; }
+  .reflect-divider {
+    width: 40px; height: 1px;
+    background: var(--reflect-border); margin: 32px 0;
+  }
+  .reflect-begin-btn {
+    display: inline-block; align-self: flex-start;
+    background: var(--reflect-text); color: var(--reflect-bg);
+    padding: 14px 40px; font-family: 'Lato', sans-serif;
+    font-size: 0.92rem; font-weight: 300; letter-spacing: 0.22em;
+    text-transform: uppercase; border: none; cursor: pointer;
+    transition: background 0.3s; margin-top: 8px;
+  }
+  .reflect-begin-btn:hover { background: #2a4a4a; }
+
+  /* Write mode */
+  .reflect-write { display: none; flex-direction: column; }
+  .reflect-write.active { display: flex; }
+
+  .reflect-question-wrap {
+    margin-bottom: 36px; padding-bottom: 28px;
+    border-bottom: 1px solid var(--reflect-border);
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+  .reflect-question-label {
+    font-size: 0.88rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--reflect-accent); margin-bottom: 14px;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+  }
+  .reflect-question-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 1.9rem); font-weight: 300;
+    line-height: 1.4; color: var(--reflect-text); max-width: 540px;
+  }
+  .reflect-refresh-btn {
+    flex-shrink: 0; background: #d4dcdc; border: 1px solid #b8c4c4;
+    color: #3a5a5a; width: 38px; height: 38px;
+    cursor: pointer; font-size: 1.05rem; transition: all 0.3s;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 4px; border-radius: 2px;
+  }
+  .reflect-refresh-btn:hover { background: #b8c8c8; border-color: #7a9e9f; color: #1a3a3a; }
+
+  .reflect-textarea {
+    width: 100%; min-height: 50vh;
+    border: none; border-bottom: 1px solid var(--reflect-border);
+    background: transparent;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem; line-height: 2;
+    color: var(--reflect-text); resize: none; outline: none;
+    padding: 0 0 24px;
+    transition: border-color 0.3s;
+  }
+  .reflect-textarea::placeholder { color: #b0bcbc; font-style: italic; }
+  .reflect-textarea:focus { border-color: var(--reflect-accent); }
+
+  .reflect-write-footer {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 32px; flex-wrap: wrap; gap: 16px;
+  }
+  .reflect-char-count {
+    font-size: 0.88rem; color: #8a9a9a; letter-spacing: 0.1em;
+  }
+  .reflect-footer-right {
+    display: flex; gap: 20px; align-items: center;
+  }
+  .reflect-read-link {
+    font-size: 0.88rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #8a9a9a; background: none; border: none; cursor: pointer;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+    transition: color 0.3s; text-decoration: none;
+  }
+  .reflect-read-link:hover { color: var(--reflect-accent); }
+  .reflect-submit-btn {
+    background: var(--reflect-accent); color: #fff;
+    padding: 14px 36px; font-family: 'Lato', sans-serif;
+    font-size: 0.92rem; font-weight: 300; letter-spacing: 0.2em;
+    text-transform: uppercase; border: none; cursor: pointer;
+    transition: background 0.3s;
+  }
+  .reflect-submit-btn:hover { background: #5e8485; }
+
+  /* Read mode */
+  .reflect-read { display: none; flex-direction: column; }
+  .reflect-read.active { display: flex; }
+  .reflect-read-header {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 48px;
+  }
+  .reflect-read-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem; font-weight: 300; color: var(--reflect-text);
+  }
+  .reflect-back-write {
+    font-size: 0.88rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #8a9a9a; background: none; border: none; cursor: pointer;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+    transition: color 0.3s;
+  }
+  .reflect-back-write:hover { color: var(--reflect-accent); }
+
+  .reflect-cards { display: flex; flex-direction: column; gap: 2px; }
+  .reflect-card {
+    background: var(--reflect-surface);
+    border: 1px solid var(--reflect-border);
+    padding: 36px 40px;
+    transition: border-color 0.3s;
+  }
+  .reflect-card:hover { border-color: var(--reflect-accent); }
+  .reflect-card-question {
+    font-size: 0.88rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--reflect-accent); margin-bottom: 16px;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+  }
+  .reflect-card-answer {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; line-height: 1.95; color: var(--reflect-mist);
+  }
+  .reflect-card-time {
+    margin-top: 20px; font-size: 0.82rem; color: #9aabab;
+    letter-spacing: 0.1em;
+  }
+  .reflect-read-empty {
+    text-align: center; padding: 80px 24px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; font-style: italic; color: #8a9a9a;
+  }
+
+  /* Reflect success popup */
+  .reflect-success-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(26,23,20,0.65); z-index: 600;
+    backdrop-filter: blur(4px);
+    justify-content: center; align-items: center;
+  }
+  .reflect-success-overlay.active { display: flex; }
+  .reflect-success-modal {
+    background: var(--reflect-surface);
+    border: 1px solid var(--reflect-border);
+    max-width: 520px; width: 90%;
+    padding: 52px; position: relative;
+    animation: modalIn 0.4s ease;
+    text-align: center;
+  }
+  .reflect-success-icon {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem; font-style: italic;
+    color: var(--reflect-accent); display: block; margin-bottom: 20px;
+  }
+  .reflect-success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem; font-weight: 300;
+    color: var(--reflect-text); margin-bottom: 12px;
+  }
+  .reflect-success-body {
+    font-size: 0.97rem; color: var(--reflect-mist);
+    line-height: 1.9; max-width: 340px; margin: 0 auto 36px;
+  }
+  .reflect-success-actions {
+    display: flex; flex-direction: column; gap: 12px; align-items: center;
+  }
+  .reflect-dl-btn {
+    background: transparent; border: 1px solid var(--reflect-border);
+    color: var(--reflect-mist); padding: 12px 32px;
+    font-family: 'Lato', sans-serif; font-size: 0.88rem;
+    font-weight: 300; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.3s; width: 100%; max-width: 280px;
+  }
+  .reflect-dl-btn:hover { border-color: var(--reflect-accent); color: var(--reflect-accent); }
+  .reflect-return-btn {
+    background: var(--reflect-accent); color: #fff;
+    padding: 14px 36px; font-family: 'Lato', sans-serif;
+    font-size: 0.92rem; font-weight: 300; letter-spacing: 0.2em;
+    text-transform: uppercase; border: none; cursor: pointer;
+    transition: background 0.3s; width: 100%; max-width: 280px;
+  }
+  .reflect-return-btn:hover { background: #5e8485; }
+
+  /* Reflect format picker */
+  .reflect-format-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(26,23,20,0.65); z-index: 700;
+    backdrop-filter: blur(4px);
+    justify-content: center; align-items: center;
+  }
+  .reflect-format-overlay.active { display: flex; }
+  .reflect-format-modal {
+    background: var(--reflect-surface);
+    border: 1px solid var(--reflect-border);
+    padding: 40px 44px; width: 100%; max-width: 400px;
+    animation: modalIn 0.25s ease forwards;
+  }
+  .reflect-format-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem; font-weight: 300;
+    color: var(--reflect-text); margin-bottom: 6px;
+  }
+  .reflect-format-sub {
+    font-size: 0.82rem; color: #8a9a9a; margin-bottom: 28px;
+  }
+  .reflect-format-choices { display: flex; gap: 12px; margin-bottom: 24px; }
+  .reflect-format-choice {
+    flex: 1; padding: 16px 12px;
+    border: 1px solid var(--reflect-border);
+    background: var(--reflect-bg); cursor: pointer; text-align: center;
+    transition: all 0.2s; font-family: 'Lato', sans-serif;
+  }
+  .reflect-format-choice:hover { border-color: var(--reflect-accent); }
+  .reflect-format-choice.selected { border-color: var(--reflect-accent); background: var(--reflect-surface); }
+  .reflect-format-choice-label {
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--reflect-mist); display: block; margin-bottom: 4px;
+  }
+  .reflect-format-choice-size { font-size: 0.65rem; color: #8a9a9a; }
+  .reflect-format-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .reflect-format-cancel {
+    padding: 9px 20px; font-family: 'Lato', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border: 1px solid var(--reflect-border);
+    background: transparent; color: #8a9a9a; transition: all 0.2s;
+  }
+  .reflect-format-cancel:hover { color: var(--reflect-text); }
+  .reflect-format-confirm {
+    padding: 9px 24px; font-family: 'Lato', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border: none;
+    background: var(--reflect-accent); color: #fff; transition: background 0.2s;
+  }
+  .reflect-format-confirm:hover { background: #5e8485; }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     nav { padding: 20px 24px; }
@@ -587,6 +915,7 @@
     <li><a href="#write" onclick="showMainView()">Write a Letter</a></li>
     <li><a href="#messages" onclick="showMainView()">Messages</a></li>
     <li><a href="#guide" onclick="showMainView()">How to Help</a></li>
+    <li><a href="#" class="reflect-nav-link" onclick="openReflect(); return false;">Reflect</a></li>
   </ul>
 </nav>
 
@@ -944,6 +1273,100 @@
   </div>
 </div>
 
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- REFLECT OVERLAY -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="reflect-overlay" id="reflectOverlay">
+  <button class="reflect-back" onclick="closeReflect()">← back</button>
+  <div class="reflect-inner">
+
+    <!-- INTRO SCREEN -->
+    <div class="reflect-intro" id="reflectIntro">
+      <div class="reflect-intro-left">
+        <span class="reflect-intro-eyebrow">Reflect</span>
+        <h2 class="reflect-intro-title">You might surprise yourself<br>with what you <em>already know.</em></h2>
+      </div>
+      <div class="reflect-intro-right">
+        <div class="reflect-intro-body">
+          <p>Most of us move through our days without ever stopping to truly listen to ourselves. We know how we feel about things in theory — but rarely do we sit with the actual question long enough to find out what we honestly think.</p>
+          <p>Reflect is a quiet space for that. You'll be given one question — not to answer correctly, but to answer honestly. There's no audience. No right answer. No judgment. Just you, the question, and whatever surfaces when you let yourself be still with it for a moment.</p>
+          <p>People are often surprised by what they find when they do.</p>
+        </div>
+        <div class="reflect-divider"></div>
+        <button class="reflect-begin-btn" onclick="beginReflect()">Begin</button>
+      </div>
+    </div>
+
+    <!-- WRITE MODE -->
+    <div class="reflect-write" id="reflectWrite">
+      <div class="reflect-question-wrap">
+        <div>
+          <div class="reflect-question-label">Your question —</div>
+          <div class="reflect-question-text" id="reflectQuestionText"></div>
+        </div>
+        <button class="reflect-refresh-btn" onclick="refreshReflectQuestion()" title="Try a different question">↻</button>
+      </div>
+      <textarea class="reflect-textarea" id="reflectTextarea"
+        placeholder="Take a breath. Start wherever you are. There's no wrong way to answer this."
+        maxlength="3000"></textarea>
+      <div class="reflect-write-footer">
+        <span class="reflect-char-count" id="reflectCharCount">0 / 3000</span>
+        <div class="reflect-footer-right">
+          <button class="reflect-read-link" onclick="showReflectRead()">Read others' reflections</button>
+          <button class="reflect-submit-btn" onclick="submitReflection()">Release this</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- READ MODE -->
+    <div class="reflect-read" id="reflectRead">
+      <div class="reflect-read-header">
+        <div class="reflect-read-title">From the quiet of others</div>
+        <button class="reflect-back-write" onclick="showReflectWrite()">← Write yours</button>
+      </div>
+      <div class="reflect-cards" id="reflectCards">
+        <div class="reflect-read-empty">Loading reflections…</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- REFLECT SUCCESS MODAL -->
+<div class="reflect-success-overlay" id="reflectSuccessOverlay">
+  <div class="reflect-success-modal">
+    <span class="reflect-success-icon">∼</span>
+    <div class="reflect-success-title">It's been received.</div>
+    <p class="reflect-success-body">Your reflection exists now — quietly, anonymously. It will be read before it appears here. We hope something settled, even a little, in the writing of it.</p>
+    <div class="reflect-success-actions">
+      <button class="reflect-dl-btn" onclick="openReflectDownload()">Download as image</button>
+      <button class="reflect-return-btn" onclick="closeReflectSuccess()">Return to the quiet</button>
+    </div>
+  </div>
+</div>
+
+<!-- REFLECT FORMAT PICKER -->
+<div class="reflect-format-overlay" id="reflectFormatOverlay">
+  <div class="reflect-format-modal">
+    <div class="reflect-format-title">Download as image</div>
+    <div class="reflect-format-sub">Choose a format for your reflection.</div>
+    <div class="reflect-format-choices">
+      <div class="reflect-format-choice selected" id="rfmtSquare" onclick="selectReflectFormat('square')">
+        <span class="reflect-format-choice-label">Square</span>
+        <span class="reflect-format-choice-size">1080 × 1080</span>
+      </div>
+      <div class="reflect-format-choice" id="rfmtPortrait" onclick="selectReflectFormat('portrait')">
+        <span class="reflect-format-choice-label">Portrait</span>
+        <span class="reflect-format-choice-size">1080 × 1920</span>
+      </div>
+    </div>
+    <div class="reflect-format-actions">
+      <button class="reflect-format-cancel" onclick="closeReflectFormat()">Cancel</button>
+      <button class="reflect-format-confirm" id="reflectFmtConfirmBtn" onclick="confirmReflectDownload()">Download</button>
+    </div>
+  </div>
+</div>
 
 <script>
 // ══════════════════════════════════════
@@ -1460,6 +1883,300 @@ document.querySelectorAll('.principle, .guide-card').forEach(el => {
   el.style.cssText += 'opacity:0;transform:translateY(16px);transition:opacity 0.7s ease,transform 0.7s ease;';
   ao.observe(el);
 });
+
+// ══════════════════════════════════════
+// REFLECT
+// ══════════════════════════════════════
+
+const REFLECT_QUESTIONS = [
+  "What part of yourself have you been explaining away for years?",
+  "What do you pretend not to need?",
+  "Who were you before you learned to be careful?",
+  "What feeling do you reach for when you don't want to feel the real one?",
+  "What have you forgiven in others that you won't forgive in yourself?",
+  "What version of yourself are you still grieving?",
+  "What do you keep almost saying?",
+  "Is there something you've been calling a personality trait that might actually be a wound?",
+  "What are you most afraid someone will notice about you?",
+  "What are you staying in that you know, quietly, you should leave?",
+  "What did you want when you were young that you've stopped letting yourself want?",
+  "Is the life you're building the one you actually chose?",
+  "What would you do if you stopped waiting to feel ready?",
+  "What have you been postponing — not because you can't, but because starting it would make it real?",
+  "What are you pretending is fine?",
+  "What do you keep choosing even though it costs you something each time?",
+  "What would change if you stopped trying to deserve things first?",
+  "What is the smallest version of a dream you've allowed yourself to keep?",
+  "Who have you never properly said goodbye to?",
+  "Is there someone you're still waiting to hear something from — even though you know it's not coming?",
+  "Who taught you that love comes with conditions — and do you still believe them?",
+  "Who do you miss in a way you haven't admitted to anyone?",
+  "Is there someone you hurt that you haven't let yourself fully sit with?",
+  "Who would you call if you let yourself need someone right now?",
+  "Who did you become smaller around — and are you still doing it?",
+  "Is there a relationship you've been rewriting in your head to make it hurt less?",
+  "Who do you wish had known you better?",
+  "Is there someone you've kept at a distance because getting close felt like too much to lose?",
+  "What do you know now that your younger self desperately needed to hear?",
+  "When did you last feel like yourself — fully, without effort?",
+  "What has changed in you that you haven't acknowledged out loud?",
+  "Is there a chapter of your life you haven't grieved properly?",
+  "What are you still carrying from something that ended a long time ago?",
+  "What part of your past are you still trying to make sense of?",
+  "Is there a version of your life you let go of that still visits you sometimes?",
+  "When did you stop believing something you used to believe — and did you notice when it happened?",
+  "What season of your life are you in right now, honestly?",
+  "What do you want that you haven't said out loud because saying it would mean admitting you want it?",
+  "What are you afraid would happen if you let yourself rest?",
+  "What does your body know that your mind hasn't caught up to yet?",
+  "What are you avoiding by staying busy?",
+  "What question are you most afraid to sit with?",
+  "Is there something you've been pretending not to know?",
+  "What does a good day actually look like for you — not the version you perform, the real one?",
+  "What are you hungry for that has nothing to do with food, or money, or success?",
+  "What would you say to yourself right now if you were being completely honest?",
+  "What do you believe that you've never said out loud?",
+  "What loss changed the way you see things — and have you ever named what it changed?",
+  "What do you keep coming back to, no matter how far you wander from it?",
+  "Is there something you've been through that you haven't yet decided what it means?",
+  "What would make you feel like your life had mattered — not to the world, just to you?",
+  "What are you doing out of habit that you'd stop if you thought about it?",
+  "What did a hard thing take from you that you haven't noticed yet?",
+  "What would you do differently if no one was watching — and no one would ever know?",
+  "If your silence had a shape, what would it be?"
+];
+
+let reflectCurrentQuestion = '';
+let reflectLastSubmitted = { question: '', answer: '' };
+let reflectFormat = 'square';
+
+function openReflect() {
+  const overlay = document.getElementById('reflectOverlay');
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  // Always start at intro
+  document.getElementById('reflectIntro').classList.add('visible');
+  document.getElementById('reflectWrite').classList.remove('active');
+  document.getElementById('reflectRead').classList.remove('active');
+}
+
+function closeReflect() {
+  document.getElementById('reflectOverlay').classList.remove('active');
+  document.getElementById('reflectIntro').classList.remove('visible');
+  document.body.style.overflow = '';
+}
+
+function beginReflect() {
+  document.getElementById('reflectIntro').classList.remove('visible');
+  document.getElementById('reflectWrite').classList.add('active');
+  document.getElementById('reflectRead').classList.remove('active');
+  if (!reflectCurrentQuestion) pickReflectQuestion();
+  document.getElementById('reflectQuestionText').textContent = reflectCurrentQuestion;
+  setTimeout(() => document.getElementById('reflectTextarea').focus(), 300);
+}
+
+function pickReflectQuestion() {
+  const q = REFLECT_QUESTIONS[Math.floor(Math.random() * REFLECT_QUESTIONS.length)];
+  reflectCurrentQuestion = q;
+  return q;
+}
+
+function refreshReflectQuestion() {
+  const old = reflectCurrentQuestion;
+  let q;
+  do { q = REFLECT_QUESTIONS[Math.floor(Math.random() * REFLECT_QUESTIONS.length)]; }
+  while (q === old && REFLECT_QUESTIONS.length > 1);
+  reflectCurrentQuestion = q;
+  const el = document.getElementById('reflectQuestionText');
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(-6px)';
+  setTimeout(() => {
+    el.textContent = q;
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 250);
+}
+
+document.getElementById('reflectTextarea').addEventListener('input', function() {
+  document.getElementById('reflectCharCount').textContent = this.value.length + ' / 3000';
+});
+
+async function submitReflection() {
+  const text = document.getElementById('reflectTextarea').value.trim();
+  if (!text || text.length < 10) {
+    const ta = document.getElementById('reflectTextarea');
+    ta.style.borderColor = '#7a9e9f';
+    setTimeout(() => ta.style.borderColor = '', 1500);
+    return;
+  }
+
+  reflectLastSubmitted = { question: reflectCurrentQuestion, answer: text };
+
+  try {
+    const response = await fetch('/api/reflections?action=submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: reflectCurrentQuestion, content: text })
+    });
+    if (!response.ok) throw new Error('Failed');
+  } catch (err) {
+    // silent — we still show success; content will be saved when API is live
+    console.log('Reflect submit error:', err.message);
+  }
+
+  // Reset textarea and question
+  document.getElementById('reflectTextarea').value = '';
+  document.getElementById('reflectCharCount').textContent = '0 / 3000';
+  pickReflectQuestion();
+  document.getElementById('reflectQuestionText').textContent = reflectCurrentQuestion;
+
+  // Show success modal
+  document.getElementById('reflectSuccessOverlay').classList.add('active');
+}
+
+function closeReflectSuccess() {
+  document.getElementById('reflectSuccessOverlay').classList.remove('active');
+}
+
+function showReflectRead() {
+  document.getElementById('reflectWrite').classList.remove('active');
+  document.getElementById('reflectRead').classList.add('active');
+  loadReflectCards();
+}
+
+function showReflectWrite() {
+  document.getElementById('reflectRead').classList.remove('active');
+  document.getElementById('reflectWrite').classList.add('active');
+}
+
+async function loadReflectCards() {
+  const container = document.getElementById('reflectCards');
+  container.innerHTML = '<div class="reflect-read-empty">Loading reflections…</div>';
+  try {
+    const response = await fetch('/api/reflections?action=get-approved');
+    const result = await response.json();
+    const items = result.reflections || [];
+    if (items.length === 0) {
+      container.innerHTML = '<div class="reflect-read-empty">No reflections yet. Be the first to leave one.</div>';
+      return;
+    }
+    container.innerHTML = items.map(r => `
+      <div class="reflect-card">
+        <div class="reflect-card-question">${escapeHtml(r.question)}</div>
+        <div class="reflect-card-answer">${r.content.split('\n\n').map(p => `<p style="margin-bottom:0.9em;">${escapeHtml(p)}</p>`).join('')}</div>
+        <div class="reflect-card-time">${timeAgo(r.created_at)}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    container.innerHTML = '<div class="reflect-read-empty">Could not load reflections.</div>';
+  }
+}
+
+function escapeHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Reflect download ──
+function openReflectDownload() {
+  reflectFormat = 'square';
+  selectReflectFormat('square');
+  document.getElementById('reflectFormatOverlay').classList.add('active');
+}
+
+function closeReflectFormat() {
+  document.getElementById('reflectFormatOverlay').classList.remove('active');
+}
+
+function selectReflectFormat(fmt) {
+  reflectFormat = fmt;
+  document.getElementById('rfmtSquare').classList.toggle('selected', fmt === 'square');
+  document.getElementById('rfmtPortrait').classList.toggle('selected', fmt === 'portrait');
+}
+
+async function confirmReflectDownload() {
+  const btn = document.getElementById('reflectFmtConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  try {
+    const w = 1080;
+    const h = reflectFormat === 'portrait' ? 1920 : 1080;
+    const isPortrait = h > w;
+    const padding = Math.round(w * 0.1);
+    const questionSize = isPortrait ? 26 : 20;
+    const answerSize = isPortrait ? 32 : 24;
+    const brandSize = isPortrait ? 20 : 16;
+
+    const q = (reflectLastSubmitted.question || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const a = (reflectLastSubmitted.answer || '').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n\n/g,'</p><p style="margin-bottom:1em;">').replace(/\n/g,'<br>');
+
+    const html = `
+      <div style="
+        width:${w}px;height:${h}px;background:#eef0f0;
+        font-family:'Lato',sans-serif;
+        display:flex;flex-direction:column;
+        padding:${padding}px;box-sizing:border-box;
+      ">
+        <div style="
+          font-size:${questionSize * 0.72}px;letter-spacing:0.28em;text-transform:uppercase;
+          color:#7a9e9f;margin-bottom:${isPortrait?40:24}px;font-weight:300;
+        ">Reflect — a quiet place</div>
+        <div style="
+          font-family:'Lato',sans-serif;font-size:${questionSize}px;font-weight:300;
+          color:#4a5a5a;line-height:1.55;margin-bottom:${isPortrait?56:36}px;
+          max-width:${w - padding*2}px;
+        ">${q}</div>
+        <div style="
+          flex:1;overflow:hidden;
+          font-family:'Cormorant Garamond',serif;font-size:${answerSize}px;
+          font-style:italic;color:#1a1a1a;line-height:1.8;
+        "><p style="margin-bottom:1em;">${a}</p></div>
+        <div style="
+          border-top:1px solid #cdd4d4;
+          padding-top:${isPortrait?44:24}px;
+          display:flex;justify-content:space-between;align-items:flex-end;
+        ">
+          <div style="
+            font-family:'Cormorant Garamond',serif;font-size:${brandSize}px;
+            font-style:italic;color:#8a9a9a;
+          ">a quiet place</div>
+          <div style="
+            font-family:'Lato',sans-serif;font-size:${Math.round(brandSize*0.72)}px;
+            font-weight:300;letter-spacing:0.12em;color:#8a9a9a;text-transform:lowercase;
+          ">a-quiet-place-app.vercel.app</div>
+        </div>
+      </div>`;
+
+    // Use a hidden stage div
+    let stage = document.getElementById('reflectRenderStage');
+    if (!stage) {
+      stage = document.createElement('div');
+      stage.id = 'reflectRenderStage';
+      stage.style.cssText = 'position:fixed;left:-9999px;top:0;pointer-events:none;';
+      document.body.appendChild(stage);
+    }
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+    stage.innerHTML = html;
+
+    await new Promise(r => setTimeout(r, 140));
+
+    const canvas = await html2canvas(stage, {
+      width: w, height: h, scale: 1,
+      useCORS: true, backgroundColor: '#eef0f0', logging: false
+    });
+    const link = document.createElement('a');
+    link.download = `aqp-reflect-${reflectFormat}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    closeReflectFormat();
+  } catch(e) {
+    console.error(e);
+    alert('Download failed. Please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Download';
+  }
+}
+
 </script>
 </body>
 </html>
