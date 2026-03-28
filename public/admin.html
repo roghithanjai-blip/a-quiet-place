@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — A Quiet Place</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root {
     --bg: #f0eeeb;
@@ -243,6 +244,70 @@
   /* ── ANIMATIONS ── */
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ── DOWNLOAD ── */
+  .btn-download {
+    padding: 7px 18px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); transition: all 0.2s;
+  }
+  .btn-download:hover { background: var(--bg2); color: var(--text); border-color: var(--text2); }
+
+  /* ── FORMAT PICKER MODAL ── */
+  .format-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(42,37,32,0.65); z-index: 600;
+    backdrop-filter: blur(4px); justify-content: center; align-items: center;
+  }
+  .format-overlay.active { display: flex; }
+  .format-modal {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 40px 44px; width: 100%; max-width: 400px;
+    animation: fadeUp 0.25s ease forwards;
+  }
+  .format-modal-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.3rem;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .format-modal-sub {
+    font-size: 0.78rem; color: var(--text3); margin-bottom: 28px;
+  }
+  .format-choices { display: flex; gap: 12px; margin-bottom: 24px; }
+  .format-choice {
+    flex: 1; padding: 16px 12px; border: 1px solid var(--border);
+    background: var(--bg); cursor: pointer; text-align: center;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .format-choice:hover { border-color: var(--accent); background: var(--surface); }
+  .format-choice.selected { border-color: var(--accent); background: var(--surface); }
+  .format-choice-label {
+    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text2); display: block; margin-bottom: 4px;
+  }
+  .format-choice-size { font-size: 0.65rem; color: var(--text3); }
+  .format-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .format-cancel {
+    padding: 9px 20px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); transition: all 0.2s;
+  }
+  .format-cancel:hover { background: var(--bg2); }
+  .format-confirm {
+    padding: 9px 20px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    cursor: pointer; border: 1px solid var(--text);
+    background: var(--text); color: var(--surface); transition: all 0.2s;
+  }
+  .format-confirm:hover { background: #3d3530; border-color: #3d3530; }
+  .format-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── OFF-SCREEN RENDER STAGE ── */
+  #renderStage {
+    position: fixed; left: -9999px; top: 0;
+    pointer-events: none; z-index: -1;
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .admin-header { padding: 16px 24px; }
@@ -327,6 +392,31 @@
 
   </div>
 </div>
+
+<!-- FORMAT PICKER MODAL -->
+<div class="format-overlay" id="formatOverlay">
+  <div class="format-modal">
+    <div class="format-modal-title">Download as image</div>
+    <div class="format-modal-sub">Choose a format for the image.</div>
+    <div class="format-choices">
+      <div class="format-choice selected" id="fmtSquare" onclick="selectFormat('square')">
+        <span class="format-choice-label">Square</span>
+        <span class="format-choice-size">1080 × 1080</span>
+      </div>
+      <div class="format-choice" id="fmtPortrait" onclick="selectFormat('portrait')">
+        <span class="format-choice-label">Portrait</span>
+        <span class="format-choice-size">1080 × 1920</span>
+      </div>
+    </div>
+    <div class="format-actions">
+      <button class="format-cancel" onclick="closeFormatModal()">Cancel</button>
+      <button class="format-confirm" id="formatConfirmBtn" onclick="confirmDownload()">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- OFF-SCREEN RENDER STAGE -->
+<div id="renderStage"></div>
 
 <!-- LOG MODAL -->
 <div class="log-overlay" id="logOverlay">
@@ -491,6 +581,7 @@ function renderLetters(type, status) {
       <div class="letter-card-actions">
         <button class="expand-btn" onclick="toggleExpand('${type}', ${letter.id})">Read more</button>
         ${getActionButtons(type, status, letter.id)}
+        <button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: letter.id, addressed_to: letter.addressed_to, content: letter.content})})'>Download</button>
       </div>
     </div>
   `).join('');
@@ -553,6 +644,7 @@ function renderVoidLetters(letters) {
         <div class="suggestion-time">${formatDate(l.created_at)}</div>
       </div>
       <button class="btn-delete" onclick="deleteVoidLetter(${l.id})">Delete</button>
+      <button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: l.id, addressed_to: l.addressed_to, content: l.content})})'>Download</button>
     </div>
   `).join('');
 }
@@ -588,6 +680,7 @@ function renderSuggestions() {
         <div class="suggestion-time">${formatDate(s.created_at)}</div>
       </div>
       <button class="btn-delete" onclick="deleteSuggestion(${s.id})">Delete</button>
+      <button class="btn-download" onclick='openDownloadModal("suggestion", ${JSON.stringify({id: s.id, content: s.content})})'>Download</button>
     </div>
   `).join('');
 }
@@ -641,6 +734,189 @@ function closeLog() {
 document.getElementById('logOverlay').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeLog();
 });
+document.getElementById('formatOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeFormatModal();
+});
+
+// ══════════════════════════════════════
+// DOWNLOAD AS IMAGE
+// ══════════════════════════════════════
+let _dlPending = null; // { type, data }
+let _dlFormat = 'square';
+
+function openDownloadModal(type, data) {
+  _dlPending = { type, data };
+  _dlFormat = 'square';
+  selectFormat('square');
+  document.getElementById('formatOverlay').classList.add('active');
+}
+
+function closeFormatModal() {
+  document.getElementById('formatOverlay').classList.remove('active');
+  _dlPending = null;
+}
+
+function selectFormat(fmt) {
+  _dlFormat = fmt;
+  document.getElementById('fmtSquare').classList.toggle('selected', fmt === 'square');
+  document.getElementById('fmtPortrait').classList.toggle('selected', fmt === 'portrait');
+}
+
+async function confirmDownload() {
+  if (!_dlPending) return;
+  const btn = document.getElementById('formatConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  try {
+    const { type, data } = _dlPending;
+    const w = 1080;
+    const h = _dlFormat === 'portrait' ? 1920 : 1080;
+    const stage = document.getElementById('renderStage');
+    stage.innerHTML = '';
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+
+    if (type === 'suggestion') {
+      stage.innerHTML = buildSuggestionCard(data, w, h);
+    } else {
+      stage.innerHTML = buildLetterCard(data, w, h);
+    }
+
+    // small delay so fonts render
+    await new Promise(r => setTimeout(r, 120));
+
+    const canvas = await html2canvas(stage, {
+      width: w, height: h,
+      scale: 1,
+      useCORS: true,
+      backgroundColor: '#f5f0e8',
+      logging: false
+    });
+
+    const link = document.createElement('a');
+    const label = type === 'suggestion' ? 'suggestion' : (data.addressed_to || 'letter').toLowerCase().replace(/\s+/g, '-');
+    link.download = `aqp-${label}-${_dlFormat}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    closeFormatModal();
+  } catch(e) {
+    console.error(e);
+    alert('Download failed. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Download';
+  }
+}
+
+function buildLetterCard(data, w, h) {
+  const padding = Math.round(w * 0.1);
+  const isPortrait = h > w;
+  const titleSize = isPortrait ? 28 : 22;
+  const bodySize = isPortrait ? 34 : 26;
+  const brandSize = isPortrait ? 22 : 18;
+  const recipientText = data.addressed_to ? `A letter to — ${data.addressed_to}` : 'A letter';
+  const content = (data.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n\n/g, '</p><p style="margin-bottom:1em;">').replace(/\n/g, '<br>');
+
+  return `
+    <div style="
+      width:${w}px; height:${h}px; background:#f5f0e8;
+      font-family:'DM Serif Display',serif;
+      display:flex; flex-direction:column;
+      padding:${padding}px;
+      box-sizing:border-box;
+    ">
+      <!-- recipient -->
+      <div style="
+        font-family:'DM Sans',sans-serif;
+        font-size:${titleSize}px; font-weight:300;
+        letter-spacing:0.2em; text-transform:uppercase;
+        color:#c4a882; margin-bottom:${isPortrait ? 80 : 48}px;
+      ">${recipientText}</div>
+
+      <!-- content -->
+      <div style="
+        flex:1; overflow:hidden;
+        font-family:'DM Serif Display',serif;
+        font-size:${bodySize}px; font-style:italic;
+        color:#2a2520; line-height:1.75;
+      ">
+        <p style="margin-bottom:1em;">${content}</p>
+      </div>
+
+      <!-- branding -->
+      <div style="
+        border-top:1px solid #d4cfc8;
+        padding-top:${isPortrait ? 48 : 28}px;
+        display:flex; justify-content:space-between; align-items:flex-end;
+      ">
+        <div style="
+          font-family:'DM Serif Display',serif;
+          font-size:${brandSize}px; font-style:italic;
+          color:#9a9490;
+        ">a quiet place</div>
+        <div style="
+          font-family:'DM Sans',sans-serif;
+          font-size:${Math.round(brandSize * 0.7)}px; font-weight:300;
+          letter-spacing:0.12em; color:#9a9490;
+          text-transform:lowercase;
+        ">a-quiet-place-app.vercel.app</div>
+      </div>
+    </div>
+  `;
+}
+
+function buildSuggestionCard(data, w, h) {
+  const padding = Math.round(w * 0.12);
+  const isPortrait = h > w;
+  const bodySize = isPortrait ? 36 : 28;
+  const brandSize = isPortrait ? 22 : 18;
+  const content = (data.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+
+  return `
+    <div style="
+      width:${w}px; height:${h}px; background:#f5f0e8;
+      font-family:'DM Serif Display',serif;
+      display:flex; flex-direction:column; justify-content:center;
+      padding:${padding}px; box-sizing:border-box;
+    ">
+      <!-- quote mark -->
+      <div style="
+        font-family:'DM Serif Display',serif;
+        font-size:${isPortrait ? 120 : 80}px; color:#c4a882;
+        line-height:0.6; margin-bottom:${isPortrait ? 60 : 36}px;
+        opacity:0.5;
+      ">"</div>
+
+      <!-- content -->
+      <div style="
+        flex:1; display:flex; align-items:center;
+        font-family:'DM Serif Display',serif;
+        font-size:${bodySize}px; font-style:italic;
+        color:#2a2520; line-height:1.75;
+      ">
+        <div>${content}</div>
+      </div>
+
+      <!-- branding -->
+      <div style="
+        border-top:1px solid #d4cfc8;
+        padding-top:${isPortrait ? 48 : 28}px;
+        display:flex; justify-content:space-between; align-items:flex-end;
+      ">
+        <div style="
+          font-family:'DM Serif Display',serif;
+          font-size:${brandSize}px; font-style:italic; color:#9a9490;
+        ">a quiet place</div>
+        <div style="
+          font-family:'DM Sans',sans-serif;
+          font-size:${Math.round(brandSize * 0.7)}px; font-weight:300;
+          letter-spacing:0.12em; color:#9a9490; text-transform:lowercase;
+        ">a-quiet-place-app.vercel.app</div>
+      </div>
+    </div>
+  `;
+}
 
 // ══════════════════════════════════════
 // HELPERS
