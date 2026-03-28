@@ -1329,15 +1329,24 @@
 
     <!-- READ MODE -->
     <div class="reflect-read" id="reflectRead">
-      <div class="reflect-read-header">
-        <div class="reflect-read-title">From the quiet of others</div>
-        <button class="reflect-back-write" onclick="showReflectWrite()">← Write yours</button>
-      </div>
-      <div class="reflect-cards" id="reflectCards">
-        <div class="reflect-read-empty">Loading reflections…</div>
-      </div>
     </div>
 
+  </div>
+</div>
+
+<!-- REFLECT READ VIEW — full page, same as letters archive -->
+<div class="view" id="reflectReadView">
+  <div class="letters-view" style="background: var(--reflect-bg);">
+    <div class="letters-view-topbar" style="background: var(--reflect-bg); border-bottom: 1px solid var(--reflect-border);">
+      <button class="letters-home-btn" onclick="closeReflectReadView()">← Write yours</button>
+      <span class="letters-view-brand" style="color: var(--reflect-mist);">a quiet <em style="color: var(--reflect-accent);">place</em></span>
+      <button class="letters-write-btn" onclick="closeReflectReadView()" style="border-color: var(--reflect-border); color: var(--reflect-mist);">Reflect</button>
+    </div>
+    <div class="letters-view-main" id="reflectReadMain"></div>
+    <div class="letters-view-footer" style="background: #e2e8e8;">
+      <div class="footer-logo" style="color: var(--reflect-mist);">a quiet place</div>
+      <p style="color: var(--reflect-mist);">Reflections left behind by strangers.<br><span style="opacity:0.6;">Anonymous. Honest. Real.</span></p>
+    </div>
   </div>
 </div>
 
@@ -1796,6 +1805,10 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') archiveNext();
     if (e.key === 'ArrowLeft') archivePrev();
   }
+  if (document.getElementById('reflectReadView') && document.getElementById('reflectReadView').classList.contains('active')) {
+    if (e.key === 'ArrowRight') reflectReadNext();
+    if (e.key === 'ArrowLeft') reflectReadPrev();
+  }
 });
 
 // ══════════════════════════════════════
@@ -2044,12 +2057,29 @@ async function submitReflection() {
 
 function closeReflectSuccess() {
   document.getElementById('reflectSuccessOverlay').classList.remove('active');
+  closeReflect();
 }
 
 function showReflectRead() {
-  document.getElementById('reflectWrite').classList.remove('active');
-  document.getElementById('reflectRead').classList.add('active');
-  loadReflectCards();
+  document.getElementById('reflectOverlay').classList.remove('active');
+  document.getElementById('reflectIntro').classList.remove('visible');
+  document.getElementById('reflectIntro').classList.remove('faded');
+  document.body.style.overflow = '';
+  reflectReadIndex = 0;
+  document.getElementById('mainView').classList.remove('active');
+  document.getElementById('lettersView').classList.remove('active');
+  document.getElementById('reflectReadView').classList.add('active');
+  mainNav.style.display = 'none';
+  window.scrollTo(0, 0);
+  loadReflectReadView();
+}
+
+function closeReflectReadView() {
+  document.getElementById('reflectReadView').classList.remove('active');
+  document.getElementById('mainView').classList.add('active');
+  mainNav.style.display = '';
+  window.scrollTo(0, 0);
+  updateNav();
 }
 
 function showReflectWrite() {
@@ -2057,26 +2087,66 @@ function showReflectWrite() {
   document.getElementById('reflectWrite').classList.add('active');
 }
 
-async function loadReflectCards() {
-  const container = document.getElementById('reflectCards');
-  container.innerHTML = '<div class="reflect-read-empty">Loading reflections…</div>';
+let reflectReadLetters = [];
+let reflectReadIndex = 0;
+
+async function loadReflectReadView() {
+  document.getElementById('reflectReadMain').innerHTML = `<div class="letter-archive-wrapper visible"><p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:#8a9a9a;font-size:1.1rem;">Loading…</p></div>`;
   try {
     const response = await fetch('/api/reflections?action=get-approved');
     const result = await response.json();
-    const items = result.reflections || [];
-    if (items.length === 0) {
-      container.innerHTML = '<div class="reflect-read-empty">No reflections yet. Be the first to leave one.</div>';
+    reflectReadLetters = result.reflections || [];
+    if (reflectReadLetters.length === 0) {
+      document.getElementById('reflectReadMain').innerHTML = `
+        <div class="empty-state" style="background:transparent;">
+          <h2 style="font-family:'Cormorant Garamond',serif;font-weight:300;">No reflections yet.</h2>
+          <p>Be the first to leave one.</p>
+          <button class="btn-primary" onclick="closeReflectReadView()" style="margin-top:24px;">Write yours</button>
+        </div>`;
       return;
     }
-    container.innerHTML = items.map(r => `
-      <div class="reflect-card">
-        <div class="reflect-card-question">${escapeHtml(r.question)}</div>
-        <div class="reflect-card-answer">${r.content.split('\n\n').map(p => `<p style="margin-bottom:0.9em;">${escapeHtml(p)}</p>`).join('')}</div>
-        <div class="reflect-card-time">${timeAgo(r.created_at)}</div>
-      </div>
-    `).join('');
+    renderReflectReadCard(0);
   } catch (err) {
-    container.innerHTML = '<div class="reflect-read-empty">Could not load reflections.</div>';
+    document.getElementById('reflectReadMain').innerHTML = `<div class="letter-archive-wrapper visible"><p style="font-family:'Cormorant Garamond',serif;font-style:italic;color:#8a9a9a;">Could not load reflections.</p></div>`;
+  }
+}
+
+function renderReflectReadCard(index) {
+  const main = document.getElementById('reflectReadMain');
+  const r = reflectReadLetters[index];
+  main.innerHTML = `
+    <div class="letter-archive-wrapper" id="reflectArchiveWrapper">
+      <span class="letter-archive-addressed" style="color:var(--reflect-accent);letter-spacing:0.22em;font-size:0.88rem;text-transform:none;">${escapeHtml(r.question)}</span>
+      <div class="letter-archive-text">
+        ${r.content.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+      </div>
+      <div class="letter-timestamp">${timeAgo(r.created_at)}</div>
+    </div>
+    <div class="letter-archive-nav">
+      <button class="archive-nav-btn" onclick="reflectReadPrev()" ${index === 0 ? 'disabled' : ''}>← Previous</button>
+      <span class="archive-counter">${index + 1} of ${reflectReadLetters.length}</span>
+      <button class="archive-nav-btn" onclick="reflectReadNext()" ${index === reflectReadLetters.length - 1 ? 'disabled' : ''}>Next →</button>
+    </div>
+  `;
+  requestAnimationFrame(() => {
+    const wrapper = document.getElementById('reflectArchiveWrapper');
+    if (wrapper) setTimeout(() => wrapper.classList.add('visible'), 30);
+  });
+}
+
+function reflectReadNext() {
+  if (reflectReadIndex < reflectReadLetters.length - 1) {
+    const w = document.getElementById('reflectArchiveWrapper');
+    if (w) { w.style.opacity = '0'; w.style.transform = 'translateY(-12px)'; }
+    setTimeout(() => { reflectReadIndex++; renderReflectReadCard(reflectReadIndex); }, 350);
+  }
+}
+
+function reflectReadPrev() {
+  if (reflectReadIndex > 0) {
+    const w = document.getElementById('reflectArchiveWrapper');
+    if (w) { w.style.opacity = '0'; w.style.transform = 'translateY(12px)'; }
+    setTimeout(() => { reflectReadIndex--; renderReflectReadCard(reflectReadIndex); }, 350);
   }
 }
 
