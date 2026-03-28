@@ -915,7 +915,6 @@
     <li><a href="#write" onclick="showMainView()">Write a Letter</a></li>
     <li><a href="#messages" onclick="showMainView()">Messages</a></li>
     <li><a href="#guide" onclick="showMainView()">How to Help</a></li>
-    <li><a href="#" class="reflect-nav-link" onclick="openReflect(); return false;">Reflect</a></li>
   </ul>
 </nav>
 
@@ -931,9 +930,15 @@
     <span class="eyebrow">A quiet place for everything that has no other place to go.</span>
     <h1>You don't have<br>to carry it<br><em>silently.</em></h1>
     <p class="hero-sub">A place to put down what you've been holding. No judgment, no performance, no burden on anyone. Just space — for whatever you need to say.</p>
-    <div class="hero-actions">
-      <a href="#write" class="btn-primary">Write a letter</a>
-      <button class="btn-ghost" onclick="showLettersView()">Read what others have left behind</button>
+    <div class="hero-actions" style="flex-direction: column; align-items: flex-start; gap: 0;">
+      <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+        <a href="#write" class="btn-primary">Write a letter</a>
+        <button class="btn-ghost" onclick="showLettersView()">Read what others have left behind</button>
+      </div>
+      <div style="margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--faint); display: flex; flex-direction: column; align-items: flex-start; gap: 12px;">
+        <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--mist); font-size: 1.5rem;">Or sit with a question for a while —</p>
+        <button class="btn-ghost" onclick="openReflect()">Reflect</button>
+      </div>
     </div>
   </section>
 
@@ -1494,7 +1499,7 @@ fsText.addEventListener('input', function() {
 
 function submitLetter() {
   const text = fsText.value.trim();
-  if (!text || text.length < 10) { fsText.style.borderColor = '#c4a882'; setTimeout(() => fsText.style.borderColor = '', 1500); return; }
+  if (!text) { fsText.style.borderColor = '#c4a882'; setTimeout(() => fsText.style.borderColor = '', 1500); return; }
   document.getElementById('letterPreview').value = text.substring(0, 300) + (text.length > 300 ? '…' : '');
   document.getElementById('letterModal').classList.add('active');
 }
@@ -1889,61 +1894,60 @@ document.querySelectorAll('.principle, .guide-card').forEach(el => {
 // ══════════════════════════════════════
 
 const REFLECT_QUESTIONS = [
-  "What part of yourself have you been explaining away for years?",
-  "What do you pretend not to need?",
-  "Who were you before you learned to be careful?",
-  "What feeling do you reach for when you don't want to feel the real one?",
-  "What have you forgiven in others that you won't forgive in yourself?",
-  "What version of yourself are you still grieving?",
-  "What do you keep almost saying?",
-  "Is there something you've been calling a personality trait that might actually be a wound?",
-  "What are you most afraid someone will notice about you?",
-  "What are you staying in that you know, quietly, you should leave?",
-  "What did you want when you were young that you've stopped letting yourself want?",
-  "Is the life you're building the one you actually chose?",
-  "What would you do if you stopped waiting to feel ready?",
-  "What have you been postponing — not because you can't, but because starting it would make it real?",
-  "What are you pretending is fine?",
-  "What do you keep choosing even though it costs you something each time?",
-  "What would change if you stopped trying to deserve things first?",
-  "What is the smallest version of a dream you've allowed yourself to keep?",
-  "Who have you never properly said goodbye to?",
-  "Is there someone you're still waiting to hear something from — even though you know it's not coming?",
-  "Who taught you that love comes with conditions — and do you still believe them?",
-  "Who do you miss in a way you haven't admitted to anyone?",
-  "Is there someone you hurt that you haven't let yourself fully sit with?",
-  "Who would you call if you let yourself need someone right now?",
-  "Who did you become smaller around — and are you still doing it?",
-  "Is there a relationship you've been rewriting in your head to make it hurt less?",
-  "Who do you wish had known you better?",
-  "Is there someone you've kept at a distance because getting close felt like too much to lose?",
-  "What do you know now that your younger self desperately needed to hear?",
-  "When did you last feel like yourself — fully, without effort?",
-  "What has changed in you that you haven't acknowledged out loud?",
-  "Is there a chapter of your life you haven't grieved properly?",
-  "What are you still carrying from something that ended a long time ago?",
-  "What part of your past are you still trying to make sense of?",
-  "Is there a version of your life you let go of that still visits you sometimes?",
-  "When did you stop believing something you used to believe — and did you notice when it happened?",
-  "What season of your life are you in right now, honestly?",
-  "What do you want that you haven't said out loud because saying it would mean admitting you want it?",
-  "What are you afraid would happen if you let yourself rest?",
-  "What does your body know that your mind hasn't caught up to yet?",
-  "What are you avoiding by staying busy?",
-  "What question are you most afraid to sit with?",
-  "Is there something you've been pretending not to know?",
-  "What does a good day actually look like for you — not the version you perform, the real one?",
-  "What are you hungry for that has nothing to do with food, or money, or success?",
-  "What would you say to yourself right now if you were being completely honest?",
-  "What do you believe that you've never said out loud?",
-  "What loss changed the way you see things — and have you ever named what it changed?",
-  "What do you keep coming back to, no matter how far you wander from it?",
-  "Is there something you've been through that you haven't yet decided what it means?",
-  "What would make you feel like your life had mattered — not to the world, just to you?",
-  "What are you doing out of habit that you'd stop if you thought about it?",
-  "What did a hard thing take from you that you haven't noticed yet?",
-  "What would you do differently if no one was watching — and no one would ever know?",
-  "If your silence had a shape, what would it be?"
+  "What part of yourself do you often find yourself explaining away?",
+"What is something you’ve convinced yourself you don’t need?",
+"Do you remember who you were before you started holding back?",
+"Is there a feeling you tend to lean on when something else feels harder to face?",
+"Is there something you’ve forgiven in others but still hold against yourself?",
+"Is there a version of yourself you still find yourself thinking about or missing?",
+"What do you keep almost saying?",
+"Is there something about yourself you’ve always accepted, but never really questioned?",
+"Is there something about yourself you hope others don’t notice?",
+"Is there something in your life you’ve been unsure about staying in?",
+"Is there something you once wanted that you no longer allow yourself to think about?",
+"Do you feel like the life you're building reflects what you truly want?",
+"Is there something you might begin, even without feeling fully ready?",
+"Is there something you’ve been putting off because starting it feels significant?",
+"What are you pretending is fine?",
+"Is there something you keep returning to, even if it takes something from you?",
+"What might feel different if you didn’t have to earn everything first?",
+"What is the smallest version of a dream you've allowed yourself to keep?",
+"Who have you never properly said goodbye to?",
+"Is there someone you're still waiting to hear something from — even though you know it's not coming?",
+"Who taught you that love comes with conditions, and do you still believe them?",
+"Who do you miss in a way you haven't admitted to anyone?",
+"Do you ever think about moments you wish you had handled differently with someone?",
+"Who would you call if you let yourself need someone right now?",
+"Have you ever felt like you had to be less of yourself around someone?",
+"Do you ever revisit a relationship and see it differently each time?",
+"Who do you wish had known you better?",
+"Is there someone you’ve kept a little distance from, even if they matter?",
+"What do you know now that your younger self desperately needed to hear?",
+"When did you last feel like yourself — fully, without effort?",
+"What has changed in you that you haven't acknowledged out loud?",
+"Is there a chapter of your life you haven't grieved properly?",
+"What are you still carrying from something that ended a long time ago?",
+"What part of your past are you still trying to make sense of?",
+"Is there a version of your life you let go of that still visits you sometimes?",
+"When did you stop believing something you used to believe?",
+"What season of your life are you in right now, honestly?",
+"Is there something you want that you haven’t said out loud yet?",
+"What are you afraid would happen if you let yourself rest?",
+"What does your body know that your mind hasn't caught up to yet?",
+"What are you avoiding by staying busy?",
+"What question are you most afraid to sit with?",
+"Is there something you've been pretending not to know?",
+"What does a genuinely good day look like for you?",
+"What are you hungry for that has nothing to do with food, or money, or success?",
+"What would you say to yourself right now if you were being completely honest?",
+"What do you believe that you've never said out loud?",
+"What loss changed the way you see things?",
+"What do you keep coming back to, no matter how far you wander from it?",
+"Is there something you've been through that you haven't yet decided what it means?",
+"What would make you feel like your life had mattered — not to the world, just to you?",
+"Is there something you do out of habit without really noticing?",
+"Is there something a difficult experience may have changed in you?",
+"What would you do differently if no one was watching, and no one would ever know?"
 ];
 
 let reflectCurrentQuestion = '';
