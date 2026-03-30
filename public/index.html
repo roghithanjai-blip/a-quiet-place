@@ -236,9 +236,10 @@
     background: transparent; cursor: pointer; transition: all 0.2s;
     font-family: 'Lato', sans-serif; font-weight: 300;
   }
-  .to-chip:hover, .to-chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .to-chip.void-chip { background: #888880; color: var(--paper); border-color: #888880; margin-left: 16px; }
-  .to-chip.void-chip:hover, .to-chip.void-chip.active { background: #666660; border-color: #666660; color: var(--paper); }
+  .to-chip:hover, .to-chip.active { background: #5c4a3a; color: var(--paper); border-color: #5c4a3a; }
+  .to-chip.void-chip { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 0 0 0 1px rgba(196,168,130,0.35); }
+  .to-chip.void-chip:hover { background: #2e2925; border-color: #2e2925; color: var(--paper); box-shadow: 0 0 0 1px rgba(196,168,130,0.5); }
+  .to-chip.void-chip.active { background: var(--ink); border-color: var(--ink); color: var(--paper); box-shadow: 0 0 0 1px rgba(196,168,130,0.5); }
 
   .composer-invite {
     font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-style: italic;
@@ -252,9 +253,9 @@
 
   /* ── FULLSCREEN COMPOSER ── */
   .fullscreen-overlay {
-    position: fixed; inset: 0; background: rgba(245,240,232,0.98);
+    position: fixed; inset: 0; background: #f5f0e8;
     z-index: 400; display: flex; flex-direction: column; align-items: center;
-    opacity: 0; pointer-events: none; transition: opacity 0.45s ease; overflow-y: auto;
+    opacity: 0; pointer-events: none; transition: opacity 0.45s ease, background 0.5s ease; overflow-y: auto;
   }
   .fullscreen-overlay.active { opacity: 1; pointer-events: all; }
 
@@ -281,7 +282,7 @@
   }
   .fullscreen-textarea::placeholder { color: var(--faint); font-style: italic; }
   .fullscreen-textarea:focus { border-color: var(--dust); }
-  .fullscreen-textarea.void-mode { background: rgba(26,23,20,0.025); }
+  .fullscreen-textarea.void-mode { background: transparent; }
 
   .void-note {
     display: none; margin-top: 14px;
@@ -289,6 +290,98 @@
     color: var(--mist); opacity: 0; transition: opacity 0.5s;
   }
   .void-note.visible { display: block; opacity: 1; }
+
+  /* ── VOID MODE — full overlay transformation ── */
+  .fullscreen-overlay.void-mode {
+    background: #111009;
+  }
+
+  /* back button dims */
+  .fullscreen-overlay.void-mode .fullscreen-back {
+    color: rgba(196,168,130,0.35);
+    transition: color 0.5s ease;
+  }
+  .fullscreen-overlay.void-mode .fullscreen-back:hover { color: rgba(196,168,130,0.7); }
+
+  /* label dims */
+  .fullscreen-overlay.void-mode .fullscreen-label {
+    color: rgba(196,168,130,0.3);
+    transition: color 0.5s ease;
+  }
+
+  /* non-void chips ghost out */
+  .fullscreen-overlay.void-mode .fullscreen-chips .to-chip:not(.void-chip) {
+    background: transparent;
+    border-color: rgba(196,168,130,0.35);
+    color: rgba(196,168,130,0.55);
+    transition: all 0.5s ease;
+  }
+  .fullscreen-overlay.void-mode .fullscreen-chips .to-chip:not(.void-chip):hover {
+    border-color: rgba(196,168,130,0.55);
+    color: rgba(196,168,130,0.75);
+  }
+
+  /* void chip inverts — becomes the light one */
+  .fullscreen-overlay.void-mode .fullscreen-chips .void-chip.active {
+    background: transparent;
+    border-color: rgba(245,240,232,0.55);
+    color: rgba(245,240,232,0.85);
+    transition: all 0.5s ease;
+  }
+
+  /* visibility note whispers */
+  .fullscreen-overlay.void-mode .fullscreen-visibility-note {
+    color: rgba(196,168,130,0.28);
+    transition: color 0.5s ease;
+  }
+
+  /* void note softens */
+  .fullscreen-overlay.void-mode .void-note {
+    color: rgba(196,168,130,0.45);
+    transition: color 0.5s ease;
+  }
+
+  /* textarea — gold text, dim border */
+  .fullscreen-overlay.void-mode .fullscreen-textarea {
+    color: var(--warm);
+    border-bottom-color: rgba(196,168,130,0.25);
+    caret-color: var(--warm);
+    transition: color 0.5s ease, border-color 0.5s ease;
+  }
+  .fullscreen-overlay.void-mode .fullscreen-textarea::placeholder {
+    color: rgba(196,168,130,0.3);
+  }
+  .fullscreen-overlay.void-mode .fullscreen-textarea:focus {
+    border-bottom-color: rgba(196,168,130,0.45);
+  }
+
+  /* char count whispers */
+  .fullscreen-overlay.void-mode .char-count {
+    color: rgba(196,168,130,0.3);
+    transition: color 0.5s ease;
+  }
+
+  /* anon note dims */
+  .fullscreen-overlay.void-mode .anon-note {
+    color: rgba(196,168,130,0.3);
+    transition: color 0.5s ease;
+  }
+  .fullscreen-overlay.void-mode .anon-note::before {
+    color: rgba(196,168,130,0.3);
+  }
+
+  /* release button — ghost outlined, not demanding */
+  .fullscreen-overlay.void-mode .btn-primary {
+    background: transparent;
+    color: rgba(196,168,130,0.6);
+    border: 1px solid rgba(196,168,130,0.3);
+    transition: all 0.5s ease;
+  }
+  .fullscreen-overlay.void-mode .btn-primary:hover {
+    background: rgba(196,168,130,0.08);
+    color: rgba(196,168,130,0.85);
+    border-color: rgba(196,168,130,0.55);
+  }
 
   .fullscreen-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; flex-wrap: wrap; gap: 16px; }
   .char-count { font-size: 0.95rem; color: var(--small-text); letter-spacing: 0.1em; }
@@ -1445,6 +1538,7 @@ function selectStaticTo(el) {
   document.querySelectorAll('#staticComposer .to-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
   currentTo = el.textContent.trim();
+  openFullscreen();
 }
 
 // ══════════════════════════════════════
@@ -1462,7 +1556,8 @@ function openFullscreen() {
   document.querySelectorAll('#fullscreenChips .to-chip').forEach(c => c.classList.toggle('active', c.textContent.trim() === fsTo));
   if (savedText) fsText.value = savedText;
   updateVoidNote(fsTo);
-  fsText.classList.toggle('void-mode', fsTo === 'The void');
+  const isVoid = fsTo === 'The void';
+  fsOverlay.classList.toggle('void-mode', isVoid);
   fsText.placeholder = chipPlaceholders[fsTo] || "Begin wherever you are. There's no wrong way to start.";
   setTimeout(() => fsText.focus(), 350);
 }
@@ -1497,7 +1592,8 @@ function selectFullscreenTo(el, label) {
   el.classList.add('active');
   fsTo = label; currentTo = label;
   updateVoidNote(label);
-  fsText.classList.toggle('void-mode', label === 'The void');
+  const isVoid = label === 'The void';
+  document.getElementById('fullscreenComposer').classList.toggle('void-mode', isVoid);
   fsText.placeholder = chipPlaceholders[label] || "Begin wherever you are. There's no wrong way to start.";
 }
 
@@ -1542,7 +1638,7 @@ async function confirmLetter() {
     document.querySelectorAll('#fullscreenChips .to-chip').forEach((c, i) => c.classList.toggle('active', i === 0));
     fsTo = 'No one'; currentTo = 'No one';
     updateVoidNote('No one');
-    fsText.classList.remove('void-mode');
+    document.getElementById('fullscreenComposer').classList.remove('void-mode');
     closeFullscreen();
     setTimeout(() => document.getElementById('successModal').classList.add('active'), 500);
 
