@@ -315,14 +315,15 @@
     margin-bottom: 48px; position: sticky; top: 73px; z-index: 50;
   }
   .section-nav-btn {
-    padding: 12px 24px; font-family: 'DM Sans', sans-serif;
+    flex: 1; padding: 12px 8px; font-family: 'DM Sans', sans-serif;
     font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
     cursor: pointer; color: var(--text3); background: none;
     border: none; border-right: 1px solid var(--border);
-    transition: all 0.2s;
+    transition: all 0.2s; text-align: center;
   }
   .section-nav-btn:last-child { border-right: none; }
   .section-nav-btn:hover { color: var(--text); background: var(--bg2); }
+  .section-nav-btn.active { color: var(--text); background: var(--bg2); border-bottom: 2px solid var(--accent); }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
@@ -370,11 +371,11 @@
 
     <!-- SECTION NAV -->
     <div class="section-nav">
-      <button class="section-nav-btn" onclick="document.getElementById('sec-primary').scrollIntoView({behavior:'smooth'})">Primary Letters</button>
-      <button class="section-nav-btn" onclick="document.getElementById('sec-comfort').scrollIntoView({behavior:'smooth'})">Comfort Letters</button>
-      <button class="section-nav-btn" onclick="document.getElementById('sec-void').scrollIntoView({behavior:'smooth'})">Void Letters</button>
-      <button class="section-nav-btn" onclick="document.getElementById('sec-suggestions').scrollIntoView({behavior:'smooth'})">Suggestions</button>
-      <button class="section-nav-btn" onclick="document.getElementById('sec-reflections').scrollIntoView({behavior:'smooth'})">Reflections</button>
+      <button class="section-nav-btn active" onclick="showSection('primary', this)">Primary Letters</button>
+      <button class="section-nav-btn" onclick="showSection('comfort', this)">Comfort Letters</button>
+      <button class="section-nav-btn" onclick="showSection('void', this)">Void Letters</button>
+      <button class="section-nav-btn" onclick="showSection('suggestions', this)">Suggestions</button>
+      <button class="section-nav-btn" onclick="showSection('reflections', this)">Reflections</button>
     </div>
 
     <!-- PRIMARY LETTERS -->
@@ -390,7 +391,7 @@
     </div>
 
     <!-- COMFORT LETTERS -->
-    <div class="section-block" id="sec-comfort">
+    <div class="section-block" id="sec-comfort" style="display:none;">
       <div class="section-heading">Comfort Letters</div>
       <div class="section-sub">Letters submitted through "Write for someone"</div>
       <div class="tabs">
@@ -402,21 +403,21 @@
     </div>
 
     <!-- VOID LETTERS -->
-    <div class="section-block" id="sec-void">
+    <div class="section-block" id="sec-void" style="display:none;">
       <div class="section-heading">Void Letters</div>
       <div class="section-sub">Letters written to the void — private, never displayed publicly</div>
       <div id="void-letters-list" class="letters-grid"></div>
     </div>
 
     <!-- SUGGESTIONS -->
-    <div class="section-block" id="sec-suggestions">
+    <div class="section-block" id="sec-suggestions" style="display:none;">
       <div class="section-heading">Suggestions</div>
       <div class="section-sub">Feedback left by visitors</div>
       <div id="suggestions-list" class="letters-grid"></div>
     </div>
 
     <!-- REFLECTIONS -->
-    <div class="section-block" id="sec-reflections">
+    <div class="section-block" id="sec-reflections" style="display:none;">
       <div class="section-heading">Reflections</div>
       <div class="section-sub">Answers submitted through the Reflect section</div>
       <div class="tabs">
@@ -470,9 +471,23 @@
 // ══════════════════════════════════════
 // CONFIG — change password here before pushing
 // ══════════════════════════════════════
+// TIER 3 — Admin (full access: approve, reject, delete, download, activity log)
+// TIER 2 — Moderator (approve, reject, download — no delete, no activity log)
+// TIER 1 — Viewer (read only)
 const ADMIN_USERS = {
-  'roghith': 'roghith'
+  'roghith':  { password: 'roghith',  tier: 3 },
+  'admin_a1': { password: 'pass_a1',  tier: 3 },
+  'admin_a2': { password: 'pass_a2',  tier: 3 },
+  'admin_a3': { password: 'pass_a3',  tier: 3 },
+  'mod_m1':   { password: 'pass_m1',  tier: 2 },
+  'mod_m2':   { password: 'pass_m2',  tier: 2 },
+  'mod_m3':   { password: 'pass_m3',  tier: 2 },
+  'view_v1':  { password: 'pass_v1',  tier: 1 },
+  'view_v2':  { password: 'pass_v2',  tier: 1 },
+  'view_v3':  { password: 'pass_v3',  tier: 1 },
 };
+
+let currentTier = 0;
 
 // ══════════════════════════════════════
 // STATE
@@ -492,16 +507,24 @@ let allReflections = [];
 function handleLogin() {
   const username = document.getElementById('usernameInput').value.trim().toLowerCase();
   const password = document.getElementById('passwordInput').value;
-  if (ADMIN_USERS[username] && ADMIN_USERS[username] === password) {
+  const user = ADMIN_USERS[username];
+  if (user && user.password === password) {
     currentUser = username;
+    currentTier = user.tier;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminShell').style.display = 'block';
     document.getElementById('adminGreeting').textContent = `Welcome ${username.charAt(0).toUpperCase() + username.slice(1)}.`;
     sessionStorage.setItem('adminUser', username);
+    applyTierPermissions();
     loadAll();
   } else {
     document.getElementById('loginError').style.display = 'block';
   }
+}
+
+function applyTierPermissions() {
+  const logBtn = document.querySelector('.header-btn.log-btn');
+  if (logBtn) logBtn.style.display = currentTier >= 3 ? '' : 'none';
 }
 
 function handleLogout() {
@@ -521,13 +544,28 @@ document.getElementById('passwordInput').addEventListener('keydown', e => {
   const saved = sessionStorage.getItem('adminUser');
   if (saved && ADMIN_USERS[saved]) {
     currentUser = saved;
+    currentTier = ADMIN_USERS[saved].tier;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminShell').style.display = 'block';
     document.getElementById('adminGreeting').textContent = `Hi ${saved.charAt(0).toUpperCase() + saved.slice(1)}.`;
+    applyTierPermissions();
     loadAll();
   }
 })();
 });
+
+// ══════════════════════════════════════
+// SECTION SWITCHING
+// ══════════════════════════════════════
+const ALL_SECTIONS = ['primary', 'comfort', 'void', 'suggestions', 'reflections'];
+function showSection(name, btn) {
+  ALL_SECTIONS.forEach(s => {
+    document.getElementById(`sec-${s}`).style.display = s === name ? '' : 'none';
+  });
+  document.querySelectorAll('.section-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 // ══════════════════════════════════════
 // LOAD DATA
@@ -619,8 +657,8 @@ function renderLetters(type, status) {
       </div>
       <div class="letter-card-actions">
         <button class="expand-btn" onclick="toggleExpand('${type}', ${letter.id})">Read more</button>
-        ${getActionButtons(type, status, letter.id)}
-        <button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: letter.id, addressed_to: letter.addressed_to, content: letter.content})})'>Download</button>
+        ${currentTier >= 2 ? getActionButtons(type, status, letter.id) : ''}
+        ${currentTier >= 2 ? `<button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: letter.id, addressed_to: letter.addressed_to, content: letter.content})})'>Download</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -682,7 +720,7 @@ function renderVoidLetters(letters) {
         <div class="suggestion-text">${l.content}</div>
         <div class="suggestion-time">${formatDate(l.created_at)}</div>
       </div>
-      <button class="btn-delete" onclick="deleteVoidLetter(${l.id})">Delete</button>
+      ${currentTier >= 3 ? `<button class="btn-delete" onclick="deleteVoidLetter(${l.id})">Delete</button>` : ''}
       <button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: l.id, addressed_to: l.addressed_to, content: l.content})})'>Download</button>
     </div>
   `).join('');
@@ -718,7 +756,7 @@ function renderSuggestions() {
         <div class="suggestion-text">"${s.content}"</div>
         <div class="suggestion-time">${formatDate(s.created_at)}</div>
       </div>
-      <button class="btn-delete" onclick="deleteSuggestion(${s.id})">Delete</button>
+      ${currentTier >= 3 ? `<button class="btn-delete" onclick="deleteSuggestion(${s.id})">Delete</button>` : ''}
       <button class="btn-download" onclick='openDownloadModal("suggestion", ${JSON.stringify({id: s.id, content: s.content})})'>Download</button>
     </div>
   `).join('');
@@ -1004,8 +1042,8 @@ function renderReflections(status) {
       </div>
       <div class="letter-card-actions">
         <button class="expand-btn" onclick="toggleReflectExpand(${r.id})">Read more</button>
-        ${getReflectActionButtons(status, r.id)}
-        <button class="btn-download" onclick='openReflectDownloadAdmin(${JSON.stringify({id: r.id, question: r.question, content: r.content})})'>Download</button>
+        ${currentTier >= 2 ? getReflectActionButtons(status, r.id) : ''}
+        ${currentTier >= 2 ? `<button class="btn-download" onclick='openReflectDownloadAdmin(${JSON.stringify({id: r.id, question: r.question, content: r.content})})'>Download</button>` : ''}
       </div>
     </div>
   `).join('');
