@@ -1,1166 +1,2238 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — A Quiet Place</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<style>
-  :root {
-    --bg: #f0eeeb;
-    --bg2: #e8e5e1;
-    --bg3: #dedad4;
-    --surface: #faf9f7;
-    --border: #d4cfc8;
-    --text: #2a2520;
-    --text2: #6b6460;
-    --text3: #9a9490;
-    --green: #3d6b4f;
-    --green-bg: #e8f0eb;
-    --red: #8b3a3a;
-    --red-bg: #f0e8e8;
-    --amber: #7a5c2a;
-    --amber-bg: #f0ead8;
-    --blue: #2a4a6b;
-    --blue-bg: #e8edf5;
-    --accent: #c4a882;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.6; min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin — A Quiet Place</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #f0eeeb;
+      --bg2: #e8e5e1;
+      --bg3: #dedad4;
+      --surface: #faf9f7;
+      --border: #d4cfc8;
+      --text: #2a2520;
+      --text2: #6b6460;
+      --text3: #9a9490;
+      --green: #3d6b4f;
+      --green-bg: #e8f0eb;
+      --red: #8b3a3a;
+      --red-bg: #f0e8e8;
+      --amber: #7a5c2a;
+      --amber-bg: #f0ead8;
+      --blue: #2a4a6b;
+      --blue-bg: #e8edf5;
+      --accent: #c4a882;
+      --teal: #7a9e9f;
+      --teal-bg: #eef0f0;
+      --teal-text: #4a5a5a;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
 
-  /* ── LOGIN ── */
-  #loginScreen {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    background: var(--bg);
-  }
-  .login-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 56px 48px; width: 100%; max-width: 420px;
-    animation: fadeUp 0.6s ease forwards;
-  }
-  .login-brand {
-    font-family: 'DM Serif Display', serif; font-size: 1.1rem;
-    color: var(--text2); letter-spacing: 0.05em; margin-bottom: 8px;
-    font-style: italic;
-  }
-  .login-title {
-    font-family: 'DM Serif Display', serif; font-size: 2rem;
-    color: var(--text); margin-bottom: 40px; line-height: 1.2;
-  }
-  .login-field { margin-bottom: 20px; }
-  .login-field label {
-    display: block; font-size: 0.72rem; letter-spacing: 0.18em;
-    text-transform: uppercase; color: var(--text2); margin-bottom: 8px;
-  }
-  .login-field input {
-    width: 100%; padding: 12px 16px; border: 1px solid var(--border);
-    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem; font-weight: 300; outline: none;
-    transition: border-color 0.2s;
-  }
-  .login-field input:focus { border-color: var(--accent); }
-  .login-btn {
-    width: 100%; padding: 14px; background: var(--text); color: var(--surface);
-    border: none; font-family: 'DM Sans', sans-serif; font-size: 0.8rem;
-    font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
-    cursor: pointer; margin-top: 8px; transition: background 0.2s;
-  }
-  .login-btn:hover { background: #3d3530; }
-  .login-error {
-    margin-top: 16px; font-size: 0.82rem; color: var(--red);
-    display: none; text-align: center;
-  }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
 
-  /* ── ADMIN SHELL ── */
-  #adminShell { display: none; }
+    html,
+    body {
+      height: 100%
+    }
 
-  .admin-header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 20px 48px; display: flex; justify-content: space-between;
-    align-items: center; position: sticky; top: 0; z-index: 100;
-  }
-  .admin-header-left { display: flex; flex-direction: column; gap: 2px; }
-  .admin-brand { font-family: 'DM Serif Display', serif; font-size: 0.9rem; color: var(--text2); font-style: italic; }
-  .admin-greeting { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--text); }
-  .admin-header-right { display: flex; gap: 12px; align-items: center; }
-  .header-btn {
-    padding: 8px 20px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
-    cursor: pointer; transition: all 0.2s; border: 1px solid var(--border);
-    background: transparent; color: var(--text2);
-  }
-  .header-btn:hover { background: var(--bg2); color: var(--text); }
-  .header-btn.log-btn { background: var(--text); color: var(--surface); border-color: var(--text); }
-  .header-btn.log-btn:hover { background: #3d3530; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased
+    }
 
-  /* ── MAIN ── */
-  .admin-main { padding: 48px; max-width: 1100px; margin: 0 auto; }
+    button {
+      font-family: inherit;
+      cursor: pointer
+    }
 
-  .section-block { margin-bottom: 64px; }
-  .section-heading {
-    font-family: 'DM Serif Display', serif; font-size: 1.6rem;
-    color: var(--text); margin-bottom: 6px;
-  }
-  .section-sub { font-size: 0.82rem; color: var(--text3); margin-bottom: 28px; }
+    [hidden] {
+      display: none !important
+    }
 
-  /* ── TABS ── */
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
-  .tab {
-    padding: 10px 24px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent;
-    margin-bottom: -1px; transition: all 0.2s; background: none; border-top: none;
-    border-left: none; border-right: none;
-  }
-  .tab:hover { color: var(--text2); }
-  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
-  .tab-badge {
-    display: inline-block; padding: 1px 7px; border-radius: 10px;
-    font-size: 0.65rem; margin-left: 6px; background: var(--bg3); color: var(--text2);
-  }
-  .tab.active .tab-badge { background: var(--accent); color: white; }
+    svg.i {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0
+    }
 
-  /* ── LETTER CARDS ── */
-  .letters-grid { display: flex; flex-direction: column; gap: 16px; }
-  .letter-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 28px 32px; transition: border-color 0.2s;
-  }
-  .letter-card:hover { border-color: var(--accent); }
-  .letter-card-meta {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 16px;
-  }
-  .letter-card-to {
-    font-size: 0.68rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--accent); font-weight: 400;
-  }
-  .letter-card-time { font-size: 0.72rem; color: var(--text3); }
-  .letter-card-body {
-    font-family: 'DM Serif Display', serif; font-size: 1rem;
-    font-style: italic; color: var(--text2); line-height: 1.8;
-    max-height: 120px; overflow: hidden; position: relative;
-  }
-  .letter-card-body.expanded { max-height: none; }
-  .letter-card-body::after {
-    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-    height: 40px; background: linear-gradient(transparent, var(--surface));
-    pointer-events: none;
-  }
-  .letter-card-body.expanded::after { display: none; }
-  .letter-card-actions {
-    display: flex; gap: 10px; align-items: center; margin-top: 20px;
-    padding-top: 16px; border-top: 1px solid var(--border);
-  }
-  .expand-btn {
-    font-size: 0.72rem; color: var(--text3); background: none; border: none;
-    cursor: pointer; padding: 0; letter-spacing: 0.1em; margin-right: auto;
-  }
-  .expand-btn:hover { color: var(--text2); }
-  .action-btn {
-    padding: 7px 18px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid; transition: all 0.2s;
-  }
-  .btn-approve { background: var(--green-bg); color: var(--green); border-color: #b8d4c0; }
-  .btn-approve:hover { background: var(--green); color: white; border-color: var(--green); }
-  .btn-reject { background: var(--red-bg); color: var(--red); border-color: #d4b8b8; }
-  .btn-reject:hover { background: var(--red); color: white; border-color: var(--red); }
-  .btn-pending { background: var(--amber-bg); color: var(--amber); border-color: #d4c4a0; }
-  .btn-pending:hover { background: var(--amber); color: white; border-color: var(--amber); }
+    /* ── LOGIN ── */
+    #login {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px
+    }
 
-  /* ── SUGGESTIONS ── */
-  .suggestion-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 24px 28px; display: flex; justify-content: space-between;
-    align-items: flex-start; gap: 24px; transition: border-color 0.2s;
-  }
-  .suggestion-card:hover { border-color: var(--accent); }
-  .suggestion-content { flex: 1; }
-  .suggestion-text {
-    font-family: 'DM Serif Display', serif; font-style: italic;
-    font-size: 1rem; color: var(--text2); line-height: 1.8; margin-bottom: 8px;
-  }
-  .suggestion-time { font-size: 0.72rem; color: var(--text3); }
-  .btn-delete {
-    padding: 6px 14px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid #d4b8b8; background: var(--red-bg);
-    color: var(--red); transition: all 0.2s; flex-shrink: 0;
-  }
-  .btn-delete:hover { background: var(--red); color: white; border-color: var(--red); }
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 56px 48px;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp .6s ease both
+    }
 
-  /* ── LOG MODAL ── */
-  .log-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(42,37,32,0.7); z-index: 500;
-    backdrop-filter: blur(4px); justify-content: center; align-items: center;
-  }
-  .log-overlay.active { display: flex; }
-  .log-modal {
-    background: var(--surface); width: 90%; max-width: 780px;
-    max-height: 85vh; display: flex; flex-direction: column;
-    border: 1px solid var(--border);
-  }
-  .log-header {
-    padding: 28px 36px; border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-  }
-  .log-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; }
-  .log-close {
-    background: none; border: none; font-size: 1.1rem;
-    color: var(--text3); cursor: pointer; transition: color 0.2s;
-  }
-  .log-close:hover { color: var(--text); }
-  .log-body { padding: 24px 36px; overflow-y: auto; flex: 1; }
-  .log-entry {
-    display: grid; grid-template-columns: 120px 80px 80px 1fr;
-    gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border);
-    font-size: 0.82rem; align-items: center;
-  }
-  .log-entry:last-child { border-bottom: none; }
-  .log-time { color: var(--text3); font-size: 0.72rem; }
-  .log-user { color: var(--text); font-weight: 400; }
-  .log-action {
-    padding: 2px 10px; font-size: 0.65rem; letter-spacing: 0.1em;
-    text-transform: uppercase; border-radius: 2px; text-align: center;
-  }
-  .log-action.approved { background: var(--green-bg); color: var(--green); }
-  .log-action.rejected { background: var(--red-bg); color: var(--red); }
-  .log-action.pending { background: var(--amber-bg); color: var(--amber); }
-  .log-action.deleted { background: var(--bg3); color: var(--text2); }
-  .log-note { color: var(--text2); font-size: 0.78rem; }
-  .log-empty { text-align: center; padding: 40px; color: var(--text3); font-style: italic; }
+    .brand {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--text2);
+      letter-spacing: .03em
+    }
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    padding: 48px; text-align: center; color: var(--text3);
-    font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1rem;
-    border: 1px dashed var(--border);
-  }
+    .login-card .brand {
+      font-size: 1.1rem;
+      margin-bottom: 8px
+    }
 
-  /* ── ANIMATIONS ── */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .login-title {
+      font-family: var(--serif);
+      font-size: 2rem;
+      line-height: 1.2;
+      margin-bottom: 40px
+    }
 
-  /* ── DOWNLOAD ── */
-  .btn-download {
-    padding: 7px 18px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid var(--border);
-    background: transparent; color: var(--text2); transition: all 0.2s;
-  }
-  .btn-download:hover { background: var(--bg2); color: var(--text); border-color: var(--text2); }
+    .field {
+      margin-bottom: 20px
+    }
 
-  /* ── FORMAT PICKER MODAL ── */
-  .format-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(42,37,32,0.65); z-index: 600;
-    backdrop-filter: blur(4px); justify-content: center; align-items: center;
-  }
-  .format-overlay.active { display: flex; }
-  .format-modal {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 40px 44px; width: 100%; max-width: 400px;
-    animation: fadeUp 0.25s ease forwards;
-  }
-  .format-modal-title {
-    font-family: 'DM Serif Display', serif; font-size: 1.3rem;
-    color: var(--text); margin-bottom: 6px;
-  }
-  .format-modal-sub {
-    font-size: 0.78rem; color: var(--text3); margin-bottom: 28px;
-  }
-  .format-choices { display: flex; gap: 12px; margin-bottom: 24px; }
-  .format-choice {
-    flex: 1; padding: 16px 12px; border: 1px solid var(--border);
-    background: var(--bg); cursor: pointer; text-align: center;
-    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
-  }
-  .format-choice:hover { border-color: var(--accent); background: var(--surface); }
-  .format-choice.selected { border-color: var(--accent); background: var(--surface); }
-  .format-choice-label {
-    font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--text2); display: block; margin-bottom: 4px;
-  }
-  .format-choice-size { font-size: 0.65rem; color: var(--text3); }
-  .format-actions { display: flex; gap: 10px; justify-content: flex-end; }
-  .format-cancel {
-    padding: 9px 20px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid var(--border);
-    background: transparent; color: var(--text2); transition: all 0.2s;
-  }
-  .format-cancel:hover { background: var(--bg2); }
-  .format-confirm {
-    padding: 9px 20px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-    cursor: pointer; border: 1px solid var(--text);
-    background: var(--text); color: var(--surface); transition: all 0.2s;
-  }
-  .format-confirm:hover { background: #3d3530; border-color: #3d3530; }
-  .format-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+    .field label {
+      display: block;
+      font-size: .72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-bottom: 8px
+    }
 
-  /* ── OFF-SCREEN RENDER STAGE ── */
-  #renderStage {
-    position: fixed; left: -9999px; top: 0;
-    pointer-events: none; z-index: -1;
-  }
+    .field input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font: 300 .95rem var(--sans);
+      outline: none;
+      transition: border-color .2s
+    }
 
-  /* ── SECTION NAV ── */
-  .section-nav {
-    display: flex; gap: 0; flex-wrap: wrap;
-    background: var(--surface); border: 1px solid var(--border);
-    margin-bottom: 48px; position: sticky; top: 73px; z-index: 50;
-  }
-  .section-nav-btn {
-    flex: 1; padding: 12px 8px; font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-    cursor: pointer; color: var(--text3); background: none;
-    border: none; border-right: 1px solid var(--border);
-    transition: all 0.2s; text-align: center;
-  }
-  .section-nav-btn:last-child { border-right: none; }
-  .section-nav-btn:hover { color: var(--text); background: var(--bg2); }
-  .section-nav-btn.active { color: var(--text); background: var(--bg2); border-bottom: 2px solid var(--accent); }
+    .field input:focus {
+      border-color: var(--accent)
+    }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .admin-header { padding: 16px 24px; }
-    .admin-main { padding: 24px; }
-    .log-entry { grid-template-columns: 1fr 1fr; gap: 8px; }
-  }
-</style>
+    .btn-dark {
+      width: 100%;
+      padding: 14px;
+      background: var(--text);
+      color: var(--surface);
+      border: none;
+      font: 400 .8rem var(--sans);
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      margin-top: 8px;
+      transition: background .2s
+    }
+
+    .btn-dark:hover {
+      background: #3d3530
+    }
+
+    .login-error {
+      margin-top: 16px;
+      font-size: .82rem;
+      color: var(--red);
+      text-align: center
+    }
+
+
+    /* login quote */
+    .login-wrap {
+      width: 100%;
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px
+    }
+
+    .lq {
+      text-align: center;
+      min-height: 96px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8px;
+      transition: opacity .3s ease
+    }
+
+    .lq.fade {
+      opacity: 0
+    }
+
+    .lq-text {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.15rem;
+      line-height: 1.65;
+      color: var(--text2)
+    }
+
+    .lq-by {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      font-size: .66rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 400
+    }
+
+    .lq-by::before,
+    .lq-by::after {
+      content: '';
+      width: 20px;
+      height: 1px;
+      background: var(--border)
+    }
+
+    .lq-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      padding: 2px;
+      display: flex;
+      transition: all .2s
+    }
+
+    .lq-btn:hover {
+      color: var(--text)
+    }
+
+    .lq-btn.spin svg {
+      transform: rotate(360deg);
+      transition: transform .5s
+    }
+
+    /* ── APP SHELL ── */
+    #app {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      height: 100dvh;
+      overflow: hidden
+    }
+
+    .side {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 0
+    }
+
+    .side-brand {
+      padding: 28px 24px 22px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .side-brand .brand {
+      font-size: 1.25rem;
+      color: var(--text)
+    }
+
+    .side-label {
+      padding: 20px 24px 8px;
+      font-size: .66rem;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--text3)
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 24px;
+      background: none;
+      border: none;
+      border-left: 2px solid transparent;
+      color: var(--text2);
+      font: 300 .9rem var(--sans);
+      text-align: left;
+      transition: all .15s
+    }
+
+    .nav-item:hover {
+      background: var(--bg);
+      color: var(--text)
+    }
+
+    .nav-item.active {
+      background: var(--bg);
+      border-left-color: var(--accent);
+      color: var(--text);
+      font-weight: 400
+    }
+
+    .nav-item .nl {
+      flex: 1
+    }
+
+    .badge {
+      font-size: .66rem;
+      min-width: 22px;
+      padding: 1px 7px;
+      text-align: center;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text2);
+      letter-spacing: .04em
+    }
+
+    .badge.hot {
+      background: var(--amber-bg);
+      border-color: #d4c4a0;
+      color: var(--amber)
+    }
+
+    .nav-item[data-sec="reflections"] .badge.hot {
+      background: var(--teal-bg);
+      border-color: #c5d3d3;
+      color: var(--teal-text)
+    }
+
+    .side-foot {
+      border-top: 1px solid var(--border);
+      background: var(--bg)
+    }
+
+    .side-foot-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+      font: 300 .82rem var(--sans);
+      text-align: left
+    }
+
+    .side-foot-link:hover {
+      color: var(--text);
+      background: var(--bg2)
+    }
+
+    .side-user {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 16px 24px
+    }
+
+    .side-user-name {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.2;
+      text-transform: capitalize
+    }
+
+    .side-user-role {
+      font-size: .64rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text3)
+    }
+
+    .icon-btn {
+      background: none;
+      border: 1px solid transparent;
+      color: var(--text3);
+      padding: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      border-color: var(--border);
+      background: var(--surface)
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0
+    }
+
+    .topbar {
+      display: none
+    }
+
+    .split {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      min-height: 0
+    }
+
+    /* ── LIST COLUMN ── */
+    .listcol {
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      min-height: 0
+    }
+
+    .list-head {
+      padding: 22px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .list-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px
+    }
+
+    .list-title {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      line-height: 1.15
+    }
+
+    .list-sub {
+      font-size: .72rem;
+      color: var(--text3)
+    }
+
+    .seg {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border)
+    }
+
+    .seg button {
+      padding: 8px 4px;
+      background: none;
+      border: none;
+      border-right: 1px solid var(--border);
+      font: 400 .68rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text3);
+      transition: all .15s
+    }
+
+    .seg button:last-child {
+      border-right: none
+    }
+
+    .seg button:hover {
+      color: var(--text);
+      background: var(--bg)
+    }
+
+    .seg button.active {
+      background: var(--bg2);
+      color: var(--text);
+      box-shadow: inset 0 -2px 0 var(--accent)
+    }
+
+    .seg button b {
+      font-weight: 500;
+      margin-left: 4px;
+      color: var(--text2)
+    }
+
+    .tools {
+      display: flex;
+      gap: 8px
+    }
+
+    .search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 0 10px;
+      color: var(--text3)
+    }
+
+    .search:focus-within {
+      border-color: var(--accent)
+    }
+
+    .search input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      background: none;
+      outline: none;
+      padding: 8px 0;
+      font: 300 .85rem var(--sans);
+      color: var(--text)
+    }
+
+    .sort-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font: 400 .7rem var(--sans);
+      letter-spacing: .1em;
+      text-transform: uppercase
+    }
+
+    .sort-btn:hover {
+      border-color: var(--accent);
+      color: var(--text)
+    }
+
+    .bulk {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 8px 10px;
+      background: var(--amber-bg);
+      border: 1px solid #d4c4a0;
+      color: var(--amber)
+    }
+
+    .bulk input {
+      accent-color: var(--amber)
+    }
+
+    .bulk-count {
+      font-size: .75rem;
+      font-weight: 400;
+      margin-right: auto
+    }
+
+    .mini {
+      padding: 4px 10px;
+      font: 400 .64rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border: 1px solid;
+      background: var(--surface)
+    }
+
+    .mini.g {
+      color: var(--green);
+      border-color: #b8d4c0
+    }
+
+    .mini.g:hover {
+      background: var(--green);
+      color: #fff
+    }
+
+    .mini.r {
+      color: var(--red);
+      border-color: #d4b8b8
+    }
+
+    .mini.r:hover {
+      background: var(--red);
+      color: #fff
+    }
+
+    .mini.a {
+      color: var(--amber);
+      border-color: #d4c4a0
+    }
+
+    .mini.a:hover {
+      background: var(--amber);
+      color: #fff
+    }
+
+    .mini.x {
+      border-color: transparent;
+      padding: 4px 6px;
+      color: var(--text3)
+    }
+
+    .list {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 0
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      transition: background .12s
+    }
+
+    .row:hover {
+      background: var(--bg)
+    }
+
+    .row.active {
+      background: var(--bg2);
+      border-left-color: var(--accent)
+    }
+
+    .row input[type=checkbox] {
+      margin-top: 4px;
+      accent-color: var(--text);
+      flex-shrink: 0
+    }
+
+    .row-main {
+      flex: 1;
+      min-width: 0
+    }
+
+    .row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .row-title {
+      font-size: .66rem;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .row.reflect .row-title {
+      color: var(--teal)
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .dot.pending {
+      background: var(--amber)
+    }
+
+    .dot.approved {
+      background: var(--green)
+    }
+
+    .dot.rejected {
+      background: var(--red)
+    }
+
+    .row-prev {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: .98rem;
+      line-height: 1.55;
+      color: var(--text2);
+      margin: 6px 0 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden
+    }
+
+    .row-time {
+      font-size: .7rem;
+      color: var(--text3)
+    }
+
+    .skel {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .skel i {
+      display: block;
+      height: 10px;
+      background: linear-gradient(90deg, var(--bg2), var(--bg), var(--bg2));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      margin-bottom: 10px
+    }
+
+    .skel i:nth-child(1) {
+      width: 35%
+    }
+
+    .skel i:nth-child(2) {
+      width: 92%;
+      height: 14px
+    }
+
+    .skel i:nth-child(3) {
+      width: 60%
+    }
+
+    .empty {
+      padding: 56px 32px;
+      text-align: center;
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--text3);
+      font-size: 1.05rem;
+      line-height: 1.7
+    }
+
+    .err {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #d4b8b8;
+      background: var(--red-bg);
+      color: var(--red);
+      font-size: .85rem;
+      text-align: center
+    }
+
+    .err button {
+      margin-top: 12px;
+      padding: 7px 18px;
+      border: 1px solid var(--red);
+      background: none;
+      color: var(--red);
+      font: 400 .7rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase
+    }
+
+    .err button:hover {
+      background: var(--red);
+      color: #fff
+    }
+
+    /* ── DETAIL ── */
+    .detail {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+      background: var(--bg)
+    }
+
+    .detail-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 48px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start
+    }
+
+    .paper {
+      width: 100%;
+      max-width: 700px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 48px 56px;
+      animation: fadeUp .35s ease both;
+      margin: auto 0
+    }
+
+    .paper-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 32px
+    }
+
+    .eyebrow {
+      font-size: .7rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 400
+    }
+
+    .paper.reflect .eyebrow {
+      color: var(--teal)
+    }
+
+    .chip {
+      display: inline-block;
+      padding: 3px 12px;
+      font-size: .64rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 400
+    }
+
+    .chip.pending {
+      background: var(--amber-bg);
+      color: var(--amber)
+    }
+
+    .chip.approved {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    .chip.rejected {
+      background: var(--red-bg);
+      color: var(--red)
+    }
+
+    .paper-date {
+      font-size: .75rem;
+      color: var(--text3);
+      margin-top: -18px;
+      margin-bottom: 28px
+    }
+
+    .paper-q {
+      font-size: 1rem;
+      color: var(--teal-text);
+      line-height: 1.6;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .paper-body {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.3rem;
+      line-height: 1.95;
+      color: var(--text)
+    }
+
+    .paper-body p {
+      margin-bottom: 1.1em
+    }
+
+    .paper-body p:last-child {
+      margin-bottom: 0
+    }
+
+    .paper-foot {
+      margin-top: 40px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: .9rem;
+      color: var(--text3)
+    }
+
+    .note {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .detail-empty {
+      margin: auto;
+      text-align: center;
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--text3);
+      font-size: 1.1rem;
+      padding: 40px
+    }
+
+    .actionbar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: calc(12px + var(--safe-b))
+    }
+
+    .ab-left,
+    .ab-right {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .pos {
+      font-size: .74rem;
+      color: var(--text3);
+      margin-left: 6px;
+      white-space: nowrap
+    }
+
+    .abtn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      font: 400 .72rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      transition: all .15s
+    }
+
+    .abtn:hover {
+      background: var(--bg2);
+      color: var(--text)
+    }
+
+    .abtn.g {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: #b8d4c0
+    }
+
+    .abtn.g:hover {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green)
+    }
+
+    .abtn.r {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: #d4b8b8
+    }
+
+    .abtn.r:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red)
+    }
+
+    .abtn.a {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border-color: #d4c4a0
+    }
+
+    .abtn.a:hover {
+      background: var(--amber);
+      color: #fff;
+      border-color: var(--amber)
+    }
+
+    .abtn.sq {
+      padding: 9px 10px
+    }
+
+    kbd {
+      font: 400 .6rem var(--sans);
+      padding: 0 5px;
+      border: 1px solid currentColor;
+      opacity: .55;
+      letter-spacing: 0;
+      line-height: 1.5
+    }
+
+    .back {
+      display: none
+    }
+
+    /* ── BOTTOM NAV (mobile) ── */
+    .bottomnav {
+      display: none
+    }
+
+    /* ── OVERLAYS ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(42, 37, 32, .65);
+      backdrop-filter: blur(4px);
+      z-index: 600;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px
+    }
+
+    .overlay.on {
+      display: flex
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 460px;
+      animation: fadeUp .25s ease both;
+      max-height: 92dvh;
+      overflow-y: auto
+    }
+
+    .modal h3 {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 400;
+      margin-bottom: 6px
+    }
+
+    .modal .sub {
+      font-size: .8rem;
+      color: var(--text3);
+      margin-bottom: 24px
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px
+    }
+
+    .mbtn {
+      padding: 9px 20px;
+      font: 400 .72rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2)
+    }
+
+    .mbtn:hover {
+      background: var(--bg2)
+    }
+
+    .mbtn.pri {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--surface)
+    }
+
+    .mbtn.pri:hover {
+      background: #3d3530
+    }
+
+    .mbtn.danger {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff
+    }
+
+    .mbtn.danger:hover {
+      background: #6f2d2d
+    }
+
+    .mbtn:disabled {
+      opacity: .4;
+      cursor: not-allowed
+    }
+
+    .fmt {
+      display: flex;
+      gap: 14px
+    }
+
+    .fmt-choice {
+      flex: 1;
+      padding: 14px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      transition: all .15s;
+      color: var(--text2)
+    }
+
+    .fmt-choice:hover,
+    .fmt-choice.sel {
+      border-color: var(--accent);
+      background: var(--surface)
+    }
+
+    .fmt-choice.sel {
+      box-shadow: inset 0 -2px 0 var(--accent)
+    }
+
+    .fmt-thumb {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #f5f0e8;
+      position: relative;
+      flex-shrink: 0
+    }
+
+    .fmt-thumb>div {
+      transform-origin: top left;
+      position: absolute;
+      left: 0;
+      top: 0
+    }
+
+    .fmt-label {
+      font-size: .72rem;
+      letter-spacing: .15em;
+      text-transform: uppercase
+    }
+
+    .fmt-size {
+      font-size: .65rem;
+      color: var(--text3);
+      display: block
+    }
+
+    .del-quote {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--text2);
+      border-left: 2px solid var(--border);
+      padding-left: 14px;
+      font-size: .95rem;
+      line-height: 1.6;
+      margin-top: 4px
+    }
+
+    /* drawer */
+    .drawer-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      display: none
+    }
+
+    .drawer-wrap.on {
+      display: block
+    }
+
+    .drawer-bg {
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 37, 32, .55);
+      backdrop-filter: blur(3px)
+    }
+
+    .drawer {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 600px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      animation: slideIn .28s ease both
+    }
+
+    .drawer-head {
+      padding: 24px 28px 16px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .drawer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px
+    }
+
+    .drawer-title {
+      font-family: var(--serif);
+      font-size: 1.4rem
+    }
+
+    .chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .fchip {
+      padding: 4px 12px;
+      font: 400 .66rem var(--sans);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text2)
+    }
+
+    .fchip.on {
+      background: var(--text);
+      color: var(--surface);
+      border-color: var(--text)
+    }
+
+    .chips select {
+      margin-left: auto;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      font: 300 .78rem var(--sans);
+      color: var(--text);
+      outline: none
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 28px 24px
+    }
+
+    .log-entry {
+      display: grid;
+      grid-template-columns: 130px 90px 84px 1fr;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+      align-items: center
+    }
+
+    .log-entry:last-child {
+      border-bottom: none
+    }
+
+    .log-time {
+      color: var(--text3);
+      font-size: .72rem
+    }
+
+    .log-user {
+      font-weight: 400
+    }
+
+    .log-action {
+      padding: 2px 8px;
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      text-align: center
+    }
+
+    .log-action.approved {
+      background: var(--green-bg);
+      color: var(--green)
+    }
+
+    .log-action.rejected {
+      background: var(--red-bg);
+      color: var(--red)
+    }
+
+    .log-action.pending {
+      background: var(--amber-bg);
+      color: var(--amber)
+    }
+
+    .log-action.deleted {
+      background: var(--bg3);
+      color: var(--text2)
+    }
+
+    .log-action.other {
+      background: var(--blue-bg);
+      color: var(--blue)
+    }
+
+    .log-note {
+      color: var(--text2);
+      font-size: .78rem
+    }
+
+    .log-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text3);
+      font-family: var(--serif);
+      font-style: italic
+    }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translate(-50%, 20px);
+      background: var(--text);
+      color: var(--surface);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: .84rem;
+      z-index: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .25s;
+      max-width: calc(100vw - 32px)
+    }
+
+    .toast.on {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto
+    }
+
+    .toast.bad {
+      background: var(--red)
+    }
+
+    .toast button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font: 400 .7rem var(--sans);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 3px
+    }
+
+    .toast.bad button {
+      color: #fff
+    }
+
+    #renderStage {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      pointer-events: none;
+      z-index: -1
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(40px);
+        opacity: 0
+      }
+
+      to {
+        transform: none;
+        opacity: 1
+      }
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: -200% 0
+      }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width:900px) {
+      #app {
+        grid-template-columns: 1fr
+      }
+
+      .side {
+        display: none
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: calc(12px + var(--safe-t)) 18px 12px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border)
+      }
+
+      .topbar .brand {
+        font-size: 1.1rem;
+        color: var(--text)
+      }
+
+      .topbar-r {
+        display: flex;
+        align-items: center;
+        gap: 2px
+      }
+
+      .topbar-role {
+        font-size: .62rem;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: var(--text3);
+        margin-right: 8px
+      }
+
+      .split {
+        display: block;
+        position: relative
+      }
+
+      .listcol {
+        height: 100%;
+        border-right: none
+      }
+
+      .detail {
+        position: fixed;
+        inset: 0;
+        z-index: 300;
+        transform: translateX(100%);
+        transition: transform .28s ease;
+        visibility: hidden
+      }
+
+      .detail.open {
+        transform: none;
+        visibility: visible
+      }
+
+      .detail-scroll {
+        padding: 20px 16px
+      }
+
+      .paper {
+        padding: 28px 22px
+      }
+
+      .paper-body {
+        font-size: 1.15rem;
+        line-height: 1.85
+      }
+
+      .back {
+        display: inline-flex
+      }
+
+      .actionbar {
+        padding: 10px 12px calc(10px + var(--safe-b))
+      }
+
+      .abtn kbd,
+      .pos {
+        display: none
+      }
+
+      .abtn {
+        padding: 9px 12px
+      }
+
+      .bottomnav {
+        display: flex;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding-bottom: var(--safe-b)
+      }
+
+      .bn {
+        flex: 1;
+        background: none;
+        border: none;
+        border-top: 2px solid transparent;
+        padding: 10px 2px 9px;
+        color: var(--text3);
+        font: 400 .6rem var(--sans);
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        position: relative
+      }
+
+      .bn.active {
+        color: var(--text);
+        border-top-color: var(--accent);
+        background: var(--bg)
+      }
+
+      .bn .badge {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 26px);
+        font-size: .55rem;
+        min-width: 16px;
+        padding: 0 4px
+      }
+
+      .modal {
+        padding: 28px 22px
+      }
+
+      .log-entry {
+        grid-template-columns: 1fr auto;
+        gap: 6px 10px
+      }
+
+      .log-note {
+        grid-column: 1/-1
+      }
+
+      .toast {
+        bottom: calc(76px + var(--safe-b))
+      }
+    }
+
+    @media (max-width:480px) {
+      .login-card {
+        padding: 40px 28px
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-brand">a quiet place</div>
-    <div class="login-title">Admin Access</div>
-    <div class="login-field">
-      <label>Username</label>
-      <input type="text" id="usernameInput" placeholder="Enter username" autocomplete="username">
-    </div>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="passwordInput" placeholder="Enter password" autocomplete="current-password">
-    </div>
-    <button class="login-btn" onclick="handleLogin()">Enter</button>
-    <div class="login-error" id="loginError">Incorrect username or password.</div>
-  </div>
-</div>
-
-<!-- ADMIN SHELL -->
-<div id="adminShell">
-
-  <div class="admin-header">
-    <div class="admin-header-left">
-      <div class="admin-brand">a quiet place</div>
-      <div class="admin-greeting" id="adminGreeting">Hi there.</div>
-    </div>
-    <div class="admin-header-right">
-      <button class="header-btn log-btn" onclick="openLog()">Activity Log</button>
-      <button class="header-btn" onclick="handleLogout()">Log out</button>
+  <!-- LOGIN -->
+  <div id="login">
+    <div class="login-wrap">
+      <div class="lq" id="lq">
+        <div class="lq-text" id="lqText"></div>
+        <div class="lq-by"><span id="lqBy"></span><button type="button" class="lq-btn" id="lqBtn"
+            title="Another thought" aria-label="Another thought"><svg class="i" viewBox="0 0 24 24">
+              <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+            </svg></button></div>
+      </div>
+      <form class="login-card" id="loginForm" autocomplete="on">
+        <div class="brand">a quiet place</div>
+        <div class="login-title">Admin Access</div>
+        <div class="field"><label for="u">Username</label><input type="text" id="u" placeholder="Enter username"
+            autocomplete="username" autocapitalize="off" required></div>
+        <div class="field"><label for="p">Password</label><input type="password" id="p" placeholder="Enter password"
+            autocomplete="current-password" required></div>
+        <button class="btn-dark" type="submit">Enter</button>
+        <div class="login-error" id="loginError" hidden>Incorrect username or password.</div>
+      </form>
     </div>
   </div>
 
-  <div class="admin-main">
-
-    <!-- SECTION NAV -->
-    <div class="section-nav">
-      <button class="section-nav-btn active" onclick="showSection('primary', this)">Primary Letters</button>
-      <button class="section-nav-btn" onclick="showSection('comfort', this)">Comfort Letters</button>
-      <button class="section-nav-btn" onclick="showSection('void', this)">Void Letters</button>
-      <button class="section-nav-btn" onclick="showSection('suggestions', this)">Suggestions</button>
-      <button class="section-nav-btn" onclick="showSection('reflections', this)">Reflections</button>
-    </div>
-
-    <!-- PRIMARY LETTERS -->
-    <div class="section-block" id="sec-primary">
-      <div class="section-heading">Primary Letters</div>
-      <div class="section-sub">Letters submitted through "Write a letter"</div>
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('primary', 'pending', this)">Pending <span class="tab-badge" id="primary-pending-count">0</span></button>
-        <button class="tab" onclick="switchTab('primary', 'approved', this)">Approved <span class="tab-badge" id="primary-approved-count">0</span></button>
-        <button class="tab" onclick="switchTab('primary', 'rejected', this)">Rejected <span class="tab-badge" id="primary-rejected-count">0</span></button>
-      </div>
-      <div id="primary-letters-list" class="letters-grid"></div>
-    </div>
-
-    <!-- COMFORT LETTERS -->
-    <div class="section-block" id="sec-comfort" style="display:none;">
-      <div class="section-heading">Comfort Letters</div>
-      <div class="section-sub">Letters submitted through "Write for someone"</div>
-      <div class="tabs">
-        <button class="tab active" onclick="switchTab('comfort', 'pending', this)">Pending <span class="tab-badge" id="comfort-pending-count">0</span></button>
-        <button class="tab" onclick="switchTab('comfort', 'approved', this)">Approved <span class="tab-badge" id="comfort-approved-count">0</span></button>
-        <button class="tab" onclick="switchTab('comfort', 'rejected', this)">Rejected <span class="tab-badge" id="comfort-rejected-count">0</span></button>
-      </div>
-      <div id="comfort-letters-list" class="letters-grid"></div>
-    </div>
-
-    <!-- VOID LETTERS -->
-    <div class="section-block" id="sec-void" style="display:none;">
-      <div class="section-heading">Void Letters</div>
-      <div class="section-sub">Letters written to the void — private, never displayed publicly</div>
-      <div id="void-letters-list" class="letters-grid"></div>
-    </div>
-
-    <!-- SUGGESTIONS -->
-    <div class="section-block" id="sec-suggestions" style="display:none;">
-      <div class="section-heading">Suggestions</div>
-      <div class="section-sub">Feedback left by visitors</div>
-      <div id="suggestions-list" class="letters-grid"></div>
-    </div>
-
-    <!-- REFLECTIONS -->
-    <div class="section-block" id="sec-reflections" style="display:none;">
-      <div class="section-heading">Reflections</div>
-      <div class="section-sub">Answers submitted through the Reflect section</div>
-      <div class="tabs">
-        <button class="tab active" onclick="switchReflectTab('pending', this)">Pending <span class="tab-badge" id="reflect-pending-count">0</span></button>
-        <button class="tab" onclick="switchReflectTab('approved', this)">Approved <span class="tab-badge" id="reflect-approved-count">0</span></button>
-        <button class="tab" onclick="switchReflectTab('rejected', this)">Rejected <span class="tab-badge" id="reflect-rejected-count">0</span></button>
-      </div>
-      <div id="reflections-list" class="letters-grid"></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- FORMAT PICKER MODAL -->
-<div class="format-overlay" id="formatOverlay">
-  <div class="format-modal">
-    <div class="format-modal-title">Download as image</div>
-    <div class="format-modal-sub">Choose a format for the image.</div>
-    <div class="format-choices">
-      <div class="format-choice selected" id="fmtSquare" onclick="selectFormat('square')">
-        <span class="format-choice-label">Square</span>
-        <span class="format-choice-size">1080 × 1080</span>
-      </div>
-      <div class="format-choice" id="fmtPortrait" onclick="selectFormat('portrait')">
-        <span class="format-choice-label">Portrait</span>
-        <span class="format-choice-size">1080 × 1920</span>
-      </div>
-    </div>
-    <div class="format-actions">
-      <button class="format-cancel" onclick="closeFormatModal()">Cancel</button>
-      <button class="format-confirm" id="formatConfirmBtn" onclick="confirmDownload()">Download</button>
-    </div>
-  </div>
-</div>
-
-<!-- OFF-SCREEN RENDER STAGE -->
-<div id="renderStage"></div>
-
-<!-- LOG MODAL -->
-<div class="log-overlay" id="logOverlay">
-  <div class="log-modal">
-    <div class="log-header">
-      <div class="log-title">Activity Log</div>
-      <button class="log-close" onclick="closeLog()">✕</button>
-    </div>
-    <div class="log-body" id="logBody"></div>
-  </div>
-</div>
-
-<script>
-// ══════════════════════════════════════
-// CONFIG — change password here before pushing
-// ══════════════════════════════════════
-// TIER 3 — Admin (full access: approve, reject, delete, download, activity log)
-// TIER 2 — Moderator (approve, reject, download — no delete, no activity log)
-// TIER 1 — Viewer (read only)
-const ADMIN_USERS = {
-  'roghith':  { password: 'roghith',  tier: 3 },
-  'admin_a1': { password: 'pass_a1',  tier: 3 },
-  'admin_a2': { password: 'pass_a2',  tier: 3 },
-  'admin_a3': { password: 'pass_a3',  tier: 3 },
-  'punnya':   { password: 'punnya',  tier: 2 },
-  'mod_m2':   { password: 'pass_m2',  tier: 2 },
-  'mod_m3':   { password: 'pass_m3',  tier: 2 },
-  'view_v1':  { password: 'pass_v1',  tier: 1 },
-  'view_v2':  { password: 'pass_v2',  tier: 1 },
-  'view_v3':  { password: 'pass_v3',  tier: 1 },
-};
-
-let currentTier = 0;
-
-// ══════════════════════════════════════
-// STATE
-// ══════════════════════════════════════
-let currentUser = '';
-let primaryTab = 'pending';
-let comfortTab = 'pending';
-let reflectTab = 'pending';
-let allPrimary = [];
-let allComfort = [];
-let allSuggestions = [];
-let allReflections = [];
-
-// ══════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════
-function handleLogin() {
-  const username = document.getElementById('usernameInput').value.trim().toLowerCase();
-  const password = document.getElementById('passwordInput').value;
-  const user = ADMIN_USERS[username];
-  if (user && user.password === password) {
-    currentUser = username;
-    currentTier = user.tier;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminShell').style.display = 'block';
-    document.getElementById('adminGreeting').textContent = `Welcome ${username.charAt(0).toUpperCase() + username.slice(1)}.`;
-    sessionStorage.setItem('adminUser', username);
-    applyTierPermissions();
-    loadAll();
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-  }
-}
-
-function applyTierPermissions() {
-  const logBtn = document.querySelector('.header-btn.log-btn');
-  if (logBtn) logBtn.style.display = currentTier >= 3 ? '' : 'none';
-}
-
-function handleLogout() {
-  currentUser = '';
-  sessionStorage.removeItem('adminUser');
-  document.getElementById('adminShell').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('usernameInput').value = '';
-  document.getElementById('passwordInput').value = '';
-  document.getElementById('loginError').style.display = 'none';
-}
-
-document.getElementById('passwordInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') handleLogin();
-  // Auto-login if session exists
-(function() {
-  const saved = sessionStorage.getItem('adminUser');
-  if (saved && ADMIN_USERS[saved]) {
-    currentUser = saved;
-    currentTier = ADMIN_USERS[saved].tier;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminShell').style.display = 'block';
-    document.getElementById('adminGreeting').textContent = `Hi ${saved.charAt(0).toUpperCase() + saved.slice(1)}.`;
-    applyTierPermissions();
-    loadAll();
-  }
-})();
-});
-
-// ══════════════════════════════════════
-// SECTION SWITCHING
-// ══════════════════════════════════════
-const ALL_SECTIONS = ['primary', 'comfort', 'void', 'suggestions', 'reflections'];
-function showSection(name, btn) {
-  ALL_SECTIONS.forEach(s => {
-    document.getElementById(`sec-${s}`).style.display = s === name ? '' : 'none';
-  });
-  document.querySelectorAll('.section-nav-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ══════════════════════════════════════
-// LOAD DATA
-// ══════════════════════════════════════
-async function loadAll() {
-  await Promise.all([loadPrimary(), loadComfort(), loadVoid(), loadSuggestions(), loadReflections()]);
-}
-
-async function loadPrimary() {
-  try {
-    const res = await fetch('/api/admin?action=letters&type=primary');
-    const data = await res.json();
-    allPrimary = data.letters || [];
-    updateCounts('primary', allPrimary);
-    renderLetters('primary', primaryTab);
-  } catch (e) { console.error(e); }
-}
-
-async function loadComfort() {
-  try {
-    const res = await fetch('/api/admin?action=letters&type=comfort');
-    const data = await res.json();
-    allComfort = data.letters || [];
-    updateCounts('comfort', allComfort);
-    renderLetters('comfort', comfortTab);
-  } catch (e) { console.error(e); }
-}
-
-async function loadSuggestions() {
-  try {
-    const res = await fetch('/api/admin?action=suggestions');
-    const data = await res.json();
-    allSuggestions = data.suggestions || [];
-    renderSuggestions();
-  } catch (e) { console.error(e); }
-}
-
-async function loadVoid() {
-  try {
-    const res = await fetch('/api/admin?action=void');
-    const data = await res.json();
-    renderVoidLetters(data.letters || []);
-  } catch (e) { console.error(e); }
-}
-
-// ══════════════════════════════════════
-// COUNTS
-// ══════════════════════════════════════
-function updateCounts(type, letters) {
-  ['pending', 'approved', 'rejected'].forEach(status => {
-    const count = letters.filter(l => l.status === status).length;
-    const el = document.getElementById(`${type}-${status}-count`);
-    if (el) el.textContent = count;
-  });
-}
-
-// ══════════════════════════════════════
-// TABS
-// ══════════════════════════════════════
-function switchTab(type, status, el) {
-  const parent = el.closest('.section-block');
-  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  if (type === 'primary') { primaryTab = status; renderLetters('primary', status); }
-  else { comfortTab = status; renderLetters('comfort', status); }
-}
-
-// ══════════════════════════════════════
-// RENDER LETTERS
-// ══════════════════════════════════════
-function renderLetters(type, status) {
-  const list = type === 'primary' ? allPrimary : allComfort;
-  const filtered = list.filter(l => l.status === status);
-  const container = document.getElementById(`${type}-letters-list`);
-
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">No ${status} letters.</div>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(letter => `
-    <div class="letter-card" id="card-${type}-${letter.id}">
-      <div class="letter-card-meta">
-        <span class="letter-card-to">A letter to — ${letter.addressed_to || 'Someone'}</span>
-        <span class="letter-card-time">${formatDate(letter.created_at)}</span>
-      </div>
-      <div class="letter-card-body" id="body-${type}-${letter.id}">
-        ${letter.content.split('\n\n').map(p => `<p style="margin-bottom:0.8em;">${p}</p>`).join('')}
-      </div>
-      <div class="letter-card-actions">
-        <button class="expand-btn" onclick="toggleExpand('${type}', ${letter.id})">Read more</button>
-        ${currentTier >= 2 ? getActionButtons(type, status, letter.id) : ''}
-        ${currentTier >= 2 ? `<button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: letter.id, addressed_to: letter.addressed_to, content: letter.content})})'>Download</button>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-function getActionButtons(type, status, id) {
-  if (status === 'pending') return `
-    <button class="action-btn btn-approve" onclick="updateStatus('${type}', ${id}, 'approved')">Approve</button>
-    <button class="action-btn btn-reject" onclick="updateStatus('${type}', ${id}, 'rejected')">Reject</button>
-  `;
-  if (status === 'approved') return `
-    <button class="action-btn btn-pending" onclick="updateStatus('${type}', ${id}, 'pending')">Move to Pending</button>
-    <button class="action-btn btn-reject" onclick="updateStatus('${type}', ${id}, 'rejected')">Reject</button>
-  `;
-  if (status === 'rejected') return `
-    <button class="action-btn btn-pending" onclick="updateStatus('${type}', ${id}, 'pending')">Move to Pending</button>
-    <button class="action-btn btn-approve" onclick="updateStatus('${type}', ${id}, 'approved')">Approve</button>
-  `;
-  return '';
-}
-
-function toggleExpand(type, id) {
-  const body = document.getElementById(`body-${type}-${id}`);
-  const btn = body.nextElementSibling.querySelector('.expand-btn');
-  body.classList.toggle('expanded');
-  btn.textContent = body.classList.contains('expanded') ? 'Show less' : 'Read more';
-}
-
-// ══════════════════════════════════════
-// UPDATE STATUS
-// ══════════════════════════════════════
-async function updateStatus(type, id, newStatus) {
-  try {
-    const res = await fetch('/api/admin?action=update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, id, status: newStatus, username: currentUser })
-    });
-    if (!res.ok) throw new Error('Failed');
-    if (type === 'primary') await loadPrimary();
-    else await loadComfort();
-  } catch (e) {
-    alert('Something went wrong. Please try again.');
-  }
-}
-
-// ══════════════════════════════════════
-// RENDER VOID LETTERS
-// ══════════════════════════════════════
-function renderVoidLetters(letters) {
-  const container = document.getElementById('void-letters-list');
-  if (letters.length === 0) {
-    container.innerHTML = `<div class="empty-state">No void letters yet.</div>`;
-    return;
-  }
-  container.innerHTML = letters.map(l => `
-    <div class="suggestion-card" id="void-${l.id}">
-      <div class="suggestion-content">
-        <div class="suggestion-text">${l.content}</div>
-        <div class="suggestion-time">${formatDate(l.created_at)}</div>
-      </div>
-      ${currentTier >= 3 ? `<button class="btn-delete" onclick="deleteVoidLetter(${l.id})">Delete</button>` : ''}
-      <button class="btn-download" onclick='openDownloadModal("letter", ${JSON.stringify({id: l.id, addressed_to: l.addressed_to, content: l.content})})'>Download</button>
-    </div>
-  `).join('');
-}
-
-async function deleteVoidLetter(id) {
-  if (!confirm('Delete this void letter?')) return;
-  try {
-    const res = await fetch('/api/admin?action=void', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, username: currentUser })
-    });
-    if (!res.ok) throw new Error('Failed');
-    await loadVoid();
-  } catch (e) {
-    alert('Something went wrong.');
-  }
-}
-
-// ══════════════════════════════════════
-// RENDER SUGGESTIONS
-// ══════════════════════════════════════
-function renderSuggestions() {
-  const container = document.getElementById('suggestions-list');
-  if (allSuggestions.length === 0) {
-    container.innerHTML = `<div class="empty-state">No suggestions yet.</div>`;
-    return;
-  }
-  container.innerHTML = allSuggestions.map(s => `
-    <div class="suggestion-card" id="suggestion-${s.id}">
-      <div class="suggestion-content">
-        <div class="suggestion-text">"${s.content}"</div>
-        <div class="suggestion-time">${formatDate(s.created_at)}</div>
-      </div>
-      ${currentTier >= 3 ? `<button class="btn-delete" onclick="deleteSuggestion(${s.id})">Delete</button>` : ''}
-      <button class="btn-download" onclick='openDownloadModal("suggestion", ${JSON.stringify({id: s.id, content: s.content})})'>Download</button>
-    </div>
-  `).join('');
-}
-
-async function deleteSuggestion(id) {
-  if (!confirm('Delete this suggestion?')) return;
-  try {
-    const res = await fetch('/api/admin?action=suggestions', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, username: currentUser })
-    });
-    if (!res.ok) throw new Error('Failed');
-    await loadSuggestions();
-  } catch (e) {
-    alert('Something went wrong.');
-  }
-}
-
-// ══════════════════════════════════════
-// ACTIVITY LOG
-// ══════════════════════════════════════
-async function openLog() {
-  document.getElementById('logOverlay').classList.add('active');
-  document.getElementById('logBody').innerHTML = '<div class="log-empty">Loading…</div>';
-  try {
-    const res = await fetch('/api/admin?action=log');
-    const data = await res.json();
-    const entries = data.logs || [];
-    if (entries.length === 0) {
-      document.getElementById('logBody').innerHTML = '<div class="log-empty">No activity yet.</div>';
-      return;
-    }
-    document.getElementById('logBody').innerHTML = entries.map(e => `
-      <div class="log-entry">
-        <span class="log-time">${formatDate(e.created_at)}</span>
-        <span class="log-user">${e.username}</span>
-        <span class="log-action ${e.action}">${e.action}</span>
-        <span class="log-note">${e.note || ''}</span>
-      </div>
-    `).join('');
-  } catch (err) {
-    document.getElementById('logBody').innerHTML = '<div class="log-empty">Could not load log.</div>';
-  }
-}
-
-function closeLog() {
-  document.getElementById('logOverlay').classList.remove('active');
-}
-
-document.getElementById('logOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeLog();
-});
-document.getElementById('formatOverlay').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeFormatModal();
-});
-
-// ══════════════════════════════════════
-// DOWNLOAD AS IMAGE
-// ══════════════════════════════════════
-let _dlPending = null; // { type, data }
-let _dlFormat = 'square';
-
-function openDownloadModal(type, data) {
-  _dlPending = { type, data };
-  _dlFormat = 'square';
-  selectFormat('square');
-  document.getElementById('formatOverlay').classList.add('active');
-}
-
-function closeFormatModal() {
-  document.getElementById('formatOverlay').classList.remove('active');
-  _dlPending = null;
-}
-
-function selectFormat(fmt) {
-  _dlFormat = fmt;
-  document.getElementById('fmtSquare').classList.toggle('selected', fmt === 'square');
-  document.getElementById('fmtPortrait').classList.toggle('selected', fmt === 'portrait');
-}
-
-async function confirmDownload() {
-  if (!_dlPending) return;
-  const btn = document.getElementById('formatConfirmBtn');
-  btn.disabled = true;
-  btn.textContent = 'Generating…';
-  try {
-    const { type, data } = _dlPending;
-    const w = 1080;
-    const h = _dlFormat === 'portrait' ? 1920 : 1080;
-    const stage = document.getElementById('renderStage');
-    stage.innerHTML = '';
-    stage.style.width = w + 'px';
-    stage.style.height = h + 'px';
-
-    if (type === 'suggestion') {
-      stage.innerHTML = buildSuggestionCard(data, w, h);
-    } else {
-      stage.innerHTML = buildLetterCard(data, w, h);
-    }
-
-    // small delay so fonts render
-    await new Promise(r => setTimeout(r, 120));
-
-    const canvas = await html2canvas(stage, {
-      width: w, height: h,
-      scale: 1,
-      useCORS: true,
-      backgroundColor: '#f5f0e8',
-      logging: false
-    });
-
-    const link = document.createElement('a');
-    const label = type === 'suggestion' ? 'suggestion' : (data.addressed_to || 'letter').toLowerCase().replace(/\s+/g, '-');
-    link.download = `aqp-${label}-${_dlFormat}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-
-    closeFormatModal();
-  } catch(e) {
-    console.error(e);
-    alert('Download failed. Please try again.');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Download';
-  }
-}
-
-function buildLetterCard(data, w, h) {
-  const padding = Math.round(w * 0.1);
-  const isPortrait = h > w;
-  const titleSize = isPortrait ? 28 : 22;
-  const bodySize = isPortrait ? 34 : 26;
-  const brandSize = isPortrait ? 22 : 18;
-  const recipientText = data.addressed_to ? `A letter to — ${data.addressed_to}` : 'A letter';
-  const content = (data.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n\n/g, '</p><p style="margin-bottom:1em;">').replace(/\n/g, '<br>');
-
-  return `
-    <div style="
-      width:${w}px; height:${h}px; background:#f5f0e8;
-      font-family:'DM Serif Display',serif;
-      display:flex; flex-direction:column; justify-content:center; align-items:center;
-      padding:${padding}px;
-      box-sizing:border-box;
-    ">
-      <!-- recipient -->
-      <div style="
-        font-family:'DM Sans',sans-serif;
-        font-size:${titleSize}px; font-weight:300;
-        letter-spacing:0.2em; text-transform:uppercase;
-        color:#c4a882; margin-bottom:${isPortrait ? 48 : 32}px;
-        text-align:center; width:100%;
-      ">${recipientText}</div>
-
-      <!-- content -->
-      <div style="
-        font-family:'DM Serif Display',serif;
-        font-size:${bodySize}px; font-style:italic;
-        color:#2a2520; line-height:1.75;
-        text-align:center; width:100%;
-        margin-bottom:${isPortrait ? 48 : 32}px;
-      ">
-        <p style="margin-bottom:1em;">${content}</p>
-      </div>
-
-      <!-- branding -->
-      <div style="
-        border-top:1px solid #d4cfc8;
-        padding-top:${isPortrait ? 28 : 20}px;
-        display:flex; justify-content:space-between; align-items:flex-end;
-        width:100%;
-      ">
-        <div style="
-          font-family:'DM Serif Display',serif;
-          font-size:${brandSize}px; font-style:italic;
-          color:#9a9490;
-        ">a quiet place</div>
-        <div style="
-          font-family:'DM Sans',sans-serif;
-          font-size:${Math.round(brandSize * 0.7)}px; font-weight:300;
-          letter-spacing:0.12em; color:#9a9490;
-          text-transform:lowercase;
-        ">a-quiet-place-app.vercel.app</div>
-      </div>
-    </div>
-  `;
-}
-
-function buildSuggestionCard(data, w, h) {
-  const padding = Math.round(w * 0.12);
-  const isPortrait = h > w;
-  const bodySize = isPortrait ? 36 : 28;
-  const brandSize = isPortrait ? 22 : 18;
-  const content = (data.content || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-
-  return `
-    <div style="
-      width:${w}px; height:${h}px; background:#f5f0e8;
-      font-family:'DM Serif Display',serif;
-      display:flex; flex-direction:column; justify-content:center;
-      padding:${padding}px; box-sizing:border-box;
-    ">
-      <!-- quote mark -->
-      <div style="
-        font-family:'DM Serif Display',serif;
-        font-size:${isPortrait ? 120 : 80}px; color:#c4a882;
-        line-height:0.6; margin-bottom:${isPortrait ? 60 : 36}px;
-        opacity:0.5;
-      ">"</div>
-
-      <!-- content -->
-      <div style="
-        flex:1; display:flex; align-items:center;
-        font-family:'DM Serif Display',serif;
-        font-size:${bodySize}px; font-style:italic;
-        color:#2a2520; line-height:1.75;
-      ">
-        <div>${content}</div>
-      </div>
-
-      <!-- branding -->
-      <div style="
-        border-top:1px solid #d4cfc8;
-        padding-top:${isPortrait ? 48 : 28}px;
-        display:flex; justify-content:space-between; align-items:flex-end;
-      ">
-        <div style="
-          font-family:'DM Serif Display',serif;
-          font-size:${brandSize}px; font-style:italic; color:#9a9490;
-        ">a quiet place</div>
-        <div style="
-          font-family:'DM Sans',sans-serif;
-          font-size:${Math.round(brandSize * 0.7)}px; font-weight:300;
-          letter-spacing:0.12em; color:#9a9490; text-transform:lowercase;
-        ">a-quiet-place-app.vercel.app</div>
-      </div>
-    </div>
-  `;
-}
-
-// ══════════════════════════════════════
-// REFLECTIONS
-// ══════════════════════════════════════
-async function loadReflections() {
-  try {
-    const res = await fetch('/api/reflections?action=get-all');
-    const data = await res.json();
-    allReflections = data.reflections || [];
-    updateReflectCounts();
-    renderReflections(reflectTab);
-  } catch (e) { console.error(e); }
-}
-
-function updateReflectCounts() {
-  ['pending', 'approved', 'rejected'].forEach(status => {
-    const count = allReflections.filter(r => r.status === status).length;
-    const el = document.getElementById(`reflect-${status}-count`);
-    if (el) el.textContent = count;
-  });
-}
-
-function switchReflectTab(status, el) {
-  const parent = el.closest('.section-block');
-  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  reflectTab = status;
-  renderReflections(status);
-}
-
-function renderReflections(status) {
-  const filtered = allReflections.filter(r => r.status === status);
-  const container = document.getElementById('reflections-list');
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state">No ${status} reflections.</div>`;
-    return;
-  }
-  container.innerHTML = filtered.map(r => `
-    <div class="letter-card" id="card-reflect-${r.id}">
-      <div class="letter-card-meta">
-        <span class="letter-card-to" style="color:#7a9e9f;">${escapeAdminHtml(r.question)}</span>
-        <span class="letter-card-time">${formatDate(r.created_at)}</span>
-      </div>
-      <div class="letter-card-body" id="body-reflect-${r.id}">
-        ${r.content.split('\n\n').map(p => `<p style="margin-bottom:0.8em;">${escapeAdminHtml(p)}</p>`).join('')}
-      </div>
-      <div class="letter-card-actions">
-        <button class="expand-btn" onclick="toggleReflectExpand(${r.id})">Read more</button>
-        ${currentTier >= 2 ? getReflectActionButtons(status, r.id) : ''}
-        ${currentTier >= 2 ? `<button class="btn-download" onclick='openReflectDownloadAdmin(${JSON.stringify({id: r.id, question: r.question, content: r.content})})'>Download</button>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-function getReflectActionButtons(status, id) {
-  if (status === 'pending') return `
-    <button class="action-btn btn-approve" onclick="updateReflectStatus(${id}, 'approved')">Approve</button>
-    <button class="action-btn btn-reject" onclick="updateReflectStatus(${id}, 'rejected')">Reject</button>
-  `;
-  if (status === 'approved') return `
-    <button class="action-btn btn-pending" onclick="updateReflectStatus(${id}, 'pending')">Move to Pending</button>
-    <button class="action-btn btn-reject" onclick="updateReflectStatus(${id}, 'rejected')">Reject</button>
-  `;
-  if (status === 'rejected') return `
-    <button class="action-btn btn-pending" onclick="updateReflectStatus(${id}, 'pending')">Move to Pending</button>
-    <button class="action-btn btn-approve" onclick="updateReflectStatus(${id}, 'approved')">Approve</button>
-  `;
-  return '';
-}
-
-function toggleReflectExpand(id) {
-  const body = document.getElementById(`body-reflect-${id}`);
-  const btn = body.nextElementSibling.querySelector('.expand-btn');
-  body.classList.toggle('expanded');
-  btn.textContent = body.classList.contains('expanded') ? 'Show less' : 'Read more';
-}
-
-async function updateReflectStatus(id, newStatus) {
-  try {
-    const res = await fetch('/api/reflections?action=update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, status: newStatus, username: currentUser })
-    });
-    if (!res.ok) throw new Error('Failed');
-    await loadReflections();
-  } catch (e) {
-    alert('Something went wrong. Please try again.');
-  }
-}
-
-let _reflectDlPending = null;
-let _reflectDlFormat = 'square';
-
-function openReflectDownloadAdmin(data) {
-  _reflectDlPending = data;
-  _reflectDlFormat = 'square';
-  selectFormat('square');
-  document.getElementById('formatOverlay').classList.add('active');
-  // Override confirm to use reflect builder
-  document.getElementById('formatConfirmBtn').onclick = confirmReflectDownloadAdmin;
-}
-
-async function confirmReflectDownloadAdmin() {
-  if (!_reflectDlPending) { confirmDownload(); return; }
-  const btn = document.getElementById('formatConfirmBtn');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  try {
-    const w = 1080;
-    const h = _dlFormat === 'portrait' ? 1920 : 1080;
-    const isPortrait = h > w;
-    const padding = Math.round(w * 0.1);
-    const questionSize = isPortrait ? 26 : 20;
-    const answerSize = isPortrait ? 32 : 24;
-    const brandSize = isPortrait ? 20 : 16;
-    const data = _reflectDlPending;
-    const q = (data.question || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const a = (data.content || '').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n\n/g,'</p><p style="margin-bottom:1em;">').replace(/\n/g,'<br>');
-
-    const stage = document.getElementById('renderStage');
-    stage.innerHTML = '';
-    stage.style.width = w + 'px';
-    stage.style.height = h + 'px';
-    stage.innerHTML = `
-      <div style="width:${w}px;height:${h}px;background:#eef0f0;font-family:'Lato',sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${padding}px;box-sizing:border-box;">
-        <div style="font-size:${questionSize*0.72}px;letter-spacing:0.28em;text-transform:uppercase;color:#7a9e9f;margin-bottom:${isPortrait?32:20}px;font-weight:300;text-align:center;width:100%;">Reflect — a quiet place</div>
-        <div style="font-family:'Lato',sans-serif;font-size:${questionSize}px;font-weight:300;color:#4a5a5a;line-height:1.55;margin-bottom:${isPortrait?40:28}px;text-align:center;width:100%;">${q}</div>
-        <div style="font-family:'DM Serif Display',serif;font-size:${answerSize}px;font-style:italic;color:#1a1a1a;line-height:1.8;text-align:center;width:100%;margin-bottom:${isPortrait?40:28}px;"><p style="margin-bottom:1em;">${a}</p></div>
-        <div style="border-top:1px solid #cdd4d4;padding-top:${isPortrait?24:16}px;display:flex;justify-content:space-between;align-items:flex-end;width:100%;">
-          <div style="font-family:'DM Serif Display',serif;font-size:${brandSize}px;font-style:italic;color:#8a9a9a;">a quiet place</div>
-          <div style="font-family:'DM Sans',sans-serif;font-size:${Math.round(brandSize*0.72)}px;font-weight:300;letter-spacing:0.12em;color:#8a9a9a;text-transform:lowercase;">a-quiet-place-app.vercel.app</div>
+  <!-- APP -->
+  <div id="app" hidden>
+    <aside class="side">
+      <div>
+        <div class="side-brand">
+          <div class="brand">a quiet place</div>
         </div>
-      </div>`;
+        <div class="side-label">Queues</div>
+        <nav id="sideNav"></nav>
+      </div>
+      <div class="side-foot">
+        <button class="side-foot-link" id="logBtn" data-act="openLog" hidden><svg class="i" viewBox="0 0 24 24">
+            <path d="M12 8v4l3 2" />
+            <circle cx="12" cy="12" r="9" />
+          </svg>Activity Log</button>
+        <div class="side-user">
+          <div>
+            <div class="side-user-name" id="uName"></div>
+            <div class="side-user-role" id="uRole"></div>
+          </div>
+          <button class="icon-btn" data-act="logout" title="Log out" aria-label="Log out"><svg class="i"
+              viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg></button>
+        </div>
+      </div>
+    </aside>
 
-    await new Promise(r => setTimeout(r, 120));
-    const canvas = await html2canvas(stage, { width: w, height: h, scale: 1, useCORS: true, backgroundColor: '#eef0f0', logging: false });
-    const link = document.createElement('a');
-    link.download = `aqp-reflect-${_dlFormat}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    closeFormatModal();
-    _reflectDlPending = null;
-    document.getElementById('formatConfirmBtn').onclick = confirmDownload;
-  } catch(e) {
-    console.error(e);
-    alert('Download failed.');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Download';
-  }
-}
+    <div class="main">
+      <div class="topbar">
+        <div class="brand">a quiet place</div>
+        <div class="topbar-r">
+          <span class="topbar-role" id="uRoleM"></span>
+          <button class="icon-btn" data-act="openLog" id="logBtnM" title="Activity log" hidden><svg class="i"
+              viewBox="0 0 24 24">
+              <path d="M12 8v4l3 2" />
+              <circle cx="12" cy="12" r="9" />
+            </svg></button>
+          <button class="icon-btn" data-act="logout" title="Log out"><svg class="i" viewBox="0 0 24 24">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </svg></button>
+        </div>
+      </div>
+      <div class="split" id="split">
+        <section class="listcol">
+          <div class="list-head" id="listHead"></div>
+          <div class="list" id="list"></div>
+        </section>
+        <section class="detail" id="detail"></section>
+      </div>
+      <nav class="bottomnav" id="bottomNav"></nav>
+    </div>
+  </div>
 
-function escapeAdminHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+  <!-- DOWNLOAD MODAL -->
+  <div class="overlay" id="dlOverlay">
+    <div class="modal">
+      <h3>Download as image</h3>
+      <div class="sub">Choose a format for the image.</div>
+      <div class="fmt">
+        <button class="fmt-choice sel" id="fmtSquare" data-act="fmt" data-fmt="square">
+          <div class="fmt-thumb" id="thSquare"></div>
+          <div><span class="fmt-label">Square</span><span class="fmt-size">1080 × 1080</span></div>
+        </button>
+        <button class="fmt-choice" id="fmtPortrait" data-act="fmt" data-fmt="portrait">
+          <div class="fmt-thumb" id="thPortrait"></div>
+          <div><span class="fmt-label">Portrait</span><span class="fmt-size">1080 × 1920</span></div>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <button class="mbtn" data-act="closeDl">Cancel</button>
+        <button class="mbtn pri" id="dlGo" data-act="doDl">Download</button>
+      </div>
+    </div>
+  </div>
 
-// ══════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════
-function formatDate(str) {
-  const d = new Date(str);
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    + ' · ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-}
-</script>
+  <!-- DELETE MODAL -->
+  <div class="overlay" id="delOverlay">
+    <div class="modal">
+      <h3 id="delTitle">Delete this item?</h3>
+      <div class="sub">This can’t be undone.</div>
+      <div class="del-quote" id="delQuote"></div>
+      <div class="modal-actions">
+        <button class="mbtn" data-act="closeDel">Cancel</button>
+        <button class="mbtn danger" id="delGo" data-act="doDel">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG DRAWER -->
+  <div class="drawer-wrap" id="logWrap">
+    <div class="drawer-bg" data-act="closeLog"></div>
+    <div class="drawer">
+      <div class="drawer-head">
+        <div class="drawer-top">
+          <div class="drawer-title">Activity Log</div><button class="icon-btn" data-act="closeLog"
+            aria-label="Close"><svg class="i" viewBox="0 0 24 24">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg></button>
+        </div>
+        <div class="chips" id="logChips"></div>
+      </div>
+      <div class="drawer-body" id="logBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastUndo" hidden>Undo</button></div>
+  <div id="renderStage"></div>
+
+  <script>
+    // ══════════════════════════════════════════════
+    // CONFIG
+    // Tier 3 Admin: everything · Tier 2 Moderator: approve/reject/download · Tier 1 Viewer: read only
+    // NOTE: this gate is UI-only. Real protection must live in /api/* (see notes).
+    // ══════════════════════════════════════════════
+    const ADMIN_USERS = {
+      'roghith': { password: 'roghith', tier: 3 },
+      'admin_a1': { password: 'pass_a1', tier: 3 },
+      'admin_a2': { password: 'pass_a2', tier: 3 },
+      'admin_a3': { password: 'pass_a3', tier: 3 },
+      'punnya': { password: 'punnya', tier: 2 },
+      'yuthiha': { password: 'yuthiha', tier: 2 },
+      'praneet': { password: 'praneet', tier: 2 },
+      'abhishek': { password: 'abhishek', tier: 2 },
+      'poorva': { password: 'poorva', tier: 2 },
+      'hussain': { password: 'hussain', tier: 2 },
+      'saad': { password: 'saad', tier: 1 },
+    };
+    const ROLE = { 1: 'Viewer', 2: 'Moderator', 3: 'Admin' };
+
+    // Single place to swap in real server-side auth later.
+    async function authenticate(username, password) {
+      const u = Object.prototype.hasOwnProperty.call(ADMIN_USERS, username) ? ADMIN_USERS[username] : null;
+      return u && u.password === password ? { username, tier: u.tier } : null;
+    }
+
+    // ══════════════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════════════
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const paras = t => String(t || '').split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
+    const isMobile = () => window.matchMedia('(max-width:900px)').matches;
+    function formatDate(str) {
+      const d = new Date(str);
+      if (isNaN(d)) return '';
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+    }
+    const ICONS = {
+      check: '<path d="M20 6 9 17l-5-5"/>', x: '<path d="M18 6 6 18M6 6l12 12"/>', pause: '<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
+      download: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>', trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+      search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>', sort: '<path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/>',
+      back: '<path d="M15 18l-6-6 6-6"/>', up: '<path d="M18 15l-6-6-6 6"/>', down: '<path d="M6 9l6 6 6-6"/>',
+      mail: '<rect x="3" y="5" width="18" height="14"/><path d="m3 7 9 7 9-7"/>', heart: '<path d="M12 21s-8-5.5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 11-8 11z"/>',
+      void: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>', bulb: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
+      feather: '<path d="M20 4c-8 0-14 5-14 12v4M20 4c0 8-5 12-12 12M9 15l6-6"/>', lock: '<rect x="5" y="11" width="14" height="9"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
+    };
+    const ic = n => `<svg class="i" viewBox="0 0 24 24">${ICONS[n]}</svg>`;
+
+    // ══════════════════════════════════════════════
+    // SECTIONS
+    // ══════════════════════════════════════════════
+    const SECTIONS = {
+      primary: {
+        label: 'Primary Letters', short: 'Primary', icon: 'mail', kind: 'letter', status: true, noun: 'letters', sub: 'Via “Write a letter”',
+        load: () => getJSON('/api/admin?action=letters&type=primary').then(d => d.letters || [])
+      },
+      comfort: {
+        label: 'Comfort Letters', short: 'Comfort', icon: 'heart', kind: 'letter', status: true, noun: 'letters', sub: 'Via “Write for someone”',
+        load: () => getJSON('/api/admin?action=letters&type=comfort').then(d => d.letters || [])
+      },
+      void: {
+        label: 'Void Letters', short: 'Void', icon: 'void', kind: 'void', status: false, noun: 'void letters', sub: 'Private — never displayed publicly', del: '/api/admin?action=void',
+        load: () => getJSON('/api/admin?action=void').then(d => d.letters || [])
+      },
+      suggestions: {
+        label: 'Suggestions', short: 'Ideas', icon: 'bulb', kind: 'suggestion', status: false, noun: 'suggestions', sub: 'Feedback left by visitors', del: '/api/admin?action=suggestions',
+        load: () => getJSON('/api/admin?action=suggestions').then(d => d.suggestions || [])
+      },
+      reflections: {
+        label: 'Reflections', short: 'Reflect', icon: 'feather', kind: 'reflect', status: true, noun: 'reflections', sub: 'Answers from the Reflect section',
+        load: () => getJSON('/api/reflections?action=get-all').then(d => d.reflections || [])
+      },
+    };
+    const ORDER = Object.keys(SECTIONS);
+    async function getJSON(url) { const r = await fetch(url); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+
+    // ══════════════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════════════
+    let user = null;               // { username, tier }
+    let cur = 'primary';
+    const S = {};
+    ORDER.forEach(k => S[k] = { items: [], loaded: false, loading: false, error: false, filter: 'pending', q: '', sort: 'new', sel: null, picked: new Set() });
+    const canMod = () => user && user.tier >= 2;
+    const isAdmin = () => user && user.tier >= 3;
+
+    function visible(sec) {
+      const st = S[sec], cfg = SECTIONS[sec], q = st.q.trim().toLowerCase();
+      let arr = st.items.filter(it => (!cfg.status || it.status === st.filter) &&
+        (!q || [it.content, it.addressed_to, it.question].some(v => v && String(v).toLowerCase().includes(q))));
+      const t = it => { const n = new Date(it.created_at).getTime(); return isNaN(n) ? (Number(it.id) || 0) : n; };
+      arr.sort((a, b) => st.sort === 'new' ? t(b) - t(a) : t(a) - t(b));
+      return arr;
+    }
+    const countStatus = (sec, s) => S[sec].items.filter(i => i.status === s).length;
+
+    // ══════════════════════════════════════════════
+    // AUTH
+    // ══════════════════════════════════════════════
+    $('loginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const res = await authenticate($('u').value.trim().toLowerCase(), $('p').value);
+      if (!res) { $('loginError').hidden = false; return; }
+      sessionStorage.setItem('adminUser', res.username);
+      startApp(res);
+    });
+    function restoreSession() {
+      const saved = sessionStorage.getItem('adminUser');
+      if (saved && Object.prototype.hasOwnProperty.call(ADMIN_USERS, saved)) startApp({ username: saved, tier: ADMIN_USERS[saved].tier });
+    }
+    function startApp(u) {
+      user = u;
+      $('login').hidden = true; $('app').hidden = false;
+      $('uName').textContent = u.username; $('uRole').textContent = ROLE[u.tier]; $('uRoleM').textContent = ROLE[u.tier];
+      $('logBtn').hidden = !isAdmin(); $('logBtnM').hidden = !isAdmin();
+      renderNav(); renderAll();
+      ORDER.forEach(loadSection);
+    }
+    function logout() {
+      user = null; sessionStorage.removeItem('adminUser');
+      ORDER.forEach(k => { S[k].items = []; S[k].loaded = false; S[k].sel = null; S[k].picked.clear(); });
+      $('app').hidden = true; $('login').hidden = false;
+      $('u').value = ''; $('p').value = ''; $('loginError').hidden = true;
+      closeAllOverlays();
+    }
+
+    // ══════════════════════════════════════════════
+    // LOAD
+    // ══════════════════════════════════════════════
+    async function loadSection(sec) {
+      const st = S[sec];
+      st.loading = true; st.error = false;
+      if (sec === cur) renderAll();
+      try { st.items = await SECTIONS[sec].load(); st.loaded = true; }
+      catch (e) { console.error(e); st.error = true; }
+      st.loading = false;
+      ensureSel(sec);
+      renderNav();
+      if (sec === cur) renderAll();
+    }
+    function ensureSel(sec) {
+      const st = S[sec], vis = visible(sec);
+      if (st.sel != null && vis.some(i => i.id === st.sel)) return;
+      st.sel = (!isMobile() && vis.length) ? vis[0].id : null;
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER — NAV
+    // ══════════════════════════════════════════════
+    function navCount(sec) {
+      const cfg = SECTIONS[sec], st = S[sec];
+      if (!st.loaded) return '';
+      return cfg.status ? countStatus(sec, 'pending') : st.items.length;
+    }
+    function renderNav() {
+      const side = ORDER.map(k => {
+        const n = navCount(k), cfg = SECTIONS[k];
+        const hot = cfg.status && n > 0;
+        return `<button class="nav-item ${k === cur ? 'active' : ''}" data-act="goto" data-sec="${k}">${ic(cfg.icon)}<span class="nl">${cfg.label}</span>${n !== '' ? `<span class="badge ${hot ? 'hot' : ''}">${n}</span>` : ''}</button>`;
+      }).join('');
+      $('sideNav').innerHTML = side;
+      $('bottomNav').innerHTML = ORDER.map(k => {
+        const n = navCount(k), cfg = SECTIONS[k], hot = cfg.status && n > 0;
+        return `<button class="bn ${k === cur ? 'active' : ''}" data-act="goto" data-sec="${k}">${ic(cfg.icon)}${cfg.short}${hot ? `<span class="badge hot">${n}</span>` : ''}</button>`;
+      }).join('');
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER — LIST
+    // ══════════════════════════════════════════════
+    function rowTitle(sec, it) {
+      const k = SECTIONS[sec].kind;
+      if (k === 'letter') return 'To — ' + (it.addressed_to || 'Someone');
+      if (k === 'reflect') return it.question || 'Reflection';
+      if (k === 'void') return 'Void letter';
+      return 'Suggestion';
+    }
+    function renderHead() {
+      const cfg = SECTIONS[cur], st = S[cur];
+      let h = `<div class="list-title-row"><div class="list-title">${cfg.label}</div><div class="list-sub">${esc(cfg.sub)}</div></div>`;
+      if (cfg.status) {
+        h += `<div class="seg">${['pending', 'approved', 'rejected'].map(s => `<button class="${st.filter === s ? 'active' : ''}" data-act="filter" data-f="${s}">${s}<b>${st.loaded ? countStatus(cur, s) : '–'}</b></button>`).join('')}</div>`;
+      }
+      h += `<div class="tools"><label class="search">${ic('search')}<input id="q" type="search" placeholder="Search…  ( / )" value="${esc(st.q)}" autocomplete="off"></label>
+        <button class="sort-btn" data-act="sort">${ic('sort')}${st.sort === 'new' ? 'Newest' : 'Oldest'}</button></div>`;
+      if (cfg.status && canMod() && st.picked.size) {
+        const vis = visible(cur), all = vis.length && vis.every(i => st.picked.has(i.id));
+        h += `<div class="bulk"><input type="checkbox" data-act="pickAll" ${all ? 'checked' : ''} aria-label="Select all"><span class="bulk-count">${st.picked.size} selected</span>
+      ${st.filter !== 'approved' ? '<button class="mini g" data-act="bulk" data-to="approved">Approve</button>' : ''}
+      ${st.filter !== 'rejected' ? '<button class="mini r" data-act="bulk" data-to="rejected">Reject</button>' : ''}
+      ${st.filter !== 'pending' ? '<button class="mini a" data-act="bulk" data-to="pending">Pending</button>' : ''}
+      <button class="mini x" data-act="clearPick" aria-label="Clear selection">${ic('x')}</button></div>`;
+      }
+      const head = $('listHead');
+      const hadFocus = document.activeElement && document.activeElement.id === 'q';
+      const pos = hadFocus ? document.activeElement.selectionStart : null;
+      head.innerHTML = h;
+      if (hadFocus) { const q = $('q'); q.focus(); try { q.setSelectionRange(pos, pos); } catch (_) { } }
+    }
+    function renderList() {
+      const cfg = SECTIONS[cur], st = S[cur], box = $('list');
+      if (st.loading && !st.loaded) { box.innerHTML = Array(5).fill('<div class="skel"><i></i><i></i><i></i></div>').join(''); return; }
+      if (st.error && !st.loaded) { box.innerHTML = `<div class="err">Couldn’t load ${cfg.noun}.<br><button data-act="retry">Try again</button></div>`; return; }
+      const vis = visible(cur);
+      if (!vis.length) {
+        let msg;
+        if (st.q.trim()) msg = `Nothing matches “${esc(st.q.trim())}”.`;
+        else if (!cfg.status) msg = `No ${cfg.noun} yet.`;
+        else if (st.filter === 'pending') msg = `No pending ${cfg.noun}.<br>All caught up.`;
+        else msg = `No ${st.filter} ${cfg.noun}.`;
+        box.innerHTML = `<div class="empty">${msg}</div>`; return;
+      }
+      const pick = cfg.status && canMod();
+      box.innerHTML = vis.map(it => `
+    <div class="row ${cfg.kind === 'reflect' ? 'reflect' : ''} ${it.id === st.sel ? 'active' : ''}" data-act="open" data-id="${esc(it.id)}">
+      ${pick ? `<input type="checkbox" data-act="pick" data-id="${esc(it.id)}" ${st.picked.has(it.id) ? 'checked' : ''} aria-label="Select">` : ''}
+      <div class="row-main">
+        <div class="row-top"><span class="row-title">${esc(rowTitle(cur, it))}</span>${cfg.status ? `<span class="dot ${esc(it.status)}" title="${esc(it.status)}"></span>` : ''}</div>
+        <div class="row-prev">${cfg.kind === 'suggestion' ? '“' + esc(it.content) + '”' : esc(it.content)}</div>
+        <div class="row-time">${esc(formatDate(it.created_at))}</div>
+      </div>
+    </div>`).join('');
+      const a = box.querySelector('.row.active'); if (a && !isMobile()) a.scrollIntoView({ block: 'nearest' });
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER — DETAIL
+    // ══════════════════════════════════════════════
+    function findItem(sec, id) { return S[sec].items.find(i => i.id === id); }
+    function renderDetail() {
+      const cfg = SECTIONS[cur], st = S[cur], el = $('detail');
+      const it = st.sel != null ? findItem(cur, st.sel) : null;
+      el.classList.toggle('open', !!it && isMobile());
+      if (!it) {
+        el.innerHTML = `<div class="detail-empty">${st.loaded && !visible(cur).length ? '' : `Select a ${cfg.kind === 'reflect' ? 'reflection' : cfg.kind === 'suggestion' ? 'suggestion' : 'letter'} to read.`}</div>`;
+        return;
+      }
+      const vis = visible(cur), idx = vis.findIndex(i => i.id === it.id);
+      let paper = '';
+      const chip = cfg.status ? `<span class="chip ${esc(it.status)}">${esc(it.status)}</span>` : '';
+      if (cfg.kind === 'letter') {
+        paper = `<div class="paper"><div class="paper-meta"><span class="eyebrow">A letter to — ${esc(it.addressed_to || 'Someone')}</span>${chip}</div>
+      <div class="paper-date">${esc(formatDate(it.created_at))}</div><div class="paper-body">${paras(it.content)}</div><div class="paper-foot">a quiet place</div></div>`;
+      } else if (cfg.kind === 'reflect') {
+        paper = `<div class="paper reflect"><div class="paper-meta"><span class="eyebrow">Reflection</span>${chip}</div>
+      <div class="paper-date">${esc(formatDate(it.created_at))}</div><div class="paper-q">${esc(it.question)}</div><div class="paper-body">${paras(it.content)}</div><div class="paper-foot">a quiet place</div></div>`;
+      } else if (cfg.kind === 'void') {
+        paper = `<div class="paper"><div class="paper-meta"><span class="eyebrow note">${ic('lock')} Private — never displayed publicly</span></div>
+      <div class="paper-date">${esc(formatDate(it.created_at))}</div><div class="paper-body">${paras(it.content)}</div><div class="paper-foot">a quiet place</div></div>`;
+      } else {
+        paper = `<div class="paper"><div class="paper-meta"><span class="eyebrow">Visitor suggestion</span></div>
+      <div class="paper-date">${esc(formatDate(it.created_at))}</div><div class="paper-body">“${esc(it.content)}”</div><div class="paper-foot">a quiet place</div></div>`;
+      }
+      let btns = '';
+      if (canMod() || (isAdmin() && cfg.del)) {
+        if (canMod()) btns += `<button class="abtn" data-act="dl">${ic('download')}<span>Download</span><kbd>D</kbd></button>`;
+        if (cfg.status && canMod()) {
+          if (it.status !== 'pending') btns += `<button class="abtn a" data-act="set" data-to="pending">${ic('pause')}<span>Pending</span><kbd>P</kbd></button>`;
+          if (it.status !== 'rejected') btns += `<button class="abtn r" data-act="set" data-to="rejected">${ic('x')}<span>Reject</span><kbd>R</kbd></button>`;
+          if (it.status !== 'approved') btns += `<button class="abtn g" data-act="set" data-to="approved">${ic('check')}<span>Approve</span><kbd>A</kbd></button>`;
+        }
+        if (cfg.del && isAdmin()) btns += `<button class="abtn r" data-act="del">${ic('trash')}<span>Delete</span></button>`;
+      }
+      el.innerHTML = `<div class="detail-scroll" id="dScroll">${paper}</div>
+    <div class="actionbar"><div class="ab-left">
+      <button class="abtn sq back" data-act="back" aria-label="Back">${ic('back')}</button>
+      <button class="abtn sq" data-act="prev" ${idx <= 0 ? 'disabled' : ''} aria-label="Previous">${ic('up')}</button>
+      <button class="abtn sq" data-act="next" ${idx >= vis.length - 1 ? 'disabled' : ''} aria-label="Next">${ic('down')}</button>
+      <span class="pos">${idx + 1} of ${vis.length} · J / K</span></div>
+      <div class="ab-right">${btns}</div></div>`;
+      $('dScroll').scrollTop = 0;
+    }
+    function renderAll() { renderHead(); renderList(); renderDetail(); }
+
+    // ══════════════════════════════════════════════
+    // SELECTION / NAV
+    // ══════════════════════════════════════════════
+    function select(id) { S[cur].sel = id; renderList(); renderDetail(); }
+    function step(d) {
+      const vis = visible(cur); if (!vis.length) return;
+      const i = vis.findIndex(x => x.id === S[cur].sel);
+      const n = Math.min(vis.length - 1, Math.max(0, (i < 0 ? 0 : i + d)));
+      select(vis[n].id);
+    }
+    function goto(sec) {
+      cur = sec; ensureSel(sec);
+      if (!S[sec].loaded && !S[sec].loading) loadSection(sec);
+      renderNav(); renderAll();
+    }
+
+    // ══════════════════════════════════════════════
+    // STATUS CHANGES (optimistic + undo)
+    // ══════════════════════════════════════════════
+    function apiUpdate(sec, id, status) {
+      const url = sec === 'reflections' ? '/api/reflections?action=update' : '/api/admin?action=update';
+      const body = sec === 'reflections' ? { id, status, username: user.username } : { type: sec, id, status, username: user.username };
+      return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error('fail'); });
+    }
+    async function applyChanges(sec, changes, label, canUndo = true) {
+      // changes: [{ id, to }]
+      const st = S[sec], before = visible(sec);
+      const prevSel = st.sel, selIdx = before.findIndex(i => i.id === prevSel);
+      const prev = {};
+      changes.forEach(c => { const it = findItem(sec, c.id); if (it) { prev[c.id] = it.status; it.status = c.to; } st.picked.delete(c.id); });
+      const after = visible(sec);
+      if (!after.some(i => i.id === st.sel)) st.sel = after.length ? after[Math.min(Math.max(selIdx, 0), after.length - 1)].id : null;
+      renderNav(); if (sec === cur) renderAll();
+      const undoChanges = changes.filter(c => prev[c.id]).map(c => ({ id: c.id, to: prev[c.id] }));
+      if (canUndo) toast(label, () => { applyChanges(sec, undoChanges, 'Restored', false).then(() => { const first = undoChanges[0]; if (first && visible(sec).some(i => i.id === first.id)) { S[sec].sel = first.id; if (sec === cur) renderAll(); } }); });
+      else toast(label);
+      const results = await Promise.allSettled(changes.map(c => apiUpdate(sec, c.id, c.to)));
+      const failed = changes.filter((c, i) => results[i].status === 'rejected');
+      if (failed.length) {
+        failed.forEach(c => { const it = findItem(sec, c.id); if (it && prev[c.id]) it.status = prev[c.id]; });
+        ensureSel(sec); renderNav(); if (sec === cur) renderAll();
+        toast(`Couldn’t save ${failed.length} change${failed.length > 1 ? 's' : ''}. Reverted.`, null, true);
+      }
+    }
+    function setStatus(to) {
+      const st = S[cur]; if (!canMod() || st.sel == null) return;
+      const it = findItem(cur, st.sel); if (!it || it.status === to) return;
+      applyChanges(cur, [{ id: it.id, to }], { approved: 'Approved', rejected: 'Rejected', pending: 'Moved to pending' }[to]);
+    }
+    function bulk(to) {
+      const st = S[cur]; if (!canMod() || !st.picked.size) return;
+      const ids = [...st.picked].filter(id => { const it = findItem(cur, id); return it && it.status !== to; });
+      if (!ids.length) return;
+      applyChanges(cur, ids.map(id => ({ id, to })), `${ids.length} ${{ approved: 'approved', rejected: 'rejected', pending: 'moved to pending' }[to]}`);
+    }
+
+    // ══════════════════════════════════════════════
+    // DELETE
+    // ══════════════════════════════════════════════
+    let delTarget = null;
+    function askDelete() {
+      const cfg = SECTIONS[cur]; if (!isAdmin() || !cfg.del) return;
+      const it = findItem(cur, S[cur].sel); if (!it) return;
+      delTarget = { sec: cur, id: it.id };
+      $('delTitle').textContent = cfg.kind === 'void' ? 'Delete this void letter?' : 'Delete this suggestion?';
+      const t = String(it.content || ''); $('delQuote').textContent = t.length > 140 ? t.slice(0, 140) + '…' : t;
+      $('delOverlay').classList.add('on');
+    }
+    async function doDelete() {
+      if (!delTarget) return;
+      const { sec, id } = delTarget, btn = $('delGo');
+      btn.disabled = true; btn.textContent = 'Deleting…';
+      try {
+        const r = await fetch(SECTIONS[sec].del, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, username: user.username }) });
+        if (!r.ok) throw new Error('fail');
+        const st = S[sec], before = visible(sec), idx = before.findIndex(i => i.id === id);
+        st.items = st.items.filter(i => i.id !== id);
+        const after = visible(sec);
+        if (st.sel === id) st.sel = after.length ? after[Math.min(idx, after.length - 1)].id : null;
+        $('delOverlay').classList.remove('on'); delTarget = null;
+        renderNav(); renderAll(); toast('Deleted');
+      } catch (e) { $('delOverlay').classList.remove('on'); toast('Couldn’t delete. Please try again.', null, true); }
+      btn.disabled = false; btn.textContent = 'Delete';
+    }
+
+    // ══════════════════════════════════════════════
+    // TOAST
+    // ══════════════════════════════════════════════
+    let toastTimer, toastUndo = null;
+    function toast(msg, undo, bad) {
+      $('toastMsg').textContent = msg + (undo ? ' · ' : '');
+      const b = $('toastUndo'); b.hidden = !undo; toastUndo = undo || null;
+      $('toast').classList.toggle('bad', !!bad); $('toast').classList.add('on');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('on'), bad ? 5000 : 6000);
+    }
+    $('toastUndo').addEventListener('click', () => { const f = toastUndo; toastUndo = null; $('toast').classList.remove('on'); if (f) f(); });
+
+    // ══════════════════════════════════════════════
+    // DOWNLOAD AS IMAGE
+    // ══════════════════════════════════════════════
+    let dlItem = null, dlFmt = 'square';
+    const fit = (len, base, portrait) => { const l = len / (portrait ? 1.7 : 1); return Math.round(base * (l > 1400 ? .5 : l > 1000 ? .6 : l > 700 ? .72 : l > 450 ? .85 : 1)); };
+    const brandRow = (b, color, sans) => `<div style="border-top:1px solid #d4cfc8;padding-top:20px;display:flex;justify-content:space-between;align-items:flex-end;width:100%;">
+  <div style="font-family:'DM Serif Display',serif;font-size:${b}px;font-style:italic;color:${color};">a quiet place</div>
+  <div style="font-family:'DM Sans',sans-serif;font-size:${Math.round(b * .7)}px;font-weight:300;letter-spacing:.12em;color:${color};text-transform:lowercase;">a-quiet-place-app.vercel.app</div></div>`;
+    const cardText = t => esc(t).replace(/\n\n/g, '</p><p style="margin-bottom:1em;">').replace(/\n/g, '<br>');
+
+    function buildCard(kind, it, w, h) {
+      const portrait = h > w, pad = Math.round(w * .1), content = String(it.content || '');
+      if (kind === 'reflect') {
+        const qs = portrait ? 26 : 20, as = fit(content.length, portrait ? 32 : 24, portrait);
+        return `<div style="width:${w}px;height:${h}px;background:#eef0f0;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${pad}px;box-sizing:border-box;overflow:hidden;">
+      <div style="font-size:${qs * .72}px;letter-spacing:.28em;text-transform:uppercase;color:#7a9e9f;margin-bottom:${portrait ? 32 : 20}px;font-weight:300;text-align:center;width:100%;">Reflect — a quiet place</div>
+      <div style="font-size:${qs}px;font-weight:300;color:#4a5a5a;line-height:1.55;margin-bottom:${portrait ? 40 : 28}px;text-align:center;width:100%;">${esc(it.question)}</div>
+      <div style="font-family:'DM Serif Display',serif;font-size:${as}px;font-style:italic;color:#1a1a1a;line-height:1.8;text-align:center;width:100%;margin-bottom:${portrait ? 40 : 28}px;"><p style="margin-bottom:1em;">${cardText(content)}</p></div>
+      ${brandRow(portrait ? 20 : 16, '#8a9a9a')}</div>`;
+      }
+      if (kind === 'suggestion') {
+        const bs = fit(content.length, portrait ? 36 : 28, portrait), pd = Math.round(w * .12);
+        return `<div style="width:${w}px;height:${h}px;background:#f5f0e8;font-family:'DM Serif Display',serif;display:flex;flex-direction:column;justify-content:center;padding:${pd}px;box-sizing:border-box;overflow:hidden;">
+      <div style="font-size:${portrait ? 120 : 80}px;color:#c4a882;line-height:.6;margin-bottom:${portrait ? 60 : 36}px;opacity:.5;">“</div>
+      <div style="flex:1;display:flex;align-items:center;font-size:${bs}px;font-style:italic;color:#2a2520;line-height:1.75;"><div>${esc(content).replace(/\n/g, '<br>')}</div></div>
+      ${brandRow(portrait ? 22 : 18, '#9a9490')}</div>`;
+      }
+      const ts = portrait ? 28 : 22, bs = fit(content.length, portrait ? 34 : 26, portrait);
+      const rec = it.addressed_to ? `A letter to — ${esc(it.addressed_to)}` : 'A letter';
+      return `<div style="width:${w}px;height:${h}px;background:#f5f0e8;font-family:'DM Serif Display',serif;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${pad}px;box-sizing:border-box;overflow:hidden;">
+    <div style="font-family:'DM Sans',sans-serif;font-size:${ts}px;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:#c4a882;margin-bottom:${portrait ? 48 : 32}px;text-align:center;width:100%;">${rec}</div>
+    <div style="font-size:${bs}px;font-style:italic;color:#2a2520;line-height:1.75;text-align:center;width:100%;margin-bottom:${portrait ? 48 : 32}px;"><p style="margin-bottom:1em;">${cardText(content)}</p></div>
+    ${brandRow(portrait ? 22 : 18, '#9a9490')}</div>`;
+    }
+    function thumb(el, kind, it, h) {
+      const W = 130, s = W / 1080, H = Math.round(h * s);
+      el.style.width = W + 'px'; el.style.height = H + 'px';
+      el.innerHTML = `<div style="transform:scale(${s})">${buildCard(kind, it, 1080, h)}</div>`;
+    }
+    function openDl() {
+      if (!canMod()) return;
+      const it = findItem(cur, S[cur].sel); if (!it) return;
+      dlItem = { kind: SECTIONS[cur].kind, it }; dlFmt = 'square'; selFmt('square');
+      thumb($('thSquare'), dlItem.kind, it, 1080); thumb($('thPortrait'), dlItem.kind, it, 1920);
+      $('dlOverlay').classList.add('on');
+    }
+    function selFmt(f) { dlFmt = f; $('fmtSquare').classList.toggle('sel', f === 'square'); $('fmtPortrait').classList.toggle('sel', f === 'portrait'); }
+    function closeDl() { $('dlOverlay').classList.remove('on'); dlItem = null; }
+    async function doDl() {
+      if (!dlItem || !canMod()) return;
+      const btn = $('dlGo'); btn.disabled = true; btn.textContent = 'Generating…';
+      try {
+        const { kind, it } = dlItem, w = 1080, h = dlFmt === 'portrait' ? 1920 : 1080;
+        const stage = $('renderStage'); stage.style.width = w + 'px'; stage.style.height = h + 'px';
+        stage.innerHTML = buildCard(kind, it, w, h);
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        await new Promise(r => setTimeout(r, 120));
+        const canvas = await html2canvas(stage, { width: w, height: h, scale: 1, useCORS: true, backgroundColor: kind === 'reflect' ? '#eef0f0' : '#f5f0e8', logging: false });
+        const label = kind === 'reflect' ? 'reflect' : kind === 'suggestion' ? 'suggestion' : (it.addressed_to || 'letter').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'letter';
+        const a = document.createElement('a'); a.download = `aqp-${label}-${dlFmt}.png`; a.href = canvas.toDataURL('image/png'); a.click();
+        stage.innerHTML = ''; closeDl(); toast('Image downloaded');
+      } catch (e) { console.error(e); toast('Download failed. Please try again.', null, true); }
+      btn.disabled = false; btn.textContent = 'Download';
+    }
+
+    // ══════════════════════════════════════════════
+    // ACTIVITY LOG
+    // ══════════════════════════════════════════════
+    let LOG = { entries: [], action: 'all', user: 'all', state: 'loading' };
+    async function openLog() {
+      if (!isAdmin()) return;
+      $('logWrap').classList.add('on'); LOG = { entries: [], action: 'all', user: 'all', state: 'loading' }; renderLog();
+      try { const d = await getJSON('/api/admin?action=log'); LOG.entries = d.logs || []; LOG.state = 'ok'; } catch (e) { console.error(e); LOG.state = 'error'; }
+      renderLog();
+    }
+    function renderLog() {
+      const users = [...new Set(LOG.entries.map(e => e.username).filter(Boolean))].sort();
+      $('logChips').innerHTML = ['all', 'approved', 'rejected', 'pending', 'deleted'].map(a => `<button class="fchip ${LOG.action === a ? 'on' : ''}" data-act="logAction" data-a="${a}">${a}</button>`).join('') +
+        `<select data-act="logUser" aria-label="Filter by user"><option value="all">All users</option>${users.map(u => `<option value="${esc(u)}" ${LOG.user === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}</select>`;
+      const body = $('logBody');
+      if (LOG.state === 'loading') { body.innerHTML = '<div class="log-empty">Loading…</div>'; return; }
+      if (LOG.state === 'error') { body.innerHTML = '<div class="log-empty">Could not load log.</div>'; return; }
+      const rows = LOG.entries.filter(e => (LOG.action === 'all' || e.action === LOG.action) && (LOG.user === 'all' || e.username === LOG.user));
+      if (!rows.length) { body.innerHTML = `<div class="log-empty">${LOG.entries.length ? 'Nothing matches these filters.' : 'No activity yet.'}</div>`; return; }
+      const known = ['approved', 'rejected', 'pending', 'deleted'];
+      body.innerHTML = rows.map(e => `<div class="log-entry"><span class="log-time">${esc(formatDate(e.created_at))}</span><span class="log-user">${esc(e.username)}</span>
+    <span class="log-action ${known.includes(e.action) ? e.action : 'other'}">${esc(e.action)}</span><span class="log-note">${esc(e.note || '')}</span></div>`).join('');
+    }
+    function closeAllOverlays() { closeDl(); $('delOverlay').classList.remove('on'); $('logWrap').classList.remove('on'); delTarget = null; }
+
+    // ══════════════════════════════════════════════
+    // EVENTS
+    // ══════════════════════════════════════════════
+    document.addEventListener('click', e => {
+      const t = e.target.closest('[data-act]'); if (!t) return;
+      const a = t.dataset.act, st = S[cur];
+      if (a === 'pick') { e.stopPropagation(); const id = isNaN(t.dataset.id) ? t.dataset.id : Number(t.dataset.id); t.checked ? st.picked.add(id) : st.picked.delete(id); renderHead(); return; }
+      switch (a) {
+        case 'goto': goto(t.dataset.sec); break;
+        case 'open': { const id = t.dataset.id, it = st.items.find(i => String(i.id) === id); if (it) select(it.id); break; }
+        case 'filter': st.filter = t.dataset.f; st.picked.clear(); ensureSel(cur); renderAll(); break;
+        case 'sort': st.sort = st.sort === 'new' ? 'old' : 'new'; ensureSel(cur); renderAll(); break;
+        case 'pickAll': { const vis = visible(cur); if (t.checked) vis.forEach(i => st.picked.add(i.id)); else st.picked.clear(); renderHead(); break; }
+        case 'clearPick': st.picked.clear(); renderHead(); break;
+        case 'bulk': bulk(t.dataset.to); break;
+        case 'set': setStatus(t.dataset.to); break;
+        case 'prev': step(-1); break;
+        case 'next': step(1); break;
+        case 'back': st.sel = null; renderList(); renderDetail(); break;
+        case 'retry': loadSection(cur); break;
+        case 'dl': openDl(); break;
+        case 'del': askDelete(); break;
+        case 'fmt': selFmt(t.dataset.fmt); break;
+        case 'closeDl': closeDl(); break;
+        case 'doDl': doDl(); break;
+        case 'closeDel': $('delOverlay').classList.remove('on'); delTarget = null; break;
+        case 'doDel': doDelete(); break;
+        case 'openLog': openLog(); break;
+        case 'closeLog': $('logWrap').classList.remove('on'); break;
+        case 'logAction': LOG.action = t.dataset.a; renderLog(); break;
+        case 'logout': logout(); break;
+      }
+    });
+    document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.act === 'logUser') { LOG.user = e.target.value; renderLog(); } });
+    document.addEventListener('input', e => {
+      if (e.target.id !== 'q') return;
+      S[cur].q = e.target.value; ensureSel(cur); renderList(); renderDetail();
+    });
+    $('dlOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDl(); });
+    $('delOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) { e.currentTarget.classList.remove('on'); delTarget = null; } });
+
+    document.addEventListener('keydown', e => {
+      if (!user || e.metaKey || e.ctrlKey || e.altKey) return;
+      const modalOpen = $('dlOverlay').classList.contains('on') || $('delOverlay').classList.contains('on') || $('logWrap').classList.contains('on');
+      if (e.key === 'Escape') {
+        if (modalOpen) { closeAllOverlays(); return; }
+        if (document.activeElement && document.activeElement.id === 'q') { document.activeElement.blur(); return; }
+        if (isMobile() && S[cur].sel != null) { S[cur].sel = null; renderList(); renderDetail(); }
+        return;
+      }
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (modalOpen || tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      switch (e.key.toLowerCase()) {
+        case '/': e.preventDefault(); const q = $('q'); if (q) q.focus(); break;
+        case 'j': step(1); break;
+        case 'k': step(-1); break;
+        case 'a': setStatus('approved'); break;
+        case 'r': setStatus('rejected'); break;
+        case 'p': setStatus('pending'); break;
+        case 'd': openDl(); break;
+      }
+    });
+    window.matchMedia('(max-width:900px)').addEventListener('change', () => { if (user) { ensureSel(cur); renderAll(); } });
+
+    // ══════════════════════════════════════════════
+    // LOGIN QUOTES
+    // Edit freely. `by` is the credit shown under the quote.
+    // Several of these circulate widely online under Robin Williams' name but are
+    // hard to source — verify each one, or credit the film, before you publish.
+    // ══════════════════════════════════════════════
+    const QUOTES = [
+      { t: "You're only given a little spark of madness. You mustn't lose it.", by: 'Robin Williams' },
+      { t: 'No matter what people tell you, words and ideas can change the world.', by: 'Robin Williams · Dead Poets Society' },
+      { t: "I used to think that the worst thing in life was to end up alone. It's not. The worst thing in life is to end up with people who make you feel alone.", by: 'Robin Williams' },
+      { t: "You will have bad times, but they will always wake you up to the stuff you weren't paying attention to.", by: 'Robin Williams' },
+      { t: "What's right is what's left if you do everything else wrong.", by: 'Robin Williams' },
+      { t: "Please, don't worry so much. Because in the end, none of us have very long on this Earth. Life is fleeting. And if you're ever distressed, cast your eyes to the summer sky.", by: 'Robin Williams' },
+      { t: 'Make your life spectacular. I know I did.', by: 'Robin Williams' },
+      { t: 'There is still a lot to learn and there is always great stuff out there. Even mistakes can be wonderful.', by: 'Robin Williams' },
+    ];
+    let qIdx = -1;
+    function showQuote(animate) {
+      let n; do { n = Math.floor(Math.random() * QUOTES.length); } while (QUOTES.length > 1 && n === qIdx);
+      qIdx = n;
+      const apply = () => { $('lqText').textContent = '“' + QUOTES[n].t + '”'; $('lqBy').textContent = QUOTES[n].by; $('lq').classList.remove('fade'); };
+      if (!animate) return apply();
+      $('lq').classList.add('fade'); setTimeout(apply, 300);
+    }
+    $('lqBtn').addEventListener('click', () => {
+      const b = $('lqBtn'); b.classList.add('spin'); setTimeout(() => b.classList.remove('spin'), 500); showQuote(true);
+    });
+    showQuote(false);
+
+    restoreSession();
+  </script>
 </body>
+
 </html>

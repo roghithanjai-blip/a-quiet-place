@@ -3649,60 +3649,126 @@
     // ══════════════════════════════════════
 
     const REFLECT_QUESTIONS = [
-      "What part of yourself do you often find yourself explaining away?",
-      "What is something you’ve convinced yourself you don’t need?",
-      "Do you remember who you were before you started holding back?",
-      "Is there a feeling you tend to lean on when something else feels harder to face?",
-      "Is there something you’ve forgiven in others but still hold against yourself?",
-      "Is there a version of yourself you still find yourself thinking about or missing?",
-      "What do you keep almost saying?",
-      "Is there something about yourself you’ve always accepted, but never really questioned?",
-      "Is there something about yourself you hope others don’t notice?",
-      "Is there something in your life you’ve been unsure about staying in?",
-      "Is there something you once wanted that you no longer allow yourself to think about?",
-      "Do you feel like the life you're building reflects what you truly want?",
-      "Is there something you might begin, even without feeling fully ready?",
-      "Is there something you’ve been putting off because starting it feels significant?",
-      "What are you pretending is fine?",
-      "Is there something you keep returning to, even if it takes something from you?",
-      "What might feel different if you didn’t have to earn everything first?",
-      "What is the smallest version of a dream you've allowed yourself to keep?",
-      "Who have you never properly said goodbye to?",
-      "Is there someone you're still waiting to hear something from — even though you know it's not coming?",
-      "Who taught you that love comes with conditions, and do you still believe them?",
-      "Who do you miss in a way you haven't admitted to anyone?",
-      "Do you ever think about moments you wish you had handled differently with someone?",
-      "Who would you call if you let yourself need someone right now?",
-      "Have you ever felt like you had to be less of yourself around someone?",
-      "Do you ever revisit a relationship and see it differently each time?",
-      "Who do you wish had known you better?",
-      "Is there someone you’ve kept a little distance from, even if they matter?",
-      "What do you know now that your younger self desperately needed to hear?",
-      "When did you last feel like yourself — fully, without effort?",
-      "What has changed in you that you haven't acknowledged out loud?",
-      "Is there a chapter of your life you haven't grieved properly?",
-      "What are you still carrying from something that ended a long time ago?",
-      "What part of your past are you still trying to make sense of?",
-      "Is there a version of your life you let go of that still visits you sometimes?",
-      "When did you stop believing something you used to believe?",
-      "What season of your life are you in right now, honestly?",
-      "Is there something you want that you haven’t said out loud yet?",
-      "What are you afraid would happen if you let yourself rest?",
-      "What does your body know that your mind hasn't caught up to yet?",
-      "What are you avoiding by staying busy?",
-      "What question are you most afraid to sit with?",
-      "Is there something you've been pretending not to know?",
-      "What does a genuinely good day look like for you?",
-      "What are you hungry for that has nothing to do with food, or money, or success?",
-      "What would you say to yourself right now if you were being completely honest?",
-      "What do you believe that you've never said out loud?",
-      "What loss changed the way you see things?",
-      "What do you keep coming back to, no matter how far you wander from it?",
-      "Is there something you've been through that you haven't yet decided what it means?",
-      "What would make you feel like your life had mattered — not to the world, just to you?",
-      "Is there something you do out of habit without really noticing?",
-      "Is there something a difficult experience may have changed in you?",
-      "What would you do differently if no one was watching, and no one would ever know?"
+      // how have you been, really
+      "Describe the last hour of yesterday, only what you did and what was around you.",
+      "What have your hands been doing lately when nobody is asking anything of them?",
+      "If the past few weeks were a room, what is in it, and where are you standing?",
+      "What is the weather inside you right now? Report it to someone who can't see it.",
+      "What has been playing in the background of your week: a song, a sound, a silence?",
+      "What have you been carrying this week, in your pockets, your bag, or your head?",
+      "The last time someone asked how you were, what did you say, and what did you want to say instead?",
+      "What do you do to get through the evenings now?",
+
+      // numbness
+      "When did you last stand somewhere and realize you had no idea how long you'd been there?",
+      "When you check inside yourself right now and find nothing, what does the nothing look like?",
+      "What did you do the last time something big happened and you simply kept going?",
+      "What has gone grey in your days that used to have color?",
+
+      // grief
+      "What belonging of theirs, or from that time, do you still keep, and where is it right now?",
+      "Describe the last ordinary day before everything changed, as far as you can remember it.",
+      "What do you still do the way they used to?",
+      "Where were you when it became real, and what was in front of your eyes?",
+      "What have you almost reached for, a phone, a name, a second cup, before remembering?",
+      "What room in your life has been left exactly as it was?",
+      "What time of day do you find yourself standing still?",
+
+      // love
+      "Describe a moment with someone when you didn't want time to move. What was in the room?",
+      "What do you do for someone that you have never told them about?",
+      "Whose handwriting would you know anywhere, and where do you keep it?",
+      "What small thing about them can you still see when you close your eyes?",
+      "Whose walk, laugh, or footsteps could you pick out of any crowd?",
+      "What would you give up without stopping to think, and for whom?",
+
+      // anger
+      "What did you say, or almost say, with your jaw closed?",
+      "Which conversation is still running in your head while your body does other things?",
+      "What would you say if you knew nothing would come of it, and to whom?",
+      "What have you been gripping lately: a wheel, a pen, a sentence?",
+      "What did you put down too hard recently?",
+
+      // loneliness
+      "Describe the loudest silence you've sat in lately.",
+      "Who did you last want to message and didn't, and how did the message read in your head?",
+      "What do you do with the empty side of the table, the bed, or the car seat?",
+      "When did you last speak out loud to no one, and what did you say?",
+      "In a room full of people, where does your gaze go?",
+      "What do you hope to see when you pick up your phone?",
+
+      // betrayal
+      "Where were you standing when you found out, and what did you do with your hands?",
+      "What did you believe about someone that you no longer do, and what was the last thing holding it up?",
+      "What do you check, lock, or double-check now that you didn't before?",
+      "What would you ask them if they had to answer in one honest breath?",
+      "What have you stopped handing over to people?",
+
+      // kindness and tenderness
+      "What did someone do for you that you didn't know how to receive?",
+      "Describe something small a person did that stayed with you longer than it should have.",
+      "What have you done for someone that cost you something and that no one noticed?",
+      "Who stayed after seeing the worst of you, and what were they doing when you noticed they hadn't left?",
+
+      // wonder
+      "Describe the last thing you stopped to look at.",
+      "What did you see, hear, or smell recently that took you somewhere else for a second?",
+      "What have you seen only once and still think about?",
+      "What did you watch for a long time as a child, without anyone telling you to stop?",
+
+      // sane, insane, and the strange
+      "What thought have you had lately that you wouldn't say out loud in case it sounded strange?",
+      "What did you do recently that you couldn't explain to someone watching?",
+      "What does your head sound like when the house goes silent?",
+      "Where does your mind go when it has nowhere to be?",
+      "What were you completely certain of a year ago that you now can't picture yourself believing?",
+
+      // shame, guilt, regret
+      "What do you avoid walking past, looking up, or driving by?",
+      "If you could stand in the doorway of one past moment and say a single sentence to the person in the room, which moment, and what sentence?",
+      "What have you never told anyone, and where does it sit in your body?",
+
+      // fear and anxiety
+      "What do you check before you sleep?",
+      "What does your body do at 3 a.m. while your mind is trying to rest?",
+      "What do you picture waiting at the end of the street before you reach it?",
+
+      // longing and nostalgia
+      "What smell, song, or street takes you back, and how far?",
+      "What would you walk back into for one afternoon, if you could?",
+      "Whose voice from the next room do you still remember?",
+
+      // relief and peace
+      "When did you last put something down and notice how light your arms were?",
+      "Describe a minute recently when nothing was asked of you.",
+
+      // hope
+      "What are you still doing, quietly, as if it will work out?",
+      "What did you plant, start, or leave a light on for?",
+
+      // joy
+      "Describe the last time you laughed so hard you couldn't finish the sentence.",
+      "What were you doing the last time you forgot to check the time?",
+
+      // pride and being seen
+      "When did someone last look at you and really see what you'd done?",
+      "What have you carried through that no one around you knows about?",
+
+      // the body
+      "What shape, weight, and temperature does the thing in the middle of you have right now?",
+      "If what you've been carrying had a color, a texture, and a sound, what would they be?",
+      "Which part of your body has been holding the week, and what does it want to do?",
+      "When someone says a name you've been avoiding, what does your chest do?",
+
+      // seen from the outside
+      "If someone watched you for a day without hearing you speak, what would they conclude about you?",
+      "What would your closest friend say they've noticed about you lately that you haven't mentioned?",
+      "If a stranger sat beside you on a bench, what would they see in how you hold yourself?",
+      "If your reflection in the window at night could speak, what would it ask you?",
+
+      // in their own images
+      "Lately has been like what? And what kind of that is it?",
+      "What is the thing you keep walking around inside you, and what do you see when you finally walk up to it?"
     ];
 
     let reflectCurrentQuestion = '';
