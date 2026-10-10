@@ -1817,6 +1817,7 @@
       $('login').hidden = true; $('app').hidden = false;
       $('uName').textContent = u.username; $('uRole').textContent = ROLE[u.tier]; $('uRoleM').textContent = ROLE[u.tier];
       $('logBtn').hidden = !isAdmin(); $('logBtnM').hidden = !isAdmin();
+      $('loginLogBtn').hidden = !isAdmin(); $('loginLogBtnM').hidden = !isAdmin();
       renderNav(); renderAll();
       ORDER.forEach(loadSection);
     }
