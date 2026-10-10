@@ -1607,7 +1607,7 @@
               <path d="M12 8v4l3 2" />
               <circle cx="12" cy="12" r="9" />
             </svg></button>
-          <button class="icon-btn" data-act="openLoginLog" title="Login Log" hidden><svg class="i"
+          <button class="icon-btn" id="loginLogBtnM" data-act="openLoginLog" title="Login Log" hidden><svg class="i"
               viewBox="0 0 24 24">
               <path d="M14 2v2h-4v20h4V2h4V2zm-6 17c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" />
             </svg></button>
@@ -1805,7 +1805,11 @@
       const res = await authenticate($('u').value.trim().toLowerCase(), $('p').value);
       if (!res) { $('loginError').hidden = false; return; }
       sessionStorage.setItem('adminUser', res.username);
-      await fetch(`/api/admin?action=record_login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: res.username }) });
+      try {
+        await fetch(`/api/admin?action=record_login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: res.username }) });
+      } catch (err) {
+        console.error('Failed to record login:', err);
+      }
       startApp(res);
     });
     function restoreSession() {
@@ -1816,8 +1820,10 @@
       user = u;
       $('login').hidden = true; $('app').hidden = false;
       $('uName').textContent = u.username; $('uRole').textContent = ROLE[u.tier]; $('uRoleM').textContent = ROLE[u.tier];
-      $('logBtn').hidden = !isAdmin(); $('logBtnM').hidden = !isAdmin();
-      $('loginLogBtn').hidden = !isAdmin(); $('loginLogBtnM').hidden = !isAdmin();
+      if ($('logBtn')) $('logBtn').hidden = !isAdmin();
+      if ($('logBtnM')) $('logBtnM').hidden = !isAdmin();
+      if ($('loginLogBtn')) $('loginLogBtn').hidden = !isAdmin();
+      if ($('loginLogBtnM')) $('loginLogBtnM').hidden = !isAdmin();
       renderNav(); renderAll();
       ORDER.forEach(loadSection);
     }
@@ -2153,10 +2159,10 @@
     // ══════════════════════════════════════════════
     // LOGIN LOG
     // ══════════════════════════════════════════════
-    let LOGIN = { entries: [], state: 'loading' };
+    let LOGIN = { entries: [], action: 'all', user: 'all', state: 'loading' };
     async function openLoginLog() {
       if (!isAdmin()) return;
-      $('loginLogWrap').classList.add('on'); LOGIN = { entries: [], state: 'loading' }; renderLoginLog();
+      $('loginLogWrap').classList.add('on'); LOGIN = { entries: [], action: 'all', user: 'all', state: 'loading' }; renderLoginLog();
       try { const d = await getJSON('/api/admin?action=login_logs'); LOGIN.entries = d.logs || []; LOGIN.state = 'ok'; } catch (e) { console.error(e); LOGIN.state = 'error'; }
       renderLoginLog();
     }
@@ -2175,12 +2181,12 @@
     }
     function renderLoginLog() {
       const users = [...new Set(LOGIN.entries.map(e => e.username).filter(Boolean))].sort();
-      $('loginLogChips').innerHTML = ['all'].map(a => `<button class="fchip ${LOGIN.state === 'all' ? 'on' : ''}" data-act="loginLogAction" data-a="${a}">${a}</button>`).join('') +
+      $('loginLogChips').innerHTML = ['all'].map(a => `<button class="fchip ${LOGIN.action === a ? 'on' : ''}" data-act="loginLogAction" data-a="${a}">${a}</button>`).join('') +
         `<select data-act="loginLogUser" aria-label="Filter by user"><option value="all">All users</option>${users.map(u => `<option value="${esc(u)}" ${LOGIN.user === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}</select>`;
       const body = $('loginLogBody');
       if (LOGIN.state === 'loading') { body.innerHTML = '<div class="log-empty">Loading…</div>'; return; }
       if (LOGIN.state === 'error') { body.innerHTML = '<div class="log-empty">Could not load log.</div>'; return; }
-      const rows = LOGIN.entries.filter(e => (LOGIN.action === 'all' || e.action === LOGIN.action) && (LOGIN.user === 'all' || e.username === LOGIN.user));
+      const rows = LOGIN.entries.filter(e => (LOGIN.user === 'all' || e.username === LOGIN.user));
       if (!rows.length) { body.innerHTML = `<div class="log-empty">${LOGIN.entries.length ? 'Nothing matches these filters.' : 'No logins yet.'}</div>`; return; }
       body.innerHTML = rows.map(e => `<div class="log-entry"><span class="log-time">${esc(formatDate(e.logged_in_at))}</span><span class="log-user">${esc(e.username)}</span><span class="log-action">login</span></div>`).join('');
     }
@@ -2232,7 +2238,7 @@
 
     document.addEventListener('keydown', e => {
       if (!user || e.metaKey || e.ctrlKey || e.altKey) return;
-      const modalOpen = $('dlOverlay').classList.contains('on') || $('delOverlay').classList.contains('on') || $('logWrap').classList.contains('on');
+      const modalOpen = $('dlOverlay').classList.contains('on') || $('delOverlay').classList.contains('on') || $('logWrap').classList.contains('on') || $('loginLogWrap').classList.contains('on');
       if (e.key === 'Escape') {
         if (modalOpen) { closeAllOverlays(); return; }
         if (document.activeElement && document.activeElement.id === 'q') { document.activeElement.blur(); return; }

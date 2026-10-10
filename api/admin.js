@@ -58,7 +58,6 @@ export default async function handler(req, res) {
   // POST /api/admin?action=record_login — record a login
   if (action === 'record_login') {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-    if (req.user?.tier < 3) return res.status(403).json({ error: 'Forbidden' })
     const { username } = req.body
     if (!username) return res.status(400).json({ error: 'Missing username' })
     const { error } = await supabase.from('login_log').insert([{ username }])
