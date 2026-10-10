@@ -1581,6 +1581,9 @@
             <path d="M12 8v4l3 2" />
             <circle cx="12" cy="12" r="9" />
           </svg>Activity Log</button>
+        <button class="side-foot-link" id="loginLogBtn" data-act="openLoginLog" hidden><svg class="i" viewBox="0 0 24 24">
+            <path d="M14 2v2h-4v20h4V2h4V2zm-6 17c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" />
+          </svg>Login Log</button>
         <div class="side-user">
           <div>
             <div class="side-user-name" id="uName"></div>
@@ -1603,6 +1606,10 @@
               viewBox="0 0 24 24">
               <path d="M12 8v4l3 2" />
               <circle cx="12" cy="12" r="9" />
+            </svg></button>
+          <button class="icon-btn" data-act="openLoginLog" title="Login Log" hidden><svg class="i"
+              viewBox="0 0 24 24">
+              <path d="M14 2v2h-4v20h4V2h4V2zm-6 17c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" />
             </svg></button>
           <button class="icon-btn" data-act="logout" title="Log out"><svg class="i" viewBox="0 0 24 24">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
@@ -1669,6 +1676,23 @@
         <div class="chips" id="logChips"></div>
       </div>
       <div class="drawer-body" id="logBody"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN LOG DRAWER -->
+  <div class="drawer-wrap" id="loginLogWrap">
+    <div class="drawer-bg" data-act="closeLoginLog"></div>
+    <div class="drawer">
+      <div class="drawer-head">
+        <div class="drawer-top">
+          <div class="drawer-title">Login Log</div><button class="icon-btn" data-act="closeLoginLog"
+            aria-label="Close"><svg class="i" viewBox="0 0 24 24">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg></button>
+        </div>
+        <div class="chips" id="loginLogChips"></div>
+      </div>
+      <div class="drawer-body" id="loginLogBody"></div>
     </div>
   </div>
 
@@ -1781,6 +1805,7 @@
       const res = await authenticate($('u').value.trim().toLowerCase(), $('p').value);
       if (!res) { $('loginError').hidden = false; return; }
       sessionStorage.setItem('adminUser', res.username);
+      await fetch(`/api/admin?action=record_login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: res.username }) });
       startApp(res);
     });
     function restoreSession() {
@@ -2123,6 +2148,17 @@
       try { const d = await getJSON('/api/admin?action=log'); LOG.entries = d.logs || []; LOG.state = 'ok'; } catch (e) { console.error(e); LOG.state = 'error'; }
       renderLog();
     }
+
+    // ══════════════════════════════════════════════
+    // LOGIN LOG
+    // ══════════════════════════════════════════════
+    let LOGIN = { entries: [], state: 'loading' };
+    async function openLoginLog() {
+      if (!isAdmin()) return;
+      $('loginLogWrap').classList.add('on'); LOGIN = { entries: [], state: 'loading' }; renderLoginLog();
+      try { const d = await getJSON('/api/admin?action=login_logs'); LOGIN.entries = d.logs || []; LOGIN.state = 'ok'; } catch (e) { console.error(e); LOGIN.state = 'error'; }
+      renderLoginLog();
+    }
     function renderLog() {
       const users = [...new Set(LOG.entries.map(e => e.username).filter(Boolean))].sort();
       $('logChips').innerHTML = ['all', 'approved', 'rejected', 'pending', 'deleted'].map(a => `<button class="fchip ${LOG.action === a ? 'on' : ''}" data-act="logAction" data-a="${a}">${a}</button>`).join('') +
@@ -2136,7 +2172,18 @@
       body.innerHTML = rows.map(e => `<div class="log-entry"><span class="log-time">${esc(formatDate(e.created_at))}</span><span class="log-user">${esc(e.username)}</span>
     <span class="log-action ${known.includes(e.action) ? e.action : 'other'}">${esc(e.action)}</span><span class="log-note">${esc(e.note || '')}</span></div>`).join('');
     }
-    function closeAllOverlays() { closeDl(); $('delOverlay').classList.remove('on'); $('logWrap').classList.remove('on'); delTarget = null; }
+    function renderLoginLog() {
+      const users = [...new Set(LOGIN.entries.map(e => e.username).filter(Boolean))].sort();
+      $('loginLogChips').innerHTML = ['all'].map(a => `<button class="fchip ${LOGIN.state === 'all' ? 'on' : ''}" data-act="loginLogAction" data-a="${a}">${a}</button>`).join('') +
+        `<select data-act="loginLogUser" aria-label="Filter by user"><option value="all">All users</option>${users.map(u => `<option value="${esc(u)}" ${LOGIN.user === u ? 'selected' : ''}>${esc(u)}</option>`).join('')}</select>`;
+      const body = $('loginLogBody');
+      if (LOGIN.state === 'loading') { body.innerHTML = '<div class="log-empty">Loading…</div>'; return; }
+      if (LOGIN.state === 'error') { body.innerHTML = '<div class="log-empty">Could not load log.</div>'; return; }
+      const rows = LOGIN.entries.filter(e => (LOGIN.action === 'all' || e.action === LOGIN.action) && (LOGIN.user === 'all' || e.username === LOGIN.user));
+      if (!rows.length) { body.innerHTML = `<div class="log-empty">${LOGIN.entries.length ? 'Nothing matches these filters.' : 'No logins yet.'}</div>`; return; }
+      body.innerHTML = rows.map(e => `<div class="log-entry"><span class="log-time">${esc(formatDate(e.logged_in_at))}</span><span class="log-user">${esc(e.username)}</span><span class="log-action">login</span></div>`).join('');
+    }
+    function closeAllOverlays() { closeDl(); $('delOverlay').classList.remove('on'); $('logWrap').classList.remove('on'); $('loginLogWrap').classList.remove('on'); delTarget = null; }
 
     // ══════════════════════════════════════════════
     // EVENTS
@@ -2167,11 +2214,14 @@
         case 'doDel': doDelete(); break;
         case 'openLog': openLog(); break;
         case 'closeLog': $('logWrap').classList.remove('on'); break;
+        case 'openLoginLog': openLoginLog(); break;
+        case 'closeLoginLog': $('loginLogWrap').classList.remove('on'); break;
         case 'logAction': LOG.action = t.dataset.a; renderLog(); break;
+        case 'loginLogAction': LOGIN.action = t.dataset.a; renderLoginLog(); break;
         case 'logout': logout(); break;
       }
     });
-    document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.act === 'logUser') { LOG.user = e.target.value; renderLog(); } });
+    document.addEventListener('change', e => { if (e.target.dataset && e.target.dataset.act === 'logUser') { LOG.user = e.target.value; renderLog(); } if (e.target.dataset && e.target.dataset.act === 'loginLogUser') { LOGIN.user = e.target.value; renderLoginLog(); } });
     document.addEventListener('input', e => {
       if (e.target.id !== 'q') return;
       S[cur].q = e.target.value; ensureSel(cur); renderList(); renderDetail();

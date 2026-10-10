@@ -55,6 +55,17 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true })
   }
 
+  // POST /api/admin?action=record_login — record a login
+  if (action === 'record_login') {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
+    if (req.user?.tier < 3) return res.status(403).json({ error: 'Forbidden' })
+    const { username } = req.body
+    if (!username) return res.status(400).json({ error: 'Missing username' })
+    const { error } = await supabase.from('login_log').insert([{ username }])
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(200).json({ ok: true })
+  }
+
   // GET /api/admin?action=suggestions — fetch all suggestions
   // DELETE /api/admin?action=suggestions — delete a suggestion
   if (action === 'suggestions') {
@@ -97,11 +108,27 @@ export default async function handler(req, res) {
   // GET /api/admin?action=log
   if (action === 'log') {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+    if (req.user?.tier < 3) return res.status(403).json({ error: 'Forbidden' })
 
     const { data, error } = await supabase
       .from('admin_log')
       .select('*')
       .order('created_at', { ascending: false })
+      .limit(200)
+
+    if (error) return res.status(500).json({ error: error.message })
+    return res.status(200).json({ logs: data || [] })
+  }
+
+  // GET /api/admin?action=login_logs — fetch login logs (tier 3 admin only)
+  if (action === 'login_logs') {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
+    if (req.user?.tier < 3) return res.status(403).json({ error: 'Forbidden' })
+
+    const { data, error } = await supabase
+      .from('login_log')
+      .select('*')
+      .order('logged_in_at', { ascending: false })
       .limit(200)
 
     if (error) return res.status(500).json({ error: error.message })
